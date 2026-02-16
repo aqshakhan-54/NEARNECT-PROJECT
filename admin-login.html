@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - NearNect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --secondary: #E91E63;
+      --bg: #f8f9fa;
+      --text: #2d3436;
+      --border: #e9ecef;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, rgba(108,92,231,0.15), rgba(233,30,99,0.18));
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .auth-container {
+      max-width: 400px;
+      width: 100%;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.13);
+      overflow: hidden;
+      position: relative;
+    }
+    .auth-header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .auth-header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+    .auth-header p { font-size: 0.95rem; opacity: 0.92; }
+    .auth-content { padding: 28px; }
+    .form-group { margin-bottom: 22px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+    .input-group { position: relative; }
+    .input-group i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6c757d;
+      font-size: 1rem;
+    }
+    .form-input {
+      width: 100%;
+      padding: 15px 15px 15px 45px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-size: 1rem;
+      background: #f8f9fa;
+      transition: border-color 0.3s;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: white;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #6c757d;
+      font-size: 1rem;
+    }
+    .auth-button {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: box-shadow 0.3s;
+    }
+    .auth-button:hover {
+      box-shadow: 0 8px 24px rgba(108,92,231,0.24);
+      transform: translateY(-2px);
+    }
+    .error-msg {
+      color: #e17055;
+      margin-bottom: 14px;
+      font-weight: 600;
+      text-align: center;
+    }
+    .to-dashboard {
+      text-align: center;
+      margin-top: 8px;
+      color: #6c757d;
+      font-size: 0.96rem;
+    }
+    .to-dashboard a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .to-dashboard a:hover { text-decoration: underline; }
+    .back-to-home {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: #fff;
+      text-decoration: none;
+      font-size: 1.15rem;
+      transition: all 0.2s;
+    }
+    .back-to-home:hover { transform: scale(1.08); }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <a href="index.html" class="back-to-home">
+      <i class="fas fa-arrow-left"></i>
+    </a>
+    <div class="auth-header">
+      <h1>Admin Login</h1>
+      <p>Log in to access the NearNect admin dashboard</p>
+    </div>
+    <div class="auth-content">
+      <form id="adminLoginForm">
+        <div class="form-group">
+          <label for="adminEmail">Admin Email</label>
+          <div class="input-group">
+            <i class="fas fa-user-shield"></i>
+            <input type="email" id="adminEmail" class="form-input" placeholder="Enter admin email" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="adminPassword">Password</label>
+          <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="adminPassword" class="form-input" placeholder="Enter password" required>
+            <i class="fas fa-eye password-toggle" onclick="togglePassword()"></i>
+          </div>
+        </div>
+        <div id="error-msg" class="error-msg" style="display:none;"></div>
+        <button type="submit" class="auth-button"><i class="fas fa-sign-in-alt"></i> Log In</button>
+      </form>
+      <div class="to-dashboard">
+        <a href="index.html"><i class="fas fa-home"></i> Back to Home</a>
+      </div>
+    </div>
+    <div style="text-align:center; color:#6c757d; margin-bottom:10px; font-size:0.95rem;">&copy; 2025 NearNect | All Rights Reserved.</div>
+  </div>
+
+  <script>
+    function togglePassword() {
+      const input = document.getElementById('adminPassword');
+      const icon = input.nextElementSibling;
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+
+    document.getElementById('adminLoginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const email = document.getElementById('adminEmail').value.trim();
+      const pass = document.getElementById('adminPassword').value.trim();
+      // Dummy admin credentials, project demo ke liye (API se connect karna ho toh yahan call karo)
+      if (email === "admin@nearnect.com" && pass === "admin@123") {
+        window.location.href = "admin-dashboard.html";
+      } else {
+        const errorDiv = document.getElementById('error-msg');
+        errorDiv.style.display = "block";
+        errorDiv.textContent = "Incorrect email or password.";
+      }
+    });
+  </script>
+</body>
+</html>

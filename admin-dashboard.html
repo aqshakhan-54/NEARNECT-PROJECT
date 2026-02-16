@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NearNect Admin Dashboard</title>
+  <meta name="description" content="Admin dashboard for NearNect - Manage users, services, transactions, and more">
+  <meta name="theme-color" content="#6c5ce7">
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --secondary: #E91E63;
+      --success: #00b894;
+      --warning: #fdcb6e;
+      --danger: #e17055;
+      --info: #74b9ff;
+      --dark: #2d3436;
+      --light: #ddd6fe;
+      --bg: #f8f9fa;
+      --text: #2d3436;
+      --border: #e9ecef;
+      --shadow: 0 4px 6px rgba(0,0,0,0.1);
+      --radius: 12px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .admin-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 20px 0;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar-header {
+      padding: 0 20px 30px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .sidebar-header h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .sidebar-header p {
+      opacity: 0.8;
+      font-size: 0.9rem;
+    }
+
+    .sidebar-nav {
+      padding: 20px 0;
+    }
+
+    .nav-item {
+      display: block;
+      padding: 15px 20px;
+      color: white;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      background: rgba(255,255,255,0.1);
+      border-left-color: white;
+      transform: translateX(5px);
+    }
+
+    .nav-item i {
+      margin-right: 12px;
+      width: 20px;
+      text-align: center;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 280px;
+      padding: 20px;
+    }
+
+    .top-bar {
+      background: white;
+      padding: 20px 30px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .top-bar h2 {
+      color: var(--primary);
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .admin-profile {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .admin-avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+
+    /* Dashboard Grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 25px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .stat-title {
+      font-size: 0.9rem;
+      color: #6c757d;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .stat-change {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .stat-change.positive {
+      color: var(--success);
+    }
+
+    .stat-change.negative {
+      color: var(--danger);
+    }
+
+    /* Content Sections */
+    .content-section {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 25px 30px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .section-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-warning {
+      background: var(--warning);
+      color: white;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .admin-table th,
+    .admin-table td {
+      padding: 15px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .admin-table th {
+      background: #f8f9fa;
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .admin-table tr:hover {
+      background: #f8f9fa;
+    }
+
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-active {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-suspended {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .status-completed {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+
+    /* Charts Container */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .chart-container {
+      background: white;
+      padding: 25px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .chart-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .quick-action-card {
+      background: white;
+      padding: 25px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .quick-action-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .quick-action-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      margin: 0 auto 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: white;
+    }
+
+    .quick-action-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .quick-action-desc {
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+
+    /* Notifications */
+    .notification-item {
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .notification-item:last-child {
+      border-bottom: none;
+    }
+
+    .notification-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: white;
+    }
+
+    .notification-content {
+      flex: 1;
+    }
+
+    .notification-title {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .notification-time {
+      font-size: 0.8rem;
+      color: #6c757d;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 15px;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-actions {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      }
+    }
+
+    /* Hidden sections */
+    .section-content {
+      display: none;
+    }
+
+    .section-content.active {
+      display: block;
+    }
+
+    /* Loading states */
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Toast notifications */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--success);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      z-index: 1000;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.error {
+      background: var(--danger);
+    }
+
+    .toast.warning {
+      background: var(--warning);
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h1>NearNect</h1>
+        <p>Admin Dashboard</p>
+      </div>
+      
+      <div class="sidebar-nav">
+        <a href="#" class="nav-item active" data-section="dashboard">
+          <i>📊</i> Dashboard Overview
+        </a>
+        <a href="#" class="nav-item" data-section="users">
+          <i>👥</i> User Management
+        </a>
+        <a href="#" class="nav-item" data-section="services">
+          <i>🛠️</i> Service Management
+        </a>
+        <a href="#" class="nav-item" data-section="transactions">
+          <i>💰</i> Transactions
+        </a>
+        <a href="#" class="nav-item" data-section="content">
+          <i>📝</i> Content Moderation
+        </a>
+        <a href="#" class="nav-item" data-section="analytics">
+          <i>📈</i> Analytics & Reports
+        </a>
+        <a href="#" class="nav-item" data-section="notifications">
+          <i>🔔</i> Notifications
+        </a>
+        <a href="#" class="nav-item" data-section="support">
+          <i>🎫</i> Support Tickets
+        </a>
+        <a href="#" class="nav-item" data-section="settings">
+          <i>⚙️</i> Settings
+        </a>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <div class="top-bar">
+        <h2 id="page-title">Dashboard Overview</h2>
+        <div class="admin-profile">
+          <div class="admin-avatar">AK</div>
+          <div>
+            <div style="font-weight: 600;">Admin User</div>
+            <div style="font-size: 0.8rem; opacity: 0.7;">Administrator</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Overview Section -->
+      <div id="dashboard" class="section-content active">
+        <!-- Stats Cards -->
+        <div class="dashboard-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-title">Total Users</div>
+              <div class="stat-icon" style="background: var(--primary);">👥</div>
+            </div>
+            <div class="stat-value">0</div>
+            <div class="stat-change positive">+12% from last month</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-title">Service Providers</div>
+              <div class="stat-icon" style="background: var(--success);">🛠️</div>
+            </div>
+            <div class="stat-value">0</div>
+            <div class="stat-change positive">+8% from last month</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-title">Active Bookings</div>
+              <div class="stat-icon" style="background: var(--info);">📅</div>
+            </div>
+            <div class="stat-value">0</div>
+            <div class="stat-change positive">+15% from last month</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-title">Revenue</div>
+              <div class="stat-icon" style="background: var(--warning);">💰</div>
+            </div>
+            <div class="stat-value">₹0</div>
+            <div class="stat-change positive">+22% from last month</div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+          <div class="chart-container">
+            <div class="chart-title">Revenue Trend</div>
+            <div style="height: 300px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d;">
+              📊 Chart will be rendered here
+            </div>
+          </div>
+          
+          <div class="chart-container">
+            <div class="chart-title">Service Categories</div>
+            <div style="height: 300px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d;">
+              🥧 Pie chart will be rendered here
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="content-section">
+          <div class="section-header">
+            <div class="section-title">Quick Actions</div>
+          </div>
+          <div style="padding: 25px;">
+            <div class="quick-actions">
+              <div class="quick-action-card" onclick="showSection('users')">
+                <div class="quick-action-icon" style="background: var(--primary);">👥</div>
+                <div class="quick-action-title">Manage Users</div>
+                <div class="quick-action-desc">Approve or suspend users</div>
+              </div>
+              
+              <div class="quick-action-card" onclick="showSection('services')">
+                <div class="quick-action-icon" style="background: var(--success);">🛠️</div>
+                <div class="quick-action-title">Manage Services</div>
+                <div class="quick-action-desc">Add or edit services</div>
+              </div>
+              
+              <div class="quick-action-card" onclick="showSection('support')">
+                <div class="quick-action-icon" style="background: var(--warning);">🎫</div>
+                <div class="quick-action-title">Support Tickets</div>
+                <div class="quick-action-desc">Handle user queries</div>
+              </div>
+              
+              <div class="quick-action-card" onclick="showSection('notifications')">
+                <div class="quick-action-icon" style="background: var(--info);">🔔</div>
+                <div class="quick-action-title">Send Notification</div>
+                <div class="quick-action-desc">Broadcast messages</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="content-section">
+          <div class="section-header">
+            <div class="section-title">Recent Activity</div>
+            <div class="section-actions">
+              <button class="btn btn-primary">View All</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Action</th>
+                  <th>Service</th>
+                  <th>Time</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>John Doe</td>
+                  <td>Booked Service</td>
+                  <td>Plumbing</td>
+                  <td>2 minutes ago</td>
+                  <td><span class="status-badge status-active">Active</span></td>
+                </tr>
+                <tr>
+                  <td>Sarah Wilson</td>
+                  <td>Provider Registration</td>
+                  <td>Electrician</td>
+                  <td>15 minutes ago</td>
+                  <td><span class="status-badge status-pending">Pending</span></td>
+                </tr>
+                <tr>
+                  <td>Mike Johnson</td>
+                  <td>Payment Received</td>
+                  <td>Painting</td>
+                  <td>1 hour ago</td>
+                  <td><span class="status-badge status-completed">Completed</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Management Section -->
+      <div id="users" class="section-content">
+        <div class="content-section">
+          <div class="section-header">
+            <div class="section-title">User Management</div>
+            <div class="section-actions">
+              <button class="btn btn-primary">Add User</button>
+              <button class="btn btn-success">Export Data</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Join Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>#001</td>
+                  <td>John Doe</td>
+                  <td>john@example.com</td>
+                  <td>Customer</td>
+                  <td><span class="status-badge status-active">Active</span></td>
+                  <td>2024-01-15</td>
+                  <td>
+                    <button class="btn btn-warning" style="padding: 5px 10px; font-size: 0.8rem;">Suspend</button>
+                    <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;">Remove</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>#002</td>
+                  <td>Sarah Wilson</td>
+                  <td>sarah@example.com</td>
+                  <td>Provider</td>
+                  <td><span class="status-badge status-pending">Pending</span></td>
+                  <td>2024-01-20</td>
+                  <td>
+                    <button class="btn btn-success" style="padding: 5px 10px; font-size: 0.8rem;">Approve</button>
+                    <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;">Reject</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>#003</td>
+                  <td>Mike Johnson</td>
+                  <td>mike@example.com</td>
+                  <td>Provider</td>
+                  <td><span class="status-badge status-suspended">Suspended</span></td>
+                  <td>2024-01-10</td>
+                  <td>
+                    <button class="btn btn-success" style="padding: 5px 10px; font-size: 0.8rem;">Reactivate</button>
+                    <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;">Remove</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Service Management Section -->
+      <div id="services" class="section-content">
+        <div class="content-section">
+          <div class="section-header">
+            <div class="section-title">Service Management</div>
+            <div class="section-actions">
+              <button class="btn btn-primary">Add Service</button>
+              <button class="btn btn-success">Import Services</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Service ID</th>
+                  <th>Service Name</th>
+                  <th>Category</th>
+                  <th>Providers</th>
+                  <th>Avg Rating</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>#S001</td>
+                  <td>Plumbing Services</td>
+                  <td>Home Repair</td>
+                  <td>45</td>
+                  <td>4.8</td>
+                  <td><span class="status-badge status-active">Active</span></td>
+                  <td>
+                    <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8rem;">Edit</button>
+                    <button class="btn btn-warning" style="padding: 5px 10px; font-size: 0.8rem;">Disable</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>#S002</td>
+                  <td>Electrical Work</td>
+                  <td>Home Repair</td>
+                  <td>32</td>
+                  <td>4.9</td>
+                  <td><span class="status-badge status-active">Active</span></td>
+                  <td>
+                    <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8rem;">Edit</button>
+                    <button class="btn btn-warning" style="padding: 5px 10px; font-size: 0.8rem;">Disable</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>#S003</td>
+                  <td>Home Food Delivery</td>
+                  <td>Food & Dining</td>
+                  <td>28</td>
+                  <td>4.7</td>
+                  <td><span class="status-badge status-active">Active</span></td>
+                  <td>
+                    <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8rem;">Edit</button>
+                    <button class="btn btn-warning" style="padding: 5px 10px; font-size: 0.8rem;">Disable</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transactions Section -->
+      <div id="transactions" class="section-content">
+        <div class="content-section">
+          <div class="section-header">
+            <div class="section-title">Transaction Management</div>
+            <div class="section-actions">
+              <button class="btn btn-success">Export Report</button>
+              <button class="btn btn-primary">Filter</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Transaction ID</th>
+                  <th>Customer</th>
+                  <th>Provider</th>
+                  <th>Service</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>#T001</td>
+                  <td>John Doe</td>
+                  <td>Ali Khan</td>
+                  <td>Plumbing</td>
+                  <td>₹500</td>
+                  <td><span class="status-badge status-completed">Completed</span></td>
+                  <td>2024-01-20</td>
+                  <td>
+                    <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8rem;">View</button>
+                    <button class="btn btn-warning" style="padding: 5px 10px; font-size: 0.8rem;">Refund</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>#T002</td>
+                  <td>Sarah Wilson</td>
+                  <td>Ramesh Kumar</td>
+                  <td>Electrical</td>
+                  <td>₹800</td>
+                  <td><span class="status-badge status-pending">Pending</span></td>
+                  <td>2024-01-21</td>
+                  <td>
+                    <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8rem;">View</button>
+                    <button class="btn btn-success" style="padding: 5px 10px; font-size: 0.8rem;">Approve</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>#T003</td>
+                  <td>Mike Johnson</td>
+                  <td>Priya Sharma</td>
+                  <td>Home Food</td>
+                  <td>₹300</td>
+                  <td><span class="status-badge status-completed">Completed</span></td>
+                  <td>2024-01-19</td>
+                  <td>
+                    <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8rem;">View</button>
+                    <button class="btn btn-warning" style="padding: 5px 10px; font-size: 0.8rem;">Refund</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Moderation Section -->
+      <div id="content" class="section-content">
+        <div class="content-section">
+          <div class="section-header">
+            <div class="section-title">Content Moderation</div>
+            <div class="section-actions">
+              <button class="btn btn-primary">Bulk Actions</button>
+              <button class="btn btn-success">Export Reports</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Content ID</th>
+                  <th>Type</th>
+                  <th>User</th>
+                  <th>Content Preview</th>
+                  <th>Status</th>
+                  <th>Reported</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>#C001</td>
+                  <td>Review</td>
+                  <td>John Doe</td>
+                  <td>"Great service, highly recommended!"</td>
+                  <td><span class="status-badge status-active">Approved</span></td>
+                  <td>No</td>
+                  <td>
+                    <button class="btn btn-warning" style="padding: 5px 10px; font-size: 0.8rem;">Flag</button>
+                    <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;">Remove</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>#C002</td>
+                  <td>Profile</td>
+                  <td>Sarah Wilson</td>
+                  <td>Provider profile image</td>
+                  <td><span class="status-badge status-pending">Pending</span></td>
+                  <td>Yes</td>
+                  <td>
+                    <button class="btn btn-success" style="padding: 5px 10px; font-size: 0.8rem;">Approve</button>
+                    <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;">Reject</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>#C003</td>
+                  <td>Message</td>
+                  <td>Mike Johnson</td>
+                  <td>"Inappropriate message content"</td>
+                  <td><span class="status-badge status-suspended">Flagged</span></td>
+                  <td>Yes</td>
+                  <td>
+                    <button class="btn btn-success" style="padding: 5px 10px; font-size: 0.8rem;">Approve</button>
+                    <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;">Remove</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics Section -->
+      <div id="analytics" class="section-content">
+        <div class="charts-grid">
+          <div class="chart-container">
+            <div class="chart-title">User Growth</div>
+            <div style="height: 300px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d;">
+              📈 User growth chart
+            </div>
+          </div>
+          
+          <div class="chart-container">
+            <div class="chart-title">Revenue Analytics</div>
+            <div style="height: 300px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d;">
+              💰 Revenue analytics
+            </div>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <div class="section-header">
+            <div class="section-title">Detailed Reports</div>
+            <div class="section-actions">
+              <button class="btn btn-primary">Generate Report</button>
+              <button class="btn btn-success">Export Data</button>
+            </div>
+          </div>
+          <div style="padding: 25px;">
+            <div class="dashboard-grid">
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div class="stat-title">Top Service</div>
+                  <div class="stat-icon" style="background: var(--primary);">🛠️</div>
+                </div>
+                <div class="stat-value">Plumbing</div>
+                <div class="stat-change positive">45% of bookings</div>
+              </div>
+              
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div class="stat-title">Peak Hours</div>
+                  <div class="stat-icon" style="background: var(--success);">⏰</div>
+                </div>
+                <div class="stat-value">2-4 PM</div>
+                <div class="stat-change positive">Most active time</div>
+              </div>
+              
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div class="stat-title">Avg Rating</div>
+                  <div class="stat-icon" style="background: var(--warning);">⭐</div>
+                </div>
+                <div class="stat-value">4.7</div>
+                <div class="stat-change positive">Customer satisfaction</div>
+              </div>
+              
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div class="stat-title">Repeat Customers</div>
+                  <div class="stat-icon" style="background: var(--info);">🔄</div>
+                </div>
+                <div class="stat-value">68%</div>
+                <div class="stat-change positive">Customer retention</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications Section -->
+      <div id="notifications" class="section-content">
+        <div class="content-section">
+          <div class="section-header">
+            <div class="section-title">Notification Management</div>
+            <div class="section-actions">
+              <button class="btn btn-primary">Send Notification</button>
+              <button class="btn btn-success">Schedule</button>
+            </div>
+          </div>
+          <div style="padding: 25px;">
+            <div style="margin-bottom: 30px;">
+              <h3 style="margin-bottom: 15px;">Send Broadcast Message</h3>
+              <div style="display: grid; gap: 15px;">
+                <input type="text" placeholder="Notification Title" style="padding: 12px; border: 1px solid var(--border); border-radius: 8px;">
+                <textarea placeholder="Message content..." style="padding: 12px; border: 1px solid var(--border); border-radius: 8px; height: 100px; resize: vertical;"></textarea>
+                <div style="display: flex; gap: 10px;">
+                  <button class="btn btn-primary">Send to All Users</button>
+                  <button class="btn btn-success">Send to Providers</button>
+                  <button class="btn btn-warning">Send to Customers</button>
+                </div>
+              </div>
+            </div>
+            
+            <h3 style="margin-bottom: 15px;">Recent Notifications</h3>
+            <div class="table-container">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Recipients</th>
+                    <th>Sent Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>New Feature Update</td>
+                    <td>Announcement</td>
+                    <td>All Users</td>
+                    <td>2024-01-20</td>
+                    <td><span class="status-badge status-completed">Sent</span></td>
+                    <td>
+                      <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8rem;">View</button>
+                      <button class="btn btn-warning" style="padding: 5px 10px; font-size: 0.8rem;">Resend</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Payment Reminder</td>
+                    <td>Reminder</td>
+                    <td>Providers</td>
+                    <td>2024-01-19</td>
+                    <td><span class="status-badge status-completed">Sent</span></td>
+                    <td>
+                      <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8rem;">View</button>
+                      <button class="btn btn-warning" style="padding: 5px 10px; font-size: 0.8rem;">Resend</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Support Tickets Section -->
+      <div id="support" class="section-content">
+        <div class="content-section">
+          <div class="section-header">
+            <div class="section-title">Support Ticket Management</div>
+            <div class="section-actions">
+              <button class="btn btn-primary">New Ticket</button>
+              <button class="btn btn-success">Export Tickets</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Ticket ID</th>
+                  <th>User</th>
+                  <th>Subject</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>#TK001</td>
+                  <td>John Doe</td>
+                  <td>Payment not received</td>
+                  <td><span style="background: var(--danger); color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem;">High</span></td>
+                  <td><span class="status-badge status-pending">Open</span></td>
+                  <td>2024-01-20</td>
+                  <td>
+                    <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8rem;">View</button>
+                    <button class="btn btn-success" style="padding: 5px 10px; font-size: 0.8rem;">Resolve</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>#TK002</td>
+                  <td>Sarah Wilson</td>
+                  <td>Account verification issue</td>
+                  <td><span style="background: var(--warning); color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem;">Medium</span></td>
+                  <td><span class="status-badge status-active">In Progress</span></td>
+                  <td>2024-01-19</td>
+                  <td>
+                    <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8rem;">View</button>
+                    <button class="btn btn-success" style="padding: 5px 10px; font-size: 0.8rem;">Resolve</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>#TK003</td>
+                  <td>Mike Johnson</td>
+                  <td>Service quality complaint</td>
+                  <td><span style="background: var(--info); color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem;">Low</span></td>
+                  <td><span class="status-badge status-completed">Resolved</span></td>
+                  <td>2024-01-18</td>
+                  <td>
+                    <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8rem;">View</button>
+                    <button class="btn btn-warning" style="padding: 5px 10px; font-size: 0.8rem;">Reopen</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Section -->
+      <div id="settings" class="section-content">
+        <div class="content-section">
+          <div class="section-header">
+            <div class="section-title">System Settings</div>
+            <div class="section-actions">
+              <button class="btn btn-success">Save Changes</button>
+            </div>
+          </div>
+          <div style="padding: 25px;">
+            <div style="display: grid; gap: 25px;">
+              <div>
+                <h3 style="margin-bottom: 15px;">General Settings</h3>
+                <div style="display: grid; gap: 15px;">
+                  <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Site Name</label>
+                    <input type="text" value="NearNect" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                  </div>
+                  <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Commission Rate (%)</label>
+                    <input type="number" value="5" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                  </div>
+                  <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Max Service Radius (KM)</label>
+                    <input type="number" value="10" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 style="margin-bottom: 15px;">Email Settings</h3>
+                <div style="display: grid; gap: 15px;">
+                  <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">SMTP Host</label>
+                    <input type="text" placeholder="smtp.gmail.com" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                  </div>
+                  <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">SMTP Port</label>
+                    <input type="number" placeholder="587" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 style="margin-bottom: 15px;">Security Settings</h3>
+                <div style="display: grid; gap: 15px;">
+                  <div>
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                      <input type="checkbox" checked>
+                      <span>Enable Two-Factor Authentication</span>
+                    </label>
+                  </div>
+                  <div>
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                      <input type="checkbox" checked>
+                      <span>Require Email Verification</span>
+                    </label>
+                  </div>
+                  <div>
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                      <input type="checkbox">
+                      <span>Enable Rate Limiting</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // Navigation functionality
+    function showSection(sectionId) {
+      // Hide all sections
+      document.querySelectorAll('.section-content').forEach(section => {
+        section.classList.remove('active');
+      });
+      
+      // Remove active class from all nav items
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      
+      // Show selected section
+      document.getElementById(sectionId).classList.add('active');
+      
+      // Add active class to clicked nav item
+      document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+      
+      // Update page title
+      const titles = {
+        'dashboard': 'Dashboard Overview',
+        'users': 'User Management',
+        'services': 'Service Management',
+        'transactions': 'Transaction Management',
+        'content': 'Content Moderation',
+        'analytics': 'Analytics & Reports',
+        'notifications': 'Notification Management',
+        'support': 'Support Ticket Management',
+        'settings': 'System Settings'
+      };
+      
+      document.getElementById('page-title').textContent = titles[sectionId] || 'Dashboard';
+      
+      // Show toast notification
+      showToast(`Switched to ${titles[sectionId]}`, 'success');
+    }
+
+    // Toast notification system
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type} show`;
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+          toast.textContent = '';
+        }, 300);
+      }, 3000);
+    }
+
+    // Initialize navigation
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add click listeners to navigation items
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+          e.preventDefault();
+          const sectionId = this.getAttribute('data-section');
+          showSection(sectionId);
+        });
+      });
+
+      // Add click listeners to action buttons
+      document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const action = this.textContent.trim();
+          showToast(`${action} action triggered`, 'success');
+        });
+      });
+
+      // Welcome message
+      setTimeout(() => {
+        showToast('Welcome to NearNect Admin Dashboard!', 'success');
+      }, 1000);
+    });
+
+    // Mobile sidebar toggle
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('open');
+    }
+
+    // Add mobile menu button for smaller screens
+    if (window.innerWidth <= 768) {
+      const topBar = document.querySelector('.top-bar');
+      const menuButton = document.createElement('button');
+      menuButton.innerHTML = '☰';
+      menuButton.style.cssText = 'background: none; border: none; font-size: 1.5rem; cursor: pointer;';
+      menuButton.onclick = toggleSidebar;
+      topBar.insertBefore(menuButton, topBar.firstChild);
+    }
+  </script>
+</body>
+</html>
+

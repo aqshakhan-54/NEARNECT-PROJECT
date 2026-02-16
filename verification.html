@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provider Verification - NearNect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --secondary: #E91E63;
+      --success: #00b894;
+      --warning: #fdcb6e;
+      --danger: #e17055;
+      --info: #74b9ff;
+      --dark: #2d3436;
+      --light: #ddd6fe;
+      --bg: #f8f9fa;
+      --text: #2d3436;
+      --border: #e9ecef;
+      --shadow: 0 4px 6px rgba(0,0,0,0.1);
+      --radius: 12px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, rgba(108,92,231,0.1), rgba(233,30,99,0.1));
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #6c757d;
+      font-size: 1.1rem;
+    }
+
+    .verification-container {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 30px;
+    }
+
+    .verification-form {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 30px;
+    }
+
+    .form-section {
+      margin-bottom: 30px;
+    }
+
+    .form-section h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-section h3 i {
+      color: var(--primary);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .form-group label.required::after {
+      content: ' *';
+      color: var(--danger);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(108,92,231,0.1);
+    }
+
+    .form-textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .file-upload {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 30px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .file-upload:hover {
+      border-color: var(--primary);
+      background: rgba(108,92,231,0.05);
+    }
+
+    .file-upload.dragover {
+      border-color: var(--primary);
+      background: rgba(108,92,231,0.1);
+    }
+
+    .file-upload i {
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .file-upload p {
+      color: #6c757d;
+      margin-bottom: 10px;
+    }
+
+    .file-upload small {
+      color: #6c757d;
+    }
+
+    .file-preview {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    .file-preview i {
+      color: var(--success);
+    }
+
+    .file-preview span {
+      flex: 1;
+      font-size: 0.9rem;
+    }
+
+    .file-preview button {
+      background: var(--danger);
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+    }
+
+    .checkbox-group label {
+      margin: 0;
+      font-weight: 500;
+    }
+
+    .verification-sidebar {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 30px;
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+
+    .verification-status {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .status-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: white;
+    }
+
+    .status-icon.pending {
+      background: var(--warning);
+    }
+
+    .status-icon.verified {
+      background: var(--success);
+    }
+
+    .status-icon.rejected {
+      background: var(--danger);
+    }
+
+    .status-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .status-description {
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+
+    .verification-steps {
+      margin-bottom: 30px;
+    }
+
+    .verification-steps h4 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: var(--text);
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step-item:last-child {
+      border-bottom: none;
+    }
+
+    .step-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      color: white;
+    }
+
+    .step-icon.completed {
+      background: var(--success);
+    }
+
+    .step-icon.pending {
+      background: var(--warning);
+    }
+
+    .step-icon.not-started {
+      background: #6c757d;
+    }
+
+    .step-content {
+      flex: 1;
+    }
+
+    .step-title {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .step-description {
+      font-size: 0.8rem;
+      color: #6c757d;
+    }
+
+    .benefits-section {
+      background: linear-gradient(135deg, rgba(108,92,231,0.1), rgba(233,30,99,0.1));
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+    }
+
+    .benefits-section h4 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: var(--text);
+    }
+
+    .benefit-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .benefit-item i {
+      color: var(--success);
+      font-size: 0.9rem;
+    }
+
+    .benefit-item span {
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(108,92,231,0.4);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn.loading {
+      pointer-events: none;
+    }
+
+    .btn.loading::after {
+      content: '';
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .btn-secondary {
+      background: #f8f9fa;
+      color: var(--text);
+      border: 2px solid var(--border);
+      margin-top: 10px;
+    }
+
+    .btn-secondary:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e9ecef;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #6c757d;
+      margin-bottom: 20px;
+    }
+
+    /* Toast notifications */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--success);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      z-index: 1000;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.error {
+      background: var(--danger);
+    }
+
+    .toast.warning {
+      background: var(--warning);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .verification-container {
+        grid-template-columns: 1fr;
+      }
+
+      .verification-sidebar {
+        order: -1;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+    }
+
+    /* Animation for file upload */
+    .file-upload.uploading {
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+
+    /* Verification badges */
+    .verification-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-verified {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .badge-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .badge-rejected {
+      background: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-shield-alt"></i> Provider Verification</h1>
+      <p>Get verified to build trust and get more bookings</p>
+    </div>
+
+    <div class="verification-container">
+      <!-- Verification Form -->
+      <div class="verification-form">
+        <div class="progress-text">Verification Progress: <span id="progressText">0%</span></div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+        </div>
+
+        <!-- Personal Information -->
+        <div class="form-section">
+          <h3><i class="fas fa-user"></i> Personal Information</h3>
+          
+          <div class="form-group">
+            <label for="fullName" class="required">Full Name</label>
+            <input type="text" id="fullName" class="form-input" placeholder="Enter your full name" required>
+          </div>
+
+          <div class="form-group">
+            <label for="dateOfBirth" class="required">Date of Birth</label>
+            <input type="date" id="dateOfBirth" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label for="phoneNumber" class="required">Phone Number</label>
+            <input type="tel" id="phoneNumber" class="form-input" placeholder="+91 9876543210" required>
+          </div>
+
+          <div class="form-group">
+            <label for="emailAddress" class="required">Email Address</label>
+            <input type="email" id="emailAddress" class="form-input" placeholder="your@email.com" required>
+          </div>
+        </div>
+
+        <!-- Identity Verification -->
+        <div class="form-section">
+          <h3><i class="fas fa-id-card"></i> Identity Verification</h3>
+          
+          <div class="form-group">
+            <label for="idType" class="required">ID Type</label>
+            <select id="idType" class="form-input" required>
+              <option value="">Select ID Type</option>
+              <option value="aadhar">Aadhar Card</option>
+              <option value="pan">PAN Card</option>
+              <option value="driving">Driving License</option>
+              <option value="passport">Passport</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="idNumber" class="required">ID Number</label>
+            <input type="text" id="idNumber" class="form-input" placeholder="Enter your ID number" required>
+          </div>
+
+          <div class="form-group">
+            <label class="required">Upload ID Document</label>
+            <div class="file-upload" id="idUpload" onclick="document.getElementById('idFile').click()">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <p>Click to upload or drag and drop</p>
+              <small>PNG, JPG, PDF up to 10MB</small>
+              <input type="file" id="idFile" accept="image/*,.pdf" style="display: none;">
+            </div>
+            <div id="idPreview" class="file-preview" style="display: none;">
+              <i class="fas fa-file"></i>
+              <span id="idFileName"></span>
+              <button onclick="removeFile('idFile')">Remove</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Professional Information -->
+        <div class="form-section">
+          <h3><i class="fas fa-briefcase"></i> Professional Information</h3>
+          
+          <div class="form-group">
+            <label for="serviceCategory" class="required">Service Category</label>
+            <select id="serviceCategory" class="form-input" required>
+              <option value="">Select Service Category</option>
+              <option value="plumber">Plumber</option>
+              <option value="electrician">Electrician</option>
+              <option value="painter">Painter</option>
+              <option value="mechanic">Mechanic</option>
+              <option value="home food">Home Food</option>
+              <option value="beauty">Beauty Expert</option>
+              <option value="carpenter">Carpenter</option>
+              <option value="tutor">Tutor</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="experience" class="required">Years of Experience</label>
+            <select id="experience" class="form-input" required>
+              <option value="">Select Experience</option>
+              <option value="0-1">0-1 years</option>
+              <option value="1-3">1-3 years</option>
+              <option value="3-5">3-5 years</option>
+              <option value="5-10">5-10 years</option>
+              <option value="10+">10+ years</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="certifications">Certifications (Optional)</label>
+            <textarea id="certifications" class="form-input form-textarea" placeholder="List any relevant certifications or training"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="required">Upload Work Samples</label>
+            <div class="file-upload" id="workUpload" onclick="document.getElementById('workFile').click()">
+              <i class="fas fa-images"></i>
+              <p>Upload photos of your work</p>
+              <small>PNG, JPG up to 5MB each</small>
+              <input type="file" id="workFile" accept="image/*" multiple style="display: none;">
+            </div>
+            <div id="workPreview" class="file-preview" style="display: none;">
+              <i class="fas fa-images"></i>
+              <span id="workFileName"></span>
+              <button onclick="removeFile('workFile')">Remove</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Address Verification -->
+        <div class="form-section">
+          <h3><i class="fas fa-map-marker-alt"></i> Address Verification</h3>
+          
+          <div class="form-group">
+            <label for="address" class="required">Complete Address</label>
+            <textarea id="address" class="form-input form-textarea" placeholder="Enter your complete address" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="city" class="required">City</label>
+            <input type="text" id="city" class="form-input" placeholder="Enter your city" required>
+          </div>
+
+          <div class="form-group">
+            <label for="pincode" class="required">Pincode</label>
+            <input type="text" id="pincode" class="form-input" placeholder="Enter your pincode" required>
+          </div>
+
+          <div class="form-group">
+            <label class="required">Upload Address Proof</label>
+            <div class="file-upload" id="addressUpload" onclick="document.getElementById('addressFile').click()">
+              <i class="fas fa-file-alt"></i>
+              <p>Upload utility bill or bank statement</p>
+              <small>PNG, JPG, PDF up to 10MB</small>
+              <input type="file" id="addressFile" accept="image/*,.pdf" style="display: none;">
+            </div>
+            <div id="addressPreview" class="file-preview" style="display: none;">
+              <i class="fas fa-file"></i>
+              <span id="addressFileName"></span>
+              <button onclick="removeFile('addressFile')">Remove</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Terms and Conditions -->
+        <div class="form-section">
+          <h3><i class="fas fa-file-contract"></i> Terms and Conditions</h3>
+          
+          <div class="checkbox-group">
+            <input type="checkbox" id="agreeTerms" required>
+            <label for="agreeTerms">I agree to the <a href="#" style="color: var(--primary);">Terms of Service</a> and <a href="#" style="color: var(--primary);">Privacy Policy</a></label>
+          </div>
+
+          <div class="checkbox-group">
+            <input type="checkbox" id="agreeVerification" required>
+            <label for="agreeVerification">I understand that verification may take 2-3 business days</label>
+          </div>
+
+          <div class="checkbox-group">
+            <input type="checkbox" id="agreeBackgroundCheck" required>
+            <label for="agreeBackgroundCheck">I consent to background verification checks</label>
+          </div>
+        </div>
+
+        <button class="btn" id="submitVerification" onclick="submitVerification()">
+          <i class="fas fa-paper-plane"></i>
+          Submit for Verification
+        </button>
+
+        <button class="btn btn-secondary" onclick="saveDraft()">
+          <i class="fas fa-save"></i>
+          Save as Draft
+        </button>
+      </div>
+
+      <!-- Verification Sidebar -->
+      <div class="verification-sidebar">
+        <div class="verification-status">
+          <div class="status-icon pending" id="statusIcon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="status-title" id="statusTitle">Verification Pending</div>
+          <div class="status-description" id="statusDescription">Complete your verification to get verified</div>
+        </div>
+
+        <div class="verification-steps">
+          <h4>Verification Steps</h4>
+          
+          <div class="step-item">
+            <div class="step-icon completed" id="step1Icon">
+              <i class="fas fa-check"></i>
+            </div>
+            <div class="step-content">
+              <div class="step-title">Personal Information</div>
+              <div class="step-description">Basic details and contact info</div>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-icon pending" id="step2Icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="step-content">
+              <div class="step-title">Identity Verification</div>
+              <div class="step-description">Upload ID documents</div>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-icon not-started" id="step3Icon">
+              <i class="fas fa-circle"></i>
+            </div>
+            <div class="step-content">
+              <div class="step-title">Professional Details</div>
+              <div class="step-description">Service category and experience</div>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-icon not-started" id="step4Icon">
+              <i class="fas fa-circle"></i>
+            </div>
+            <div class="step-content">
+              <div class="step-title">Address Verification</div>
+              <div class="step-description">Proof of address</div>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-icon not-started" id="step5Icon">
+              <i class="fas fa-circle"></i>
+            </div>
+            <div class="step-content">
+              <div class="step-title">Background Check</div>
+              <div class="step-description">Automated verification</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="benefits-section">
+          <h4>Verification Benefits</h4>
+          
+          <div class="benefit-item">
+            <i class="fas fa-check"></i>
+            <span>Verified badge on your profile</span>
+          </div>
+          
+          <div class="benefit-item">
+            <i class="fas fa-check"></i>
+            <span>Higher search ranking</span>
+          </div>
+          
+          <div class="benefit-item">
+            <i class="fas fa-check"></i>
+            <span>More customer trust</span>
+          </div>
+          
+          <div class="benefit-item">
+            <i class="fas fa-check"></i>
+            <span>Priority support</span>
+          </div>
+          
+          <div class="benefit-item">
+            <i class="fas fa-check"></i>
+            <span>Access to premium features</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    class VerificationSystem {
+      constructor() {
+        this.currentStep = 1;
+        this.totalSteps = 5;
+        this.init();
+      }
+
+      init() {
+        this.setupEventListeners();
+        this.updateProgress();
+        this.loadSavedData();
+      }
+
+      setupEventListeners() {
+        // Form inputs
+        const inputs = document.querySelectorAll('.form-input, input[type="checkbox"]');
+        inputs.forEach(input => {
+          input.addEventListener('input', () => {
+            this.updateProgress();
+            this.updateSteps();
+          });
+        });
+
+        // File uploads
+        document.getElementById('idFile').addEventListener('change', (e) => {
+          this.handleFileUpload(e, 'idPreview', 'idFileName');
+        });
+
+        document.getElementById('workFile').addEventListener('change', (e) => {
+          this.handleFileUpload(e, 'workPreview', 'workFileName');
+        });
+
+        document.getElementById('addressFile').addEventListener('change', (e) => {
+          this.handleFileUpload(e, 'addressPreview', 'addressFileName');
+        });
+
+        // Drag and drop
+        const fileUploads = document.querySelectorAll('.file-upload');
+        fileUploads.forEach(upload => {
+          upload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            upload.classList.add('dragover');
+          });
+
+          upload.addEventListener('dragleave', () => {
+            upload.classList.remove('dragover');
+          });
+
+          upload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            upload.classList.remove('dragover');
+            // Handle file drop
+          });
+        });
+      }
+
+      handleFileUpload(event, previewId, fileNameId) {
+        const file = event.target.files[0];
+        if (file) {
+          document.getElementById(previewId).style.display = 'flex';
+          document.getElementById(fileNameId).textContent = file.name;
+          this.updateProgress();
+        }
+      }
+
+      updateProgress() {
+        let completedFields = 0;
+        let totalFields = 0;
+
+        // Count required fields
+        const requiredInputs = document.querySelectorAll('input[required], select[required], textarea[required]');
+        totalFields = requiredInputs.length;
+
+        // Count completed fields
+        requiredInputs.forEach(input => {
+          if (input.type === 'checkbox') {
+            if (input.checked) completedFields++;
+          } else if (input.type === 'file') {
+            if (input.files.length > 0) completedFields++;
+          } else {
+            if (input.value.trim()) completedFields++;
+          }
+        });
+
+        const progress = Math.round((completedFields / totalFields) * 100);
+        
+        document.getElementById('progressFill').style.width = progress + '%';
+        document.getElementById('progressText').textContent = progress + '%';
+      }
+
+      updateSteps() {
+        // Update step icons based on completion
+        const steps = [
+          { id: 'step1Icon', fields: ['fullName', 'dateOfBirth', 'phoneNumber', 'emailAddress'] },
+          { id: 'step2Icon', fields: ['idType', 'idNumber', 'idFile'] },
+          { id: 'step3Icon', fields: ['serviceCategory', 'experience'] },
+          { id: 'step4Icon', fields: ['address', 'city', 'pincode', 'addressFile'] },
+          { id: 'step5Icon', fields: ['agreeTerms', 'agreeVerification', 'agreeBackgroundCheck'] }
+        ];
+
+        steps.forEach((step, index) => {
+          const stepIcon = document.getElementById(step.id);
+          let completed = 0;
+
+          step.fields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+              if (field.type === 'checkbox') {
+                if (field.checked) completed++;
+              } else if (field.type === 'file') {
+                if (field.files.length > 0) completed++;
+              } else {
+                if (field.value.trim()) completed++;
+              }
+            }
+          });
+
+          if (completed === step.fields.length) {
+            stepIcon.className = 'step-icon completed';
+            stepIcon.innerHTML = '<i class="fas fa-check"></i>';
+          } else if (completed > 0) {
+            stepIcon.className = 'step-icon pending';
+            stepIcon.innerHTML = '<i class="fas fa-clock"></i>';
+          } else {
+            stepIcon.className = 'step-icon not-started';
+            stepIcon.innerHTML = '<i class="fas fa-circle"></i>';
+          }
+        });
+      }
+
+      loadSavedData() {
+        // Load saved data from localStorage
+        const savedData = localStorage.getItem('nearnect_verification_draft');
+        if (savedData) {
+          const data = JSON.parse(savedData);
+          Object.keys(data).forEach(key => {
+            const element = document.getElementById(key);
+            if (element) {
+              if (element.type === 'checkbox') {
+                element.checked = data[key];
+              } else {
+                element.value = data[key];
+              }
+            }
+          });
+          this.updateProgress();
+          this.updateSteps();
+        }
+      }
+
+      saveDraft() {
+        const formData = {};
+        const inputs = document.querySelectorAll('.form-input, input[type="checkbox"]');
+        
+        inputs.forEach(input => {
+          if (input.type === 'checkbox') {
+            formData[input.id] = input.checked;
+          } else if (input.type !== 'file') {
+            formData[input.id] = input.value;
+          }
+        });
+
+        localStorage.setItem('nearnect_verification_draft', JSON.stringify(formData));
+        this.showToast('Draft saved successfully!', 'success');
+      }
+
+      submitVerification() {
+        if (!this.validateForm()) {
+          this.showToast('Please complete all required fields', 'error');
+          return;
+        }
+
+        const submitButton = document.getElementById('submitVerification');
+        submitButton.classList.add('loading');
+        submitButton.disabled = true;
+
+        // Simulate verification submission
+        setTimeout(() => {
+          const verificationData = {
+            id: `verification_${Date.now()}`,
+            providerId: 'current_user_id',
+            status: 'pending',
+            submittedAt: new Date().toISOString(),
+            estimatedCompletion: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
+          };
+
+          // Save verification data
+          localStorage.setItem('nearnect_verification', JSON.stringify(verificationData));
+          
+          // Clear draft
+          localStorage.removeItem('nearnect_verification_draft');
+
+          this.showToast('Verification submitted successfully!', 'success');
+          
+          // Update status
+          this.updateVerificationStatus('pending');
+          
+          // Reset button
+          submitButton.classList.remove('loading');
+          submitButton.disabled = false;
+
+          // Redirect to dashboard after 2 seconds
+          setTimeout(() => {
+            window.location.href = 'user-dashboard.html';
+          }, 2000);
+
+        }, 2000);
+      }
+
+      validateForm() {
+        const requiredInputs = document.querySelectorAll('input[required], select[required], textarea[required]');
+        
+        for (let input of requiredInputs) {
+          if (input.type === 'checkbox') {
+            if (!input.checked) return false;
+          } else if (input.type === 'file') {
+            if (input.files.length === 0) return false;
+          } else {
+            if (!input.value.trim()) return false;
+          }
+        }
+        
+        return true;
+      }
+
+      updateVerificationStatus(status) {
+        const statusIcon = document.getElementById('statusIcon');
+        const statusTitle = document.getElementById('statusTitle');
+        const statusDescription = document.getElementById('statusDescription');
+
+        switch (status) {
+          case 'pending':
+            statusIcon.className = 'status-icon pending';
+            statusIcon.innerHTML = '<i class="fas fa-clock"></i>';
+            statusTitle.textContent = 'Verification Pending';
+            statusDescription.textContent = 'Your verification is under review';
+            break;
+          case 'verified':
+            statusIcon.className = 'status-icon verified';
+            statusIcon.innerHTML = '<i class="fas fa-check"></i>';
+            statusTitle.textContent = 'Verified Provider';
+            statusDescription.textContent = 'Congratulations! You are verified';
+            break;
+          case 'rejected':
+            statusIcon.className = 'status-icon rejected';
+            statusIcon.innerHTML = '<i class="fas fa-times"></i>';
+            statusTitle.textContent = 'Verification Rejected';
+            statusDescription.textContent = 'Please review and resubmit';
+            break;
+        }
+      }
+
+      showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = `toast ${type} show`;
+        
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => {
+            toast.textContent = '';
+          }, 300);
+        }, 3000);
+      }
+    }
+
+    // Global functions
+    function submitVerification() {
+      if (window.verificationSystem) {
+        window.verificationSystem.submitVerification();
+      }
+    }
+
+    function saveDraft() {
+      if (window.verificationSystem) {
+        window.verificationSystem.saveDraft();
+      }
+    }
+
+    function removeFile(inputId) {
+      const input = document.getElementById(inputId);
+      const previewId = inputId.replace('File', 'Preview');
+      
+      input.value = '';
+      document.getElementById(previewId).style.display = 'none';
+      
+      if (window.verificationSystem) {
+        window.verificationSystem.updateProgress();
+      }
+    }
+
+    // Initialize verification system
+    document.addEventListener('DOMContentLoaded', () => {
+      window.verificationSystem = new VerificationSystem();
+    });
+  </script>
+</body>
+</html>

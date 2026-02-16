@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Workers - NearNect</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --secondary: #E91E63;
+      --bg: #f7f7fb;
+      --text: #1f2330;
+      --muted: #6b7280;
+      --radius: 14px;
+      --shadow: 0 10px 30px rgba(0,0,0,0.08);
+      --success: #10b981;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { background: var(--bg); color: var(--text); }
+
+    /* Header */
+    header {
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .header-left h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(45deg, #7B2FFF, var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .breadcrumb {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+    }
+    .btn-outline:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+    .search-input {
+      padding: 10px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 14px;
+      width: 220px;
+      transition: all 0.3s;
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+    }
+
+    /* Main Content */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+    .page-header {
+      margin-bottom: 30px;
+    }
+    .page-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .page-subtitle {
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+
+    /* Filters */
+    .filters-section {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 30px;
+      box-shadow: var(--shadow);
+    }
+    .filters-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .filters-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .clear-filters {
+      color: var(--secondary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .clear-filters:hover {
+      text-decoration: underline;
+    }
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      align-items: end;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .filter-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .filter-input {
+      padding: 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: all 0.3s;
+      background: #fff;
+    }
+    .filter-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+    }
+    .apply-btn {
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+    .apply-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    /* Active Filter */
+    .active-filter {
+      background: linear-gradient(135deg, #f3f0ff, #ffe1f0);
+      padding: 16px;
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      display: none;
+    }
+    .active-filter.show {
+      display: block;
+    }
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      color: var(--primary);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+    .filter-chip .remove {
+      cursor: pointer;
+      font-weight: bold;
+      margin-left: 4px;
+    }
+
+    /* Results */
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .results-count {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .sort-dropdown {
+      padding: 10px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      background: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .sort-dropdown:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* Worker Cards */
+    .workers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+    }
+    .worker-card {
+      background: #fff;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: all 0.3s;
+      position: relative;
+    }
+    .worker-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+    .worker-image {
+      position: relative;
+      height: 200px;
+      overflow: hidden;
+    }
+    .worker-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+    .worker-card:hover .worker-image img {
+      transform: scale(1.05);
+    }
+    .worker-badges {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      gap: 8px;
+    }
+    .price-badge {
+      background: #ffd166;
+      color: #333;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .rating-badge {
+      background: rgba(255,255,255,0.95);
+      color: #fdcb6e;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .worker-content {
+      padding: 20px;
+    }
+    .worker-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .worker-skill {
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    .worker-rating {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .worker-rating .stars {
+      color: #fdcb6e;
+    }
+    .worker-distance {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .worker-description {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 12px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .worker-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+    .worker-location {
+      color: var(--muted);
+    }
+    .worker-availability {
+      color: var(--success);
+      font-weight: 600;
+    }
+    .worker-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-primary {
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+    .btn-secondary {
+      background: #fff;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-secondary:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 16px;
+    }
+    .empty-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .empty-description {
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    /* Loading State */
+    .loading-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+    .loading-spinner {
+      border: 4px solid #e5e7eb;
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .filters-grid {
+        grid-template-columns: 1fr;
+      }
+      .workers-grid {
+        grid-template-columns: 1fr;
+      }
+      .worker-actions {
+        flex-direction: column;
+      }
+      .search-input {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <div class="header-left">
+        <h1>NearNect</h1>
+        <div class="breadcrumb">Browse Skilled Workers</div>
+      </div>
+      <div class="header-actions">
+        <a href="index.html" class="btn-outline btn">
+          <i class="fas fa-home"></i> Home
+        </a>
+        <input id="siteSearch" type="search" class="search-input" placeholder="Search services or names...">
+        <a href="login.html" class="btn-outline btn">Login</a>
+        <a href="user-register.html" class="btn">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h2 class="page-title">Find Your Perfect Service Provider</h2>
+        <p class="page-subtitle">Browse skilled professionals in your area and book services instantly</p>
+      </div>
+
+      <!-- Active Filter -->
+      <div id="activeFilter" class="active-filter">
+        <div class="filter-chip">
+          <span id="filterText">Filter: </span>
+          <span class="remove" id="clearFilterBtn">×</span>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-section">
+        <div class="filters-header">
+          <h3 class="filters-title">Filter Results</h3>
+          <a href="#" class="clear-filters" id="clearAllFilters">Clear All</a>
+        </div>
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label class="filter-label">Service Category</label>
+            <select id="filterCat" class="filter-input filter-select">
+              <option value="">All Categories</option>
+              <option value="plumber">Plumber</option>
+              <option value="mehndi">Mehndi Artist</option>
+              <option value="painter">Painter</option>
+              <option value="electrician">Electrician</option>
+              <option value="mechanic">Mechanic</option>
+              <option value="tutor">Tutor</option>
+              <option value="beauty">Beauty Expert</option>
+              <option value="homefood">Home Food</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <button id="applyFiltersBtn" class="apply-btn">
+              <i class="fas fa-filter"></i> Apply Filters
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="results-header">
+        <div class="results-count" id="resultsCount">Loading workers...</div>
+        <select class="sort-dropdown" id="sortBy">
+          <option value="distance">Distance: Nearest First</option>
+          <option value="price_asc">Price: Low to High</option>
+          <option value="price_desc">Price: High to Low</option>
+          <option value="rating">Rating: Highest First</option>
+        </select>
+      </div>
+
+      <!-- Worker Cards -->
+      <div class="workers-grid" id="workerCards">
+        <div class="loading-state">
+          <div class="loading-spinner"></div>
+          <p>Loading workers...</p>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="empty-state" style="display: none;">
+        <div class="empty-icon">🔍</div>
+        <h3 class="empty-title">No workers found</h3>
+        <p class="empty-description">Try adjusting your filters or search terms</p>
+        <a href="user.html" class="btn" style="margin-top: 16px;">
+          <i class="fas fa-redo"></i> Reset Filters
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { getApiBase, authHeaders, getToken } from './assets/js/api.js';
+
+    (function() {
+      'use strict';
+
+      // Get URL parameters
+      const params = new URLSearchParams(window.location.search);
+      let q = (params.get('q') || '').trim();
+      let cat = (params.get('cat') || '').trim();
+
+      // State
+      let workersCache = [];
+      let userLocation = null;
+
+      // API Base
+      function getApiBase() {
+        if (typeof window === 'undefined') return '';
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' || !window.location.hostname) {
+          return (window.NEARNect_API_BASE || 'http://localhost:5000');
+        }
+        return (window.NEARNect_API_BASE || 'https://your-render-app.onrender.com');
+      }
+
+      // Load user location
+      try {
+        const saved = localStorage.getItem('nearnect_user_location');
+        if (saved) {
+          userLocation = JSON.parse(saved);
+        }
+      } catch(e) {}
+
+      // Fetch workers from API
+      async function fetchWorkers() {
+        try {
+          const apiBase = getApiBase();
+          const searchParams = new URLSearchParams();
+          
+          if (q) searchParams.set('search', q);
+          if (cat) searchParams.set('skill', cat);
+          searchParams.set('limit', '50');
+          
+          if (userLocation && userLocation.latitude && userLocation.longitude) {
+            searchParams.set('latitude', userLocation.latitude);
+            searchParams.set('longitude', userLocation.longitude);
+            searchParams.set('maxDistance', '10');
+            searchParams.set('sort', 'distance');
+          }
+          
+          const url = `${apiBase}/workers?${searchParams.toString()}`;
+          const res = await fetch(url);
+          
+          if (res.ok) {
+            const data = await res.json();
+            workersCache = (data.workers || []).map(w => ({
+              id: w.id || w._id,
+              _id: w._id || w.id,
+              name: w.name,
+              skill: w.skill || '',
+              price: w.price || 0,
+              img: w.avatarUrl || 'https://source.unsplash.com/400x300/?people,work',
+              availability: w.availability || '',
+              description: w.bio || 'Experienced professional available for quick service.',
+              rating: w.rating || 0,
+              reviewCount: w.reviewCount || 0,
+              completedBookings: w.completedBookings || 0,
+              distanceKm: w.distanceKm || null,
+              address: w.address || '',
+              city: w.city || ''
+            }));
+            return workersCache;
+          }
+        } catch(e) {
+          console.error('Failed to fetch workers from API:', e);
+        }
+        
+        // Fallback to demo data
+        try {
+          const raw = localStorage.getItem('nearnect_workers');
+          let list = raw ? JSON.parse(raw) : [];
+          if (!list.length) {
+            list = [
+              { id: 'w1', name: 'Ali Khan', skill: 'Plumber', price: 400, img: 'images/plumber.png', availability: '9 AM - 6 PM', rating: 4.8, reviewCount: 25 },
+              { id: 'w2', name: 'Sara Patel', skill: 'Mehndi Artist', price: 800, img: 'images/mehndiartist.png', availability: '10 AM - 6 PM', rating: 4.9, reviewCount: 18 },
+              { id: 'w3', name: 'Rohit Sharma', skill: 'Painter', price: 600, img: 'images/homepainter.png', availability: '9 AM - 5 PM', rating: 4.7, reviewCount: 32 }
+            ];
+          }
+          workersCache = list;
+          return list;
+        } catch(e) {
+          return [];
+        }
+      }
+
+      function getWorkers() {
+        return workersCache;
+      }
+
+      function matches(item) {
+        const nameSkill = ((item.name || '') + ' ' + (item.skill || '')).toLowerCase();
+        const okQ = q ? nameSkill.includes(q.toLowerCase()) : true;
+        const okCat = cat ? (item.skill || '').toLowerCase().includes(cat.toLowerCase()) : true;
+        return okQ && okCat;
+      }
+
+      // Render workers
+      async function render() {
+        const grid = document.getElementById('workerCards');
+        const empty = document.getElementById('emptyState');
+        const count = document.getElementById('resultsCount');
+        
+        // Show loading
+        grid.innerHTML = '<div class="loading-state"><div class="loading-spinner"></div><p>Loading workers...</p></div>';
+        empty.style.display = 'none';
+        
+        // Fetch workers
+        await fetchWorkers();
+        
+        // Filter and sort
+        let list = getWorkers().filter(matches);
+        const sort = document.getElementById('sortBy').value;
+        
+        list.sort((a, b) => {
+          if (sort === 'distance') {
+            const da = a.distanceKm !== null && a.distanceKm !== undefined ? a.distanceKm : 999;
+            const db = b.distanceKm !== null && b.distanceKm !== undefined ? b.distanceKm : 999;
+            return da - db;
+          } else if (sort === 'rating') {
+            const ra = a.rating || 0;
+            const rb = b.rating || 0;
+            return rb - ra;
+          } else if (sort === 'price_desc') {
+            return (b.price || 0) - (a.price || 0);
+          } else {
+            return (a.price || 0) - (b.price || 0);
+          }
+        });
+        
+        // Update count
+        count.textContent = `${list.length} worker${list.length !== 1 ? 's' : ''} found`;
+        
+        // Show empty state
+        if (!list.length) {
+          grid.innerHTML = '';
+          empty.style.display = 'block';
+          return;
+        }
+        
+        empty.style.display = 'none';
+        
+        // Render cards
+        grid.innerHTML = list.map(w => {
+          const ratingHtml = w.rating ? `
+            <div class="worker-rating">
+              <span class="stars">★</span>
+              <span>${w.rating.toFixed(1)} (${w.reviewCount || 0} reviews)</span>
+            </div>
+          ` : '';
+          
+          const distanceHtml = w.distanceKm !== null && w.distanceKm !== undefined ? `
+            <div class="worker-distance">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>${w.distanceKm.toFixed(1)} km away</span>
+            </div>
+          ` : '';
+          
+          return `
+            <div class="worker-card">
+              <div class="worker-image">
+                <img src="${w.img || 'https://source.unsplash.com/400x300/?people,work'}" alt="${w.skill || ''}" onerror="this.src='https://source.unsplash.com/400x300/?people,work'">
+                <div class="worker-badges">
+                  ${w.rating ? `<div class="rating-badge">★ ${w.rating.toFixed(1)}</div>` : ''}
+                  <div class="price-badge">₹${w.price || 0}</div>
+                </div>
+              </div>
+              <div class="worker-content">
+                <div class="worker-name">${w.name || 'Provider'}</div>
+                <div class="worker-skill">${w.skill || ''}</div>
+                ${ratingHtml}
+                ${distanceHtml}
+                <div class="worker-description">${w.description || 'Experienced professional available for quick service.'}</div>
+                <div class="worker-meta">
+                  <div class="worker-location">${w.city ? `📍 ${w.city}` : ''}</div>
+                  <div class="worker-availability">${w.availability || ''}</div>
+                </div>
+                <div class="worker-actions">
+                  <button class="btn-primary" data-book="${w.id || w._id}">
+                    <i class="fas fa-calendar-plus"></i> Book Now
+                  </button>
+                  <button class="btn-secondary" data-view="${w.id || w._id}">
+                    <i class="fas fa-eye"></i> View
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        // Wire up buttons
+        grid.querySelectorAll('[data-book]').forEach(btn => {
+          btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const id = this.getAttribute('data-book');
+            const allWorkers = getWorkers();
+            const chosen = allWorkers.find(x => String(x.id || x._id || '') === String(id));
+            
+            if (chosen) {
+              try {
+                localStorage.setItem('nearnect_selected_worker', JSON.stringify(chosen));
+                window.location.href = `booking.html?workerId=${encodeURIComponent(chosen.id || chosen._id || '')}`;
+              } catch(err) {
+                console.error('Failed to save worker:', err);
+                alert('Failed to save worker selection. Please try again.');
+              }
+            } else {
+              console.error('Worker not found. ID:', id);
+              alert('Could not find selected worker. Please refresh and try again.');
+            }
+          });
+        });
+        
+        grid.querySelectorAll('[data-view]').forEach(btn => {
+          btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const id = this.getAttribute('data-view');
+            window.location.href = `worker-profile.html?id=${encodeURIComponent(id)}`;
+          });
+        });
+      }
+
+      // Show active filter
+      function updateActiveFilter() {
+        const activeFilter = document.getElementById('activeFilter');
+        const filterText = document.getElementById('filterText');
+        
+        if (q || cat) {
+          if (q) filterText.textContent = `Search: "${q}"`;
+          else if (cat) filterText.textContent = `Category: ${cat}`;
+          activeFilter.classList.add('show');
+        } else {
+          activeFilter.classList.remove('show');
+        }
+      }
+
+      // Initialize
+      function init() {
+        // Pre-fill filters
+        if (cat) {
+          document.getElementById('filterCat').value = cat;
+        }
+        
+        // Pre-fill search
+        const searchBox = document.getElementById('siteSearch');
+        if (searchBox) {
+          searchBox.value = q || '';
+        }
+        
+        // Clear filter button
+        document.getElementById('clearFilterBtn').addEventListener('click', function() {
+          window.location.href = 'user.html';
+        });
+        
+        // Clear all filters
+        document.getElementById('clearAllFilters').addEventListener('click', function(e) {
+          e.preventDefault();
+          window.location.href = 'user.html';
+        });
+        
+        // Apply filters button
+        document.getElementById('applyFiltersBtn').addEventListener('click', function() {
+          const newParams = new URLSearchParams();
+          const vCat = document.getElementById('filterCat').value;
+          if (vCat) newParams.set('cat', vCat);
+          if (q) newParams.set('q', q);
+          window.location.search = newParams.toString();
+        });
+        
+        // Sort dropdown
+        document.getElementById('sortBy').addEventListener('change', function() {
+          render();
+        });
+        
+        // Search box
+        if (searchBox) {
+          searchBox.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+              const searchTerm = this.value.trim();
+              const newParams = new URLSearchParams(window.location.search);
+              if (searchTerm) {
+                newParams.set('q', searchTerm);
+              } else {
+                newParams.delete('q');
+              }
+              window.location.search = newParams.toString();
+            }
+          });
+        }
+        
+        // Update active filter display
+        updateActiveFilter();
+        
+        // Initial render
+        render();
+      }
+
+      // Start
+      init();
+    })();
+  </script>
+</body>
+</html>

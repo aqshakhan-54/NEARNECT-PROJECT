@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NearNect - Worker Registration</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{ --primary:#6c5ce7; --secondary:#E91E63; --radius:14px; --shadow:0 10px 30px rgba(0,0,0,0.08);} 
+    .container { width:100%; max-width: 900px; margin: 0 auto; padding: 0 20px; }
+    .header { box-shadow: 0 2px 10px rgba(0,0,0,0.04); background:#fff; }
+    .worker-form-section { padding: 60px 0; background: linear-gradient(135deg, #f3e9ff, #ffe1f0);} 
+    .form-container { background:#fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px; }
+    .form-container h2 { color: var(--primary); margin-bottom: 6px; }
+    .form-subtext { color:#555; margin-bottom: 18px; }
+    .form-group { display:flex; align-items:center; gap:10px; border:1px solid #eee; padding:10px 12px; border-radius:10px; background:#fafafa; margin-bottom:12px; }
+    .form-group i { color:#888; }
+    .form-group input, .form-group select, .form-group textarea { flex:1; border:none; outline:none; background:transparent; padding:8px; }
+    .file-input { background:#fff; border:1px dashed #ddd; }
+    .btn-submit { margin-top:10px; background: linear-gradient(45deg, var(--primary), var(--secondary)); color:#fff; border:none; padding:12px 16px; border-radius:10px; cursor:pointer; font-weight:700; box-shadow: var(--shadow); }
+    .btn-submit:hover { opacity:0.95; }
+    .footer { text-align:center; padding:18px; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="container" style="display:flex; align-items:center; justify-content:space-between; padding:14px 0;">
+      <h1>NearNect</h1>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="worker.html" class="active">Register as Worker</a>
+        <a href="user.html">User</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Worker Form -->
+  <section class="worker-form-section">
+    <div class="container">
+      <div class="form-container">
+        <h2><i class="fa-solid fa-briefcase"></i> Register as a Worker</h2>
+        <p class="form-subtext">Showcase your skills and get booked by users</p>
+
+        <form id="workerForm">
+  <div class="form-group">
+    <i class="fa fa-user"></i>
+    <input id="wName" type="text" placeholder="Your Full Name" required>
+  </div>
+
+  <div class="form-group">
+    <i class="fa fa-envelope"></i>
+    <input id="wEmail" type="email" placeholder="Your Email" required>
+  </div>
+
+  <div class="form-group">
+    <i class="fa fa-phone"></i>
+    <input id="wPhone" type="tel" placeholder="Your Phone (10 digits)" required>
+  </div>
+
+  <div class="form-group">
+    <i class="fa fa-location-dot"></i>
+    <input id="wAddress" type="text" placeholder="Your City/Address" required>
+  </div>
+  <div class="form-group">
+    <i class="fa fa-city"></i>
+    <input id="wCity" type="text" placeholder="City" required>
+  </div>
+  <div class="form-group">
+    <i class="fa fa-map-pin"></i>
+    <input id="wPincode" type="text" placeholder="Pincode" pattern="\d{3,6}" title="Enter pincode" required>
+  </div>
+  <input type="hidden" id="wLat" name="latitude">
+  <input type="hidden" id="wLng" name="longitude">
+
+  <div class="form-group">
+    <i class="fa fa-lock"></i>
+    <input id="wPass" type="password" placeholder="Set Password" required minlength="6">
+  </div>
+
+  <div class="form-group">
+    <i class="fa fa-wrench"></i>
+    <select id="wSkill" required>
+      <option value="">Select Your Skill</option>
+      <option>Mehndi Artist</option><option>Plumber</option>
+      <option>Painter</option><option>Mechanic</option>
+      <option>Electrician</option><option>Beauty Expert</option><option>Other</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <i class="fa fa-align-left"></i>
+    <textarea id="wDesc" placeholder="Write a short description of your work..." required></textarea>
+  </div>
+
+  <div class="form-group file-input">
+    <i class="fa fa-image"></i>
+    <label for="workImages">Photos/Videos (Max 5MB each)</label>
+    <input type="file" id="workImages" accept="image/*,video/*" multiple>
+  </div>
+
+  <div class="form-group">
+    <i class="fa fa-tag"></i>
+    <span style="font-weight:bold;">₹</span>
+    <input id="wPrice" type="number" placeholder="Price per hour/task" required min="50" step="50">
+  </div>
+
+  <div class="form-group">
+    <i class="fa fa-clock"></i>
+    <input id="wAvail" type="text" placeholder="Availability (e.g. 9 AM - 6 PM)" required>
+  </div>
+
+  <div class="form-group">
+    <i class="fa fa-file"></i>
+    <label for="idProof">Upload ID Proof</label>
+    <input type="file" id="idProof" accept="image/*,.pdf">
+  </div>
+
+  <div class="form-group">
+    <input type="checkbox" id="acceptTerms" required>
+    <label for="acceptTerms">I agree to Terms & Privacy Policy</label>
+  </div>
+
+  <button type="submit" class="btn-submit">
+    <i class="fa fa-paper-plane"></i> Register
+  </button>
+</form>
+
+        <!----  Name --
+          <div class="form-group">
+            <i class="fa fa-user"></i>
+            <input id="wName" type="text" placeholder="Your Full Name" required>
+          </div>
+
+          !-- Skill Category --
+          <div class="form-group">
+            <i class="fa fa-wrench"></i>
+            <select id="wSkill" required>
+              <option value="">Select Your Skill</option>
+              <option>Mehndi Artist</option>
+              <option>Plumber</option>
+              <option>Painter</option>
+              <option>Mechanic</option>
+              <option>Electrician</option>
+              <option>Beauty Expert</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          !-- Description --
+          <div class="form-group">
+            <i class="fa fa-align-left"></i>
+            <textarea id="wDesc" placeholder="Write a short description of your work..." required></textarea>
+          </div>
+
+          !-- Upload Portfolio --
+          <div class="form-group file-input">
+            <i class="fa fa-image"></i>
+            <label for="workImages">Upload Photos/Videos of Your Work</label>
+            <input type="file" id="workImages" accept="image/*,video/*" multiple>
+          </div>
+
+          !-- Price --
+          <div class="form-group">
+            <i class="fa fa-tag"></i>
+            <span style="font-weight:bold; margin-right:5px;">₹</span>
+            <input id="wPrice" type="number" placeholder="Enter your price" required min="50" step="50">
+          </div>
+
+          !-- Availability --
+          <div class="form-group">
+            <i class="fa fa-clock"></i>
+            <input id="wAvail" type="text" placeholder="Availability (e.g. 9 AM - 6 PM)" required>
+          </div>
+
+          !-- Submit --
+          <button type="submit" class="btn-submit">
+            <i class="fa fa-paper-plane"></i> Register
+          </button>
+        </form> -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2025 NearNect. Connecting Local Skills with People.</p>
+  </footer>
+
+  <script>
+    (function() {
+      const form = document.getElementById('workerForm');
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('wName').value.trim();
+        const skill = document.getElementById('wSkill').value.trim();
+        const desc = document.getElementById('wDesc').value.trim();
+        const price = parseInt(document.getElementById('wPrice').value, 10) || 0;
+        const avail = document.getElementById('wAvail').value.trim();
+        const address = document.getElementById('wAddress').value.trim();
+        const emailField = document.getElementById('wEmail');
+        const phoneField = document.getElementById('wPhone');
+        const passField = document.getElementById('wPass');
+
+        if (!name || !skill || !desc || !price || !avail) return;
+
+        const newWorker = {
+          id: 'w_' + Date.now(),
+          name: name,
+          skills: [skill],
+          description: desc,
+          price: price,
+          img: 'https://source.unsplash.com/400x300/?' + encodeURIComponent(skill),
+          availability: avail,
+          distanceKm: (Math.random() * 8 + 1).toFixed(1) * 1
+        };
+
+        // helper to get a single consistent fallback credential if fields empty
+        const fallbackEmail = ('worker_' + Date.now() + '@nearnect.local');
+        const fallbackPassword = ('demo' + Date.now());
+        const providedEmail = emailField && emailField.value ? emailField.value.trim() : fallbackEmail;
+        const providedPhone = phoneField && phoneField.value ? phoneField.value.trim() : '0000000000';
+        const providedPassword = passField && passField.value ? passField.value : fallbackPassword;
+
+        // API base helper for this page
+        function getApiBase(){
+          if (typeof window === 'undefined') return '';
+          if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' || !window.location.hostname) {
+            return (window.NEARNect_API_BASE || 'http://localhost:4000');
+          }
+          return (window.NEARNect_API_BASE || 'https://your-render-app.onrender.com');
+        }
+
+        try {
+          // Try to register with backend first and auto-login (if backend available)
+          (async function(){
+            try{
+              // capture geolocation if user allows
+              const captureGeo = () => new Promise((resolve) => {
+                if (!navigator.geolocation) return resolve(null);
+                navigator.geolocation.getCurrentPosition((pos) => {
+                  resolve({ type: 'Point', coordinates: [pos.coords.longitude, pos.coords.latitude] });
+                }, () => resolve(null), { enableHighAccuracy: true, timeout: 5000 });
+              });
+              const geo = await captureGeo();
+
+              const payload = {
+                name: name,
+                email: providedEmail,
+                phone: providedPhone,
+                password: providedPassword,
+                role: 'worker',
+                skill: skill,
+                price: price,
+                availability: avail,
+                address: address || '' ,
+                city: (document.getElementById('wCity') && document.getElementById('wCity').value) || '',
+                pincode: (document.getElementById('wPincode') && document.getElementById('wPincode').value) || '',
+                bio: desc
+              };
+              // prefer hidden coords (auto-detected) if present
+              const latField = document.getElementById('wLat') && document.getElementById('wLat').value;
+              const lngField = document.getElementById('wLng') && document.getElementById('wLng').value;
+              if (latField && lngField) {
+                payload.latitude = Number(latField);
+                payload.longitude = Number(lngField);
+              } else if (geo && Array.isArray(geo.coordinates)) {
+                payload.longitude = Number(geo.coordinates[0]);
+                payload.latitude = Number(geo.coordinates[1]);
+              }
+
+              const signupRes = await fetch(getApiBase() + '/auth/signup', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify(payload)
+              });
+              if(signupRes.ok){
+                // login to get token
+                const loginRes = await fetch(getApiBase() + '/auth/login', {
+                  method: 'POST', headers: {'Content-Type':'application/json'},
+                  body: JSON.stringify({ email: providedEmail, password: providedPassword })
+                });
+                if(loginRes.ok){
+                  const d = await loginRes.json();
+                  try{ localStorage.setItem('nearnect_token', d.token); }catch(_){ }
+                }
+              } else if (signupRes.status === 409) {
+                // Email already exists on server - try to login (user may already have an account)
+                try{
+                  const loginRes = await fetch(getApiBase() + '/auth/login', {
+                    method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email: providedEmail, password: providedPassword })
+                  });
+                  if(loginRes.ok){ const d = await loginRes.json(); try{ localStorage.setItem('nearnect_token', d.token); }catch(_){ } }
+                  else {
+                    // login failed -> fallback to local storage
+                    const raw = localStorage.getItem('nearnect_workers');
+                    const list = raw ? JSON.parse(raw) : [];
+                    list.push(newWorker);
+                    localStorage.setItem('nearnect_workers', JSON.stringify(list));
+                    try { localStorage.setItem('nearnect_current_user', JSON.stringify(newWorker)); } catch(e) {}
+                  }
+                }catch(e){
+                  const raw = localStorage.getItem('nearnect_workers');
+                  const list = raw ? JSON.parse(raw) : [];
+                  list.push(newWorker);
+                  localStorage.setItem('nearnect_workers', JSON.stringify(list));
+                  try { localStorage.setItem('nearnect_current_user', JSON.stringify(newWorker)); } catch(e) {}
+                }
+              } else {
+                // fallback to local storage
+                const raw = localStorage.getItem('nearnect_workers');
+                const list = raw ? JSON.parse(raw) : [];
+                list.push(newWorker);
+                localStorage.setItem('nearnect_workers', JSON.stringify(list));
+                try { localStorage.setItem('nearnect_current_user', JSON.stringify(newWorker)); } catch(e) {}
+              }
+            }catch(e){
+              // backend unreachable -> fallback
+              try {
+                const raw = localStorage.getItem('nearnect_workers');
+                const list = raw ? JSON.parse(raw) : [];
+                list.push(newWorker);
+                localStorage.setItem('nearnect_workers', JSON.stringify(list));
+                try { localStorage.setItem('nearnect_current_user', JSON.stringify(newWorker)); } catch(e) {}
+              }catch(_){ }
+            } finally {
+              window.location.href = 'worker-dashboard.html';
+            }
+          })();
+        } catch (_){
+          window.location.href = 'worker-dashboard.html';
+        }
+      });
+      // Auto-detect worker location on page load and fill address + hidden coords
+      (function autoDetectWorkerLocation(){
+        async function reverseGeocode(lat, lng){
+          try{
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
+            if(!res.ok) return null;
+            return await res.json();
+          }catch(e){ return null; }
+        }
+
+        if (!navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const latEl = document.getElementById('wLat');
+          const lngEl = document.getElementById('wLng');
+          if (latEl) latEl.value = lat;
+          if (lngEl) lngEl.value = lng;
+          const geo = await reverseGeocode(lat, lng);
+          if (geo && geo.display_name) {
+            const addrInput = document.getElementById('wAddress');
+            if (addrInput && !addrInput.value) addrInput.value = geo.display_name;
+            try{
+              const cityInput = document.getElementById('wCity');
+              const pinInput = document.getElementById('wPincode');
+              if(geo.address){
+                if(!cityInput.value && (geo.address.city || geo.address.town || geo.address.village)) cityInput.value = geo.address.city || geo.address.town || geo.address.village;
+                if(!pinInput.value && geo.address.postcode) pinInput.value = geo.address.postcode;
+              }
+            }catch(_){ }
+          }
+        }, () => {}, { enableHighAccuracy: true, timeout: 5000 });
+      })();
+    })();
+  </script>
+
+</body>
+</html>

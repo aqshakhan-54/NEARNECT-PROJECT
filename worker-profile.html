@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worker Profile - NearNect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --secondary: #E91E63;
+      --success: #00b894;
+      --warning: #fdcb6e;
+      --text: #2d3436;
+      --text-light: #636e72;
+      --bg: #f5f6fb;
+      --white: #ffffff;
+      --border: #e9ecef;
+      --shadow: 0 4px 6px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Header */
+    .profile-header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 20px 0;
+      box-shadow: var(--shadow);
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-content h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: white;
+      color: var(--primary);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255,255,255,0.3);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    /* Profile Hero Section */
+    .profile-hero {
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: var(--shadow-lg);
+      padding: 40px;
+      margin-bottom: 30px;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    .profile-avatar {
+      position: relative;
+    }
+
+    .avatar-img {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 16px;
+      object-fit: cover;
+      box-shadow: var(--shadow-lg);
+      border: 4px solid white;
+    }
+
+    .verified-badge {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: var(--success);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .profile-info h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .profile-skill {
+      font-size: 1.1rem;
+      color: var(--primary);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .rating-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .rating-display {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stars {
+      color: var(--warning);
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .rating-text {
+      color: var(--text-light);
+      font-size: 0.95rem;
+    }
+
+    .rating-count {
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+
+    .price-tag {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .profile-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-light);
+    }
+
+    .meta-item i {
+      color: var(--primary);
+      width: 20px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .btn-book {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 14px 32px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .btn-book:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-message {
+      background: var(--white);
+      color: var(--primary);
+      border: 2px solid var(--primary);
+      padding: 14px 32px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 12px;
+    }
+
+    .btn-message:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Content Sections */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .section {
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title i {
+      color: var(--primary);
+    }
+
+    .bio-text {
+      color: var(--text-light);
+      line-height: 1.8;
+      font-size: 1rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, rgba(108,92,231,0.1), rgba(233,30,99,0.1));
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+
+    /* Reviews Section */
+    .review-item {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .review-item:last-child {
+      border-bottom: none;
+    }
+
+    .review-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .reviewer-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .reviewer-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .reviewer-details h4 {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .review-date {
+      color: var(--text-light);
+      font-size: 0.85rem;
+    }
+
+    .review-rating {
+      color: var(--warning);
+      font-size: 1.2rem;
+    }
+
+    .review-text {
+      color: var(--text-light);
+      line-height: 1.6;
+      margin-top: 8px;
+    }
+
+    /* Portfolio Section */
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .portfolio-item {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .portfolio-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+
+    .portfolio-item:hover img {
+      transform: scale(1.1);
+    }
+
+    /* Sidebar */
+    .sidebar-section {
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .sidebar-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+
+    .contact-info {
+      list-style: none;
+    }
+
+    .contact-info li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .contact-info li:last-child {
+      border-bottom: none;
+    }
+
+    .contact-info i {
+      color: var(--primary);
+      width: 20px;
+    }
+
+    /* Loading State */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-light);
+    }
+
+    .loading-spinner {
+      border: 4px solid var(--border);
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Error State */
+    .error-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-light);
+    }
+
+    .error-state i {
+      font-size: 4rem;
+      color: var(--text-light);
+      margin-bottom: 20px;
+    }
+
+    /* Responsive */
+    @media (max-width: 968px) {
+      .profile-hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .btn-book, .btn-message {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="profile-header">
+    <div class="header-content">
+      <h1><i class="fas fa-user-circle"></i> Worker Profile</h1>
+      <div class="header-actions">
+        <a href="user.html" class="btn btn-secondary">
+          <i class="fas fa-arrow-left"></i> Back to Search
+        </a>
+        <a href="index.html" class="btn btn-secondary">
+          <i class="fas fa-home"></i> Home
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Loading State -->
+    <div id="loadingState" class="loading">
+      <div class="loading-spinner"></div>
+      <p>Loading worker profile...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="error-state" style="display:none;">
+      <i class="fas fa-exclamation-circle"></i>
+      <h2>Worker Not Found</h2>
+      <p>The worker profile you're looking for doesn't exist or has been removed.</p>
+      <a href="user.html" class="btn btn-primary" style="margin-top:20px;">Back to Search</a>
+    </div>
+
+    <!-- Profile Content -->
+    <div id="profileContent" style="display:none;">
+      <!-- Hero Section -->
+      <div class="profile-hero">
+        <div class="profile-avatar">
+          <img id="workerAvatar" src="" alt="Worker" class="avatar-img">
+          <div id="verifiedBadge" class="verified-badge" style="display:none;">
+            <i class="fas fa-check-circle"></i> Verified
+          </div>
+        </div>
+        <div class="profile-info">
+          <h2 id="workerName">Loading...</h2>
+          <div class="profile-skill" id="workerSkill">Skill</div>
+          
+          <div class="rating-section">
+            <div class="rating-display">
+              <span class="stars" id="workerRating">★ 0.0</span>
+              <span class="rating-text" id="ratingText">(0 reviews)</span>
+            </div>
+            <div class="price-tag">
+              <i class="fas fa-rupee-sign"></i>
+              <span id="workerPrice">0</span>/hr
+            </div>
+          </div>
+
+          <div class="profile-meta">
+            <div class="meta-item">
+              <i class="fas fa-map-marker-alt"></i>
+              <span id="workerLocation">Location not available</span>
+            </div>
+            <div class="meta-item">
+              <i class="fas fa-clock"></i>
+              <span id="workerAvailability">Availability not set</span>
+            </div>
+            <div class="meta-item">
+              <i class="fas fa-calendar-check"></i>
+              <span id="workerJoined">Joined recently</span>
+            </div>
+          </div>
+
+          <div class="action-buttons">
+            <button id="bookNowBtn" class="btn btn-book">
+              <i class="fas fa-calendar-plus"></i> Book Now
+            </button>
+            <button id="messageBtn" class="btn btn-message">
+              <i class="fas fa-comments"></i> Message
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Grid -->
+      <div class="content-grid">
+        <!-- Left Column -->
+        <div>
+          <!-- About Section -->
+          <div class="section">
+            <h3 class="section-title">
+              <i class="fas fa-user"></i> About
+            </h3>
+            <p class="bio-text" id="workerBio">
+              No description available.
+            </p>
+          </div>
+
+          <!-- Portfolio Section -->
+          <div class="section" id="portfolioSection" style="display:none;">
+            <h3 class="section-title">
+              <i class="fas fa-images"></i> Portfolio
+            </h3>
+            <div class="portfolio-grid" id="portfolioGrid">
+              <!-- Portfolio items will be inserted here -->
+            </div>
+          </div>
+
+          <!-- Reviews Section -->
+          <div class="section" id="reviewsSection">
+            <h3 class="section-title">
+              <i class="fas fa-star"></i> Reviews
+              <span style="font-size:1rem;color:var(--text-light);font-weight:400;" id="reviewsCount">(0)</span>
+            </h3>
+            <div id="reviewsList">
+              <p style="color:var(--text-light);text-align:center;padding:40px;">No reviews yet. Be the first to review!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div>
+          <!-- Stats Section -->
+          <div class="sidebar-section">
+            <h3 class="sidebar-title">Performance Stats</h3>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-value" id="completedJobs">0</div>
+                <div class="stat-label">Jobs Done</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value" id="avgRating">0.0</div>
+                <div class="stat-label">Avg Rating</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value" id="responseRate">100%</div>
+                <div class="stat-label">Response</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Section -->
+          <div class="sidebar-section">
+            <h3 class="sidebar-title">Contact Information</h3>
+            <ul class="contact-info">
+              <li>
+                <i class="fas fa-envelope"></i>
+                <span id="contactEmail">Email not available</span>
+              </li>
+              <li>
+                <i class="fas fa-phone"></i>
+                <span id="contactPhone">Phone not available</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { getApiBase, authHeaders, getToken } from './assets/js/api.js';
+
+    (async function() {
+      const params = new URLSearchParams(window.location.search);
+      const workerId = params.get('id') || params.get('workerId');
+      
+      if (!workerId) {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('errorState').style.display = 'block';
+        return;
+      }
+
+      try {
+        const apiBase = getApiBase();
+        const res = await fetch(`${apiBase}/workers/${workerId}`, {
+          headers: { ...authHeaders() }
+        });
+
+        if (!res.ok) {
+          throw new Error('Worker not found');
+        }
+
+        const worker = await res.json();
+
+        // Populate profile data
+        document.getElementById('workerName').textContent = worker.name || 'Worker';
+        document.getElementById('workerSkill').textContent = worker.skill || 'Service Provider';
+        document.getElementById('workerAvatar').src = worker.avatarUrl || 'https://source.unsplash.com/400x400/?professional,worker';
+        document.getElementById('workerPrice').textContent = worker.price || 0;
+        document.getElementById('workerBio').textContent = worker.bio || 'No description available.';
+        document.getElementById('workerLocation').textContent = worker.city || worker.address || 'Location not available';
+        document.getElementById('workerAvailability').textContent = worker.availability || 'Availability not set';
+        document.getElementById('contactEmail').textContent = worker.email || 'Email not available';
+        document.getElementById('contactPhone').textContent = worker.phone || 'Phone not available';
+
+        // Rating
+        const rating = worker.rating || 0;
+        const reviewCount = worker.reviewCount || 0;
+        document.getElementById('workerRating').textContent = `★ ${rating.toFixed(1)}`;
+        document.getElementById('ratingText').textContent = `(${reviewCount} ${reviewCount === 1 ? 'review' : 'reviews'})`;
+        document.getElementById('avgRating').textContent = rating.toFixed(1);
+
+        // Stats
+        document.getElementById('completedJobs').textContent = worker.completedBookings || worker.stats?.completedBookings || 0;
+
+        // Joined date
+        if (worker.joinedAt) {
+          const date = new Date(worker.joinedAt);
+          document.getElementById('workerJoined').textContent = `Joined ${date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`;
+        }
+
+        // Reviews
+        if (worker.reviews && worker.reviews.length > 0) {
+          document.getElementById('reviewsCount').textContent = `(${worker.reviews.length})`;
+          const reviewsList = document.getElementById('reviewsList');
+          reviewsList.innerHTML = worker.reviews.map(review => `
+            <div class="review-item">
+              <div class="review-header">
+                <div class="reviewer-info">
+                  <img src="${review.customerId?.avatarUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(review.customerId?.name || 'User')}" 
+                       alt="${review.customerId?.name || 'User'}" class="reviewer-avatar">
+                  <div class="reviewer-details">
+                    <h4>${review.customerId?.name || 'Anonymous'}</h4>
+                    <div class="review-date">${new Date(review.createdAt).toLocaleDateString()}</div>
+                  </div>
+                </div>
+                <div class="review-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
+              </div>
+              <div class="review-text">${review.comment || 'No comment provided.'}</div>
+            </div>
+          `).join('');
+        } else {
+          document.getElementById('reviewsCount').textContent = '(0)';
+        }
+
+        // Portfolio (if available)
+        if (worker.gallery && worker.gallery.length > 0) {
+          document.getElementById('portfolioSection').style.display = 'block';
+          const portfolioGrid = document.getElementById('portfolioGrid');
+          portfolioGrid.innerHTML = worker.gallery.map((item, idx) => `
+            <div class="portfolio-item">
+              <img src="${item.url || item}" alt="Portfolio ${idx + 1}" 
+                   onclick="window.open('${item.url || item}', '_blank')">
+            </div>
+          `).join('');
+        }
+
+        // Book Now button
+        document.getElementById('bookNowBtn').addEventListener('click', () => {
+          const workerPayload = {
+            id: worker.id || worker._id,
+            name: worker.name,
+            skill: worker.skill,
+            price: worker.price,
+            img: worker.avatarUrl,
+            availability: worker.availability,
+            description: worker.bio,
+            city: worker.city,
+            address: worker.address
+          };
+          try {
+            localStorage.setItem('nearnect_selected_worker', JSON.stringify(workerPayload));
+            window.location.href = `booking.html?workerId=${encodeURIComponent(worker.id || worker._id)}`;
+          } catch (err) {
+            alert('Failed to save worker selection. Please try again.');
+          }
+        });
+
+        // Message button
+        document.getElementById('messageBtn').addEventListener('click', () => {
+          const workerId = worker.id || worker._id;
+          window.location.href = `chat.html?userId=${workerId}`;
+        });
+
+        // Show content
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('profileContent').style.display = 'block';
+
+      } catch (err) {
+        console.error('Failed to load worker profile:', err);
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('errorState').style.display = 'block';
+      }
+    })();
+  </script>
+</body>
+</html>

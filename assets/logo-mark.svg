@@ -1,0 +1,15 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NearNect Logo Mark">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6c5ce7"/>
+      <stop offset="100%" stop-color="#E91E63"/>
+    </linearGradient>
+  </defs>
+  <rect rx="24" ry="24" width="128" height="128" fill="url(#g)"/>
+  <g transform="translate(28,28)">
+    <!-- Stylized double-N for NearNect -->
+    <path d="M8 72 V16 a8 8 0 0 1 8-8 h0 a8 8 0 0 1 6 3 l28 36 a3 3 0 0 0 5-2 V16 a8 8 0 0 1 8-8 h0 a8 8 0 0 1 8 8 v56 a8 8 0 0 1-8 8 h0 a8 8 0 0 1-6-3 L29 39 a3 3 0 0 0-5 2 v31 a8 8 0 0 1-8 8 h0 a8 8 0 0 1-8-8z" fill="#fff"/>
+  </g>
+</svg>
+
+

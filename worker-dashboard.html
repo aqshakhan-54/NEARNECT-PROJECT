@@ -1,0 +1,3175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Worker Dashboard - NearNect</title>
+  <meta name="description" content="Professional dashboard for NearNect service providers to manage their work, bookings, and earnings">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+  <meta name="description" content="Professional dashboard for NearNect service providers to manage their work, bookings, and earnings">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+  <style>
+    :root{ --primary:#6c5ce7; --secondary:#E91E63; --bg:#f6f6fb; --text:#222; --radius:12px; --shadow:0 8px 30px rgba(0,0,0,0.08); }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Poppins',sans-serif}
+    body{background:var(--bg);color:var(--text);}
+    .dashboard{display:flex;min-height:100vh}
+    /* Sidebar */
+    .sidebar{width:260px;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:22px 18px;position:fixed;left:0;top:0;bottom:0;transition:all 0.3s ease;z-index:1000;overflow-y:auto}
+    .sidebar.collapsed{transform:translateX(-100%)}
+    @media (max-width:768px){.sidebar{transform:translateX(-100%);z-index:1050}.sidebar.collapsed{transform:translateX(0)}}
+    .logo{font-weight:800;font-size:20px;margin-bottom:18px}
+    .profile-mini{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+    .avatar{width:56px;height:56px;border-radius:50%;overflow:hidden;background:#fff}
+    .chart-container{width:100%;height:300px;margin-top:20px;position:relative}
+    .prof-name{font-weight:700}
+    .nav-section{margin:18px 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:0.8px;color:rgba(255,255,255,0.8)}
+    .sidebar nav{display:flex;flex-direction:column;gap:6px}
+    .sidebar nav a{display:flex;align-items:center;gap:12px;color:#fff;text-decoration:none;padding:12px 14px;border-radius:12px;transition:.25s;background:rgba(255,255,255,0.05);border:1px solid transparent;font-weight:500}
+    .sidebar nav a .nav-icon{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-size:14px}
+    .sidebar nav a span{flex:1}
+    .sidebar nav a .nav-count{background:#ff4757;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;justify-content:center}
+    .sidebar nav a.active{background:#fff;color:var(--primary);box-shadow:0 10px 30px rgba(0,0,0,0.18);border-color:rgba(255,255,255,0.65)}
+    .sidebar nav a.active .nav-icon{background:rgba(108,92,231,0.12);color:var(--primary)}
+    .sidebar nav a:hover{transform:translateX(4px);background:rgba(255,255,255,0.15)}
+    .sidebar-footer{margin-top:auto;padding-top:20px;border-top:1px solid rgba(255,255,255,0.1);margin-top:20px}
+    
+    /* Responsive Adjustments */
+    @media (max-width: 1024px) {
+      .stats-grid{grid-template-columns:repeat(2,1fr)}
+    }
+    
+    @media (max-width: 640px) {
+      .stats-grid{grid-template-columns:1fr}
+      .booking-item{flex-direction:column;align-items:flex-start}
+      .booking-actions{width:100%;justify-content:flex-end}
+      .topbar-actions{width:100%;justify-content:space-between}
+    }
+    .form-select{padding:8px 12px;border-radius:8px;border:1px solid #e2e8f0;font-size:14px;background-color:#fff;background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");background-repeat:no-repeat;background-position:right 0.5rem center;background-size:1.5em 1.5em;-webkit-appearance:none;-moz-appearance:none;appearance:none;padding-right:2.5rem}
+    .profile-header{display:flex;gap:16px;align-items:center}
+    .profile-header .avatar-lg{width:90px;height:90px;border-radius:18px;overflow:hidden}
+    .profile-header .meta{flex:1}
+    .meta h3{font-size:1.3rem;margin-bottom:6px}
+    .text-success{color:#10b981}
+    .text-muted{color:#6b7280}
+    .text-primary{color:var(--primary)}
+    .bg-light{background-color:#f8f9fa}
+    .mb-0{margin-bottom:0}
+    .mb-2{margin-bottom:0.5rem}
+    .mb-3{margin-bottom:1rem}
+    .mb-4{margin-bottom:1.5rem}
+    .mt-3{margin-top:1rem}
+    .mt-4{margin-top:1.5rem}
+    .p-3{padding:1rem}
+    .rounded{ border-radius: 0.375rem; }
+    .shadow-sm{ box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+    .edit-btn{background:linear-gradient(90deg,var(--secondary),var(--primary));color:#fff;padding:10px 14px;border-radius:10px;border:none;cursor:pointer}
+
+    .card-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+    .card-header h3{margin:0;font-size:1.05rem}
+    .card-header p{margin:0;font-size:13px;color:#8b90a1}
+    .chip{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;background:#f3f0ff;color:var(--primary);font-weight:600}
+    .subtle{color:#666;font-size:12px}
+    /* Loading state */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 300px;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Main Content Area */
+    .content{flex:1;margin-left:260px;padding:24px;background:var(--bg);min-height:100vh}
+    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #e2e8f0}
+    .topbar h2{margin:0;font-size:1.5rem;font-weight:700;color:#1a202c}
+    
+    /* View Sections */
+    .view{display:none;width:100%}
+    .view.view-active{display:block}
+    .view-grid{display:grid;grid-template-columns:1fr;gap:20px}
+    .view-grid.single{max-width:1200px;margin:0 auto}
+    
+    /* Cards */
+    .card{background:#fff;border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border:1px solid #e2e8f0}
+    .card.pro-card{background:linear-gradient(135deg,#fff 0%,#f8f9ff 100%);border:1px solid #e8e9ff}
+    
+    /* Overview Banner */
+    .overview-banner{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+    .overview-item{background:#fff;padding:18px;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid #e2e8f0}
+    .overview-item span{display:block;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;font-weight:600}
+    .overview-item strong{display:block;font-size:1.3rem;font-weight:700;color:#1a202c;margin-bottom:4px}
+    .overview-item small{display:block;font-size:12px;color:#9ca3af}
+    .status-chip{display:inline-block;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+    .status-chip.online{background:#d1fae5;color:#065f46}
+    .status-chip.offline{background:#fee2e2;color:#991b1b}
+    
+    /* Stats Grid */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+    .stat-card{background:#fff;padding:20px;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid #e2e8f0;text-align:center}
+    .stat-label{font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;font-weight:600}
+    .stat-value{font-size:2rem;font-weight:800;color:#1a202c;margin-bottom:4px}
+    .stat-sub{font-size:13px;color:#9ca3af}
+    
+    /* Performance Grid */
+    .performance-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-top:16px}
+    .perf-card{text-align:center;padding:16px;background:#fff;border-radius:10px;border:1px solid #e2e8f0}
+    .perf-value{font-size:1.8rem;font-weight:800;color:var(--primary);margin-bottom:4px}
+    .perf-label{font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px}
+    
+    /* Badges */
+    .badge-soft{display:inline-block;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600}
+    .badge-soft.success{background:#d1fae5;color:#065f46}
+    .badge-soft.warning{background:#fef3c7;color:#92400e}
+    .badge-soft.muted{background:#f3f4f6;color:#6b7280}
+    
+    /* Buttons */
+    .btn{background:var(--primary);color:#fff;padding:10px 18px;border-radius:10px;border:none;cursor:pointer;font-weight:600;font-size:14px;transition:all 0.2s}
+    .btn:hover{background:#5a4dd6;transform:translateY(-1px);box-shadow:0 4px 12px rgba(108,92,231,0.3)}
+    .btn-light{background:#fff;color:var(--primary);padding:10px 18px;border-radius:10px;border:1px solid #e2e8f0;cursor:pointer;font-weight:600;font-size:14px;transition:all 0.2s}
+    .btn-light:hover{background:#f8f9ff;border-color:var(--primary)}
+    
+    /* Tiny text */
+    .tiny{font-size:12px;color:#9ca3af}
+    
+    /* Avatar */
+    .avatar-lg img{width:100%;height:100%;object-fit:cover}
+    
+    /* Empty state */
+    .empty-state{padding:40px 20px;text-align:center;color:#9ca3af;font-size:14px}
+    
+    /* Responsive */
+    @media (max-width:768px){
+      .content{margin-left:0;padding:16px}
+      .sidebar{transform:translateX(-100%)}
+      .overview-banner{grid-template-columns:1fr}
+      .stats-grid{grid-template-columns:1fr}
+      .performance-grid{grid-template-columns:repeat(2,1fr)}
+    }
+  </style>
+</head>
+<body>
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+  </div>
+  
+  <div class="dashboard" style="display: none;">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">NearNect</div>
+      
+      <div class="profile-mini">
+        <div class="avatar">
+          <img id="sideAvatar" src="https://ui-avatars.com/api/?name=Worker&background=6c5ce7&color=fff" alt="Profile" onerror="this.src='https://ui-avatars.com/api/?name=Worker&background=6c5ce7&color=fff'">
+        </div>
+        <div>
+          <div class="prof-name" id="sideName">Loading...</div>
+          <div id="workerRole" style="font-size:12px;opacity:0.9">Service Provider</div>
+        </div>
+      </div>
+      <nav>
+        <div class="nav-section">Overview</div>
+        <a href="#" class="nav-link active" data-tab="dashboard">
+          <span class="nav-icon"><i class="fa fa-chart-line"></i></span>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" data-tab="requests">
+          <span class="nav-icon"><i class="fa fa-clipboard-list"></i></span>
+          <span>Jobs & Leads</span>
+          <span class="nav-count" id="navJobsCount" style="display:none;">0</span>
+        </a>
+        <a href="#" data-tab="messages">
+          <span class="nav-icon"><i class="fa fa-comments"></i></span>
+          <span>Messages</span>
+          <span class="nav-count" id="navMsgCount" style="display:none;">0</span>
+        </a>
+
+        <div class="nav-section">Business</div>
+        <a href="#" data-tab="earnings">
+          <span class="nav-icon"><i class="fa fa-wallet"></i></span>
+          <span>Earnings</span>
+        </a>
+        <a href="#" data-tab="reviews">
+          <span class="nav-icon"><i class="fa fa-star"></i></span>
+          <span>Reviews</span>
+        </a>
+        <a href="#" data-tab="portfolio">
+          <span class="nav-icon"><i class="fa fa-briefcase"></i></span>
+          <span>Portfolio</span>
+        </a>
+
+        <div class="nav-section">Account</div>
+        <a href="#" data-tab="settings">
+          <span class="nav-icon"><i class="fa fa-gear"></i></span>
+          <span>Settings</span>
+        </a>
+        <a href="login.html" data-tab="logout">
+          <span class="nav-icon"><i class="fa fa-arrow-right-from-bracket"></i></span>
+          <span>Logout</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <div class="topbar">
+        <h2>Worker Dashboard</h2>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <button class="btn" id="goPublic">View public profile</button>
+          <button id="notifBtn" class="btn" style="margin-left:0;position:relative">
+            <i class="fa fa-bell"></i>
+            <span id="notifCount" style="position:absolute;top:-6px;right:-6px;background:#ff4757;color:#fff;border-radius:50%;width:18px;height:18px;font-size:11px;display:flex;align-items:center;justify-content:center;">0</span>
+          </button>
+          <button class="btn-light" id="logoutBtn" style="border:1px solid #e0e5f6;color:#4b5162">Logout</button>
+        </div>
+      </div>
+
+      <section class="view view-active" data-view="dashboard">
+        <div class="view-grid">
+          <div class="overview-banner">
+            <div class="overview-item">
+              <span>Status</span>
+              <div id="bannerAvailability" class="status-chip online">Online</div>
+              <small id="bannerAvailabilityHint">Available for new jobs today</small>
+            </div>
+            <div class="overview-item">
+              <span>Next booking</span>
+              <strong id="bannerNextJob">No jobs scheduled</strong>
+              <small id="bannerNextJobMeta">Add availability to get more leads</small>
+            </div>
+            <div class="overview-item">
+              <span>Open requests</span>
+              <strong id="bannerOpenJobs">0</strong>
+              <small id="bannerOpenJobsMeta">Awaiting your response</small>
+            </div>
+            <div class="overview-item">
+              <span>Outstanding ₹</span>
+              <strong id="bannerOutstanding">₹0</strong>
+              <small id="bannerOutstandingMeta">Confirm jobs to release payouts</small>
+            </div>
+          </div>
+
+          <div class="card" id="profileCard">
+            <div class="profile-header">
+              <div class="avatar-lg"><img id="profileAvatar" src="https://source.unsplash.com/200x200/?portrait" alt="avatar"></div>
+              <div class="meta">
+                <h3 id="workerName">Worker Name</h3>
+                <p id="workerSkill">Plumber • 5 years experience</p>
+                  <p id="workerBio">Short bio about the worker will appear here. Users can see this when they view your profile.</p>
+                  <p id="workerLocation" class="tiny">Location not set</p>
+              </div>
+              <div>
+                <button class="edit-btn" id="editProfileBtn">Edit Profile</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Completed</div>
+              <div class="stat-value" id="statCompleted">0</div>
+              <div class="stat-sub">Jobs finished</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Pending</div>
+              <div class="stat-value" id="statPending">0</div>
+              <div class="stat-sub">Awaiting action</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Earnings</div>
+              <div class="stat-value" id="statEarnings">₹0</div>
+              <div class="stat-sub">Total confirmed</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Rating</div>
+              <div class="stat-value" id="statRating">0.0★</div>
+              <div class="stat-sub" id="statReviews">0 reviews</div>
+            </div>
+          </div>
+
+          <div class="card" id="upcomingCard">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <h3 style="margin:0">Upcoming Schedule</h3>
+              <div style="font-size:13px;color:#666">Next 5 bookings</div>
+              </div>
+            <div id="upcomingList" style="display:flex;flex-direction:column;gap:12px;"></div>
+              </div>
+
+          <div class="card pro-card" id="performanceCard">
+            <div class="card-header">
+              <div>
+                <h3>Performance snapshot</h3>
+                <p>Keep quality metrics green</p>
+            </div>
+              <span class="badge-soft" id="healthBadge">Healthy</span>
+          </div>
+            <div class="performance-grid">
+              <div class="perf-card">
+                <div class="perf-value" id="responseRate">0%</div>
+                <div class="perf-label">Response rate</div>
+        </div>
+              <div class="perf-card">
+                <div class="perf-value" id="acceptanceRate">0%</div>
+                <div class="perf-label">Acceptance</div>
+              </div>
+              <div class="perf-card">
+                <div class="perf-value" id="avgResponseTime">--h</div>
+                <div class="perf-label">Avg. response</div>
+              </div>
+              <div class="perf-card">
+                <div class="perf-value" id="cancelRate">0%</div>
+                <div class="perf-label">Cancellations</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Charts: Booking trends + Revenue + Status distribution -->
+          <div class="card" style="margin-top:18px;">
+            <div class="card-header" style="margin-bottom:12px">
+              <h3 style="margin:0">Analytics</h3>
+              <p style="margin:0;font-size:13px;color:#8b90a1">Bookings & revenue trends</p>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:12px">
+              <div class="card" style="padding:12px">
+                <h4 style="margin:0 0 8px 0">Booking Trends</h4>
+                <canvas id="bookingTrendChart" style="width:100%;height:220px"></canvas>
+              </div>
+              <div class="card" style="padding:12px">
+                <h4 style="margin:0 0 8px 0">Revenue Trend</h4>
+                <canvas id="revenueChart" style="width:100%;height:220px"></canvas>
+              </div>
+            </div>
+            <div style="padding:12px">
+              <h4 style="margin:0 0 8px 0">Booking Status</h4>
+              <div style="max-width:360px;margin-top:8px"><canvas id="statusPieChart" style="width:100%;height:180px"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" data-view="jobs">
+        <div class="view-grid">
+          <div class="card" id="jobsControlCard">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <h3 style="margin:0">Jobs & leads</h3>
+              <div style="font-size:13px;color:#666">Drag jobs across stages or filter below</div>
+            </div>
+            <div class="jobs-toolbar">
+              <label class="field">
+                Status
+                <select id="filterStatus">
+                  <option value="all">All</option>
+                  <option value="requested">Requested</option>
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="in_progress">In progress</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </label>
+              <label class="field">
+                Service
+                <input type="text" id="filterService" placeholder="e.g. AC repair">
+              </label>
+              <label class="field">
+                From
+                <input type="date" id="filterFrom">
+              </label>
+              <label class="field">
+                To
+                <input type="date" id="filterTo">
+              </label>
+              <label class="field" style="flex:1">
+                Search
+                <input type="text" id="filterSearch" placeholder="Name, address, notes">
+              </label>
+            </div>
+            <div class="kanban-board" id="jobsBoard"></div>
+          </div>
+
+          <div class="card" id="tasksCard">
+            <div class="card-header">
+        <div>
+                <h3>Today's focus</h3>
+                <p>Quick actions to stay ahead</p>
+              </div>
+            </div>
+            <div class="tasks-list" id="taskList"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" data-view="messages">
+        <div class="view-grid single">
+          <div class="card" id="messagesCard">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <div>
+                <h3 style="margin:0">Inbox</h3>
+                <div style="font-size:13px;color:#666">Chat with your customers in real time</div>
+            </div>
+              <button class="btn-light" id="openChatPage">Open full chat</button>
+            </div>
+            <div class="chat-layout">
+              <div class="conversation-panel">
+                <div class="conversation-toolbar">
+                  <input id="convoSearch" type="text" placeholder="Search clients..." />
+                  <button id="refreshChats" title="Refresh inbox"><i class="fa fa-rotate-right"></i></button>
+                </div>
+                <div class="conversation-list" id="convoList"></div>
+                <div class="tiny" id="inboxStatus" style="margin-top:6px">No conversations yet.</div>
+              </div>
+              <div class="chat-panel">
+                <div class="chat-header" id="chatHeader">
+                  <div class="chat-target">
+                    <img id="chatAvatar" src="https://source.unsplash.com/120x120/?user" alt="chat avatar">
+                    <div>
+                      <div id="chatName" style="font-weight:600;font-size:16px">Select a conversation</div>
+                      <div id="chatMeta" class="tiny">You can view booking context here</div>
+                    </div>
+                  </div>
+                  <div class="chat-header-actions" style="display:flex;gap:8px">
+                    <button class="btn-light" id="callClientBtn" disabled>Call</button>
+                    <button class="btn-light" id="openBookingBtn" disabled>View booking</button>
+                  </div>
+                </div>
+                <div id="messageThread" class="chat-body">
+                  <div class="chat-empty">Pick a conversation to start chatting.</div>
+                </div>
+                <div class="quick-replies" id="quickReplies"></div>
+                <div class="chat-composer">
+                  <textarea id="msgInput" placeholder="Type a message..."></textarea>
+                  <button id="sendMsgBtn" class="btn" disabled>Send</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" data-view="earnings">
+        <div class="view-grid">
+          <div class="card pro-card" id="earningsCard">
+            <div class="card-header">
+              <div>
+                <h3>Earnings & payouts</h3>
+                <p>Track confirmed money at a glance</p>
+            </div>
+              <button class="btn" id="downloadReport" style="padding:6px 12px;font-size:12px">Download</button>
+            </div>
+            <div class="earnings-stats">
+              <div class="block">
+                <div class="label">Next payout</div>
+                <div class="value" id="nextPayout">₹0</div>
+                <div class="tiny" id="nextPayoutDate">No payout scheduled</div>
+              </div>
+              <div class="block">
+                <div class="label">This week</div>
+                <div class="value" id="weekEarnings">₹0</div>
+                <div class="tiny" id="weekJobs">0 jobs</div>
+              </div>
+              <div class="block">
+                <div class="label">Unsettled</div>
+                <div class="value" id="pendingEarnings">₹0</div>
+                <div class="tiny">Awaiting completion</div>
+              </div>
+            </div>
+            <div class="trend-bars" id="earningsTrend"></div>
+          </div>
+            
+          <div class="card" id="payoutHistoryCard">
+            <div class="card-header">
+              <div>
+                <h3>Payout history</h3>
+                <p>Last 5 completed jobs</p>
+              </div>
+            </div>
+            <div id="payoutHistory"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" data-view="reviews">
+        <div class="view-grid single">
+          <div class="card" id="reviewsCard">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <h3 style="margin:0">Recent Reviews</h3>
+              <div style="font-size:13px;color:#666">Latest feedback</div>
+              </div>
+            <div id="reviewsList" style="display:flex;flex-direction:column;gap:14px;"></div>
+                  </div>
+                </div>
+      </section>
+
+      <section class="view" data-view="portfolio">
+        <div class="view-grid">
+          <div class="card" id="portfolioCard">
+            <div class="card-header">
+              <div>
+                <h3>Portfolio & Proof</h3>
+                <p>Showcase your best work. Customers see this first.</p>
+              </div>
+              <div class="portfolio-actions">
+                <button class="btn-light" id="portfolioGuideBtn">Tips</button>
+                <button class="btn" id="addPortfolioBtn">Upload shots</button>
+            </div>
+        </div>
+            <input id="portfolioFileInput" type="file" accept="image/*" multiple style="display:none">
+            <div class="upload-hint">Recommended: 1200x800px JPG/PNG under 3MB. Drag & drop coming soon.</div>
+            <div class="portfolio-grid" id="portfolioGrid"></div>
+      </div>
+
+          <div class="card" id="documentsCard">
+            <div class="card-header">
+              <div>
+                <h3>Documents & Verification</h3>
+                <p>Upload licenses and ID proofs to build trust.</p>
+              </div>
+              <div class="portfolio-actions">
+                <select id="documentTypeSelect" style="padding:8px 10px;border-radius:10px;border:1px solid #e1e4f4;font-size:13px">
+                  <option value="license">Service License</option>
+                  <option value="id-proof">Government ID</option>
+                  <option value="insurance">Insurance</option>
+                  <option value="certification">Certification</option>
+                </select>
+                <button class="btn" id="addDocumentBtn">Upload document</button>
+              </div>
+            </div>
+            <input id="documentFileInput" type="file" accept=".pdf,image/*" style="display:none">
+            <div class="documents-list" id="documentsList"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" data-view="settings">
+        <div class="view-grid">
+          <div class="card pro-card" id="availabilityCard">
+            <div class="card-header">
+              <div>
+                <h3>Availability control</h3>
+                <p>Let clients know when you’re taking jobs</p>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px">
+                <span id="availabilityStatus" class="badge-soft success">Online</span>
+                <label class="switch">
+                  <input type="checkbox" id="availabilityToggle" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+            <div class="availability-grid">
+              <div>
+                <label>Service radius (km)</label>
+                <input type="number" id="serviceRadius" min="1" max="60" value="10">
+              </div>
+              <div>
+                <label>Preferred slots</label>
+                <select id="slotPreset">
+                  <option value="full-day">Full day (9 AM - 6 PM)</option>
+                  <option value="half-day">Half day (9 AM - 1 PM)</option>
+                  <option value="evening">Evening runs</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </div>
+              <div>
+                <label>Next break</label>
+                <input type="date" id="nextBreak">
+              </div>
+            </div>
+            <div class="tiny" style="margin-top:10px">Changes sync with your public profile instantly.</div>
+          </div>
+
+          <div class="card" id="accountSettingsCard">
+            <div class="card-header">
+              <div>
+                <h3>Account summary</h3>
+                <p>Keep your public profile up to date</p>
+              </div>
+            </div>
+            <div id="settingsProfileSummary" class="settings-summary"></div>
+            <button class="btn" id="openProfileFromSettings" style="margin-top:12px;align-self:flex-start">Edit profile</button>
+          </div>
+
+          <div class="card" id="notificationsCard">
+            <div class="card-header">
+              <div>
+                <h3>Notifications</h3>
+                <p>Select how you want to hear from clients</p>
+              </div>
+            </div>
+            <div class="prefs-list" id="notificationPrefList"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="job-detail-drawer" id="jobDetailDrawer">
+    <button class="btn-light" id="closeJobDrawer" style="margin-bottom:12px">Close</button>
+    <h3 id="drawerTitle">Job details</h3>
+    <div id="drawerBody"></div>
+    <div class="job-card-actions" style="margin-top:12px">
+      <button class="primary" id="drawerPrimaryAction">Update status</button>
+      <button class="secondary" id="drawerSecondaryAction">Message client</button>
+    </div>
+  </div>
+
+  <!-- Modal: user profile preview -->
+  <div class="modal" id="userModal">
+    <div class="panel">
+      <div class="left">
+        <div style="text-align:center;margin-bottom:12px"><img id="modalAvatar" src="https://source.unsplash.com/240x240/?person" style="width:100%;border-radius:12px;"/></div>
+        <h3 id="modalName"></h3>
+        <p id="modalContact" style="color:#666;font-size:14px"></p>
+        <div style="margin-top:12px;font-size:13px;color:#666">Recent activity</div>
+        <ul id="modalActivity" style="margin-top:8px;list-style:none;padding-left:0;font-size:13px;color:#444"></ul>
+      </div>
+      <div class="right">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <h4 style="margin:0">Request Details</h4>
+          <button id="closeModal" class="btn">Close</button>
+        </div>
+        <div id="modalRequestBody" style="background:#fafafa;padding:12px;border-radius:10px;color:#333"></div>
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button class="btn-accept" id="modalAccept">Accept</button>
+          <button class="btn-decline" id="modalDecline">Decline</button>
+          <button class="btn" id="modalMessage">Message</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Edit Profile -->
+  <div class="modal" id="editModal">
+    <div class="panel" style="max-width:700px">
+      <div class="left" style="width:260px">
+        <div style="text-align:center;margin-bottom:12px">
+          <img id="editAvatarPreview" src="https://source.unsplash.com/240x240/?portrait" style="width:180px;height:180px;border-radius:50%;object-fit:cover"/>
+        </div>
+        <div style="text-align:center">
+          <input id="editAvatarFile" type="file" accept="image/*" style="display:none"/>
+          <button class="btn" id="chooseAvatarBtn">Change photo</button>
+        </div>
+      </div>
+      <div class="right">
+        <h3 style="margin:0 0 10px 0">Edit Profile</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <label class="subtle">Full name</label>
+            <input id="editName" type="text" style="width:100%;padding:10px;border:1px solid #eee;border-radius:8px"/>
+          </div>
+          <div>
+            <label class="subtle">Skill</label>
+            <input id="editSkill" type="text" style="width:100%;padding:10px;border:1px solid #eee;border-radius:8px"/>
+          </div>
+          <div>
+            <label class="subtle">Price</label>
+            <input id="editPrice" type="number" min="0" style="width:100%;padding:10px;border:1px solid #eee;border-radius:8px"/>
+          </div>
+          <div>
+            <label class="subtle">Availability</label>
+            <input id="editAvail" type="text" placeholder="9 AM - 6 PM" style="width:100%;padding:10px;border:1px solid #eee;border-radius:8px"/>
+          </div>
+          <div style="grid-column:1/3">
+            <label class="subtle">Bio</label>
+            <textarea id="editBio" rows="3" style="width:100%;padding:10px;border:1px solid #eee;border-radius:8px"></textarea>
+          </div>
+          <div style="grid-column:1/3">
+            <label class="subtle">Address</label>
+            <input id="editAddress" type="text" placeholder="Full address / locality" style="width:100%;padding:10px;border:1px solid #eee;border-radius:8px" />
+          </div>
+          <div>
+            <label class="subtle">City</label>
+            <input id="editCity" type="text" placeholder="City" style="width:100%;padding:10px;border:1px solid #eee;border-radius:8px" />
+          </div>
+          <div>
+            <label class="subtle">Pincode</label>
+            <input id="editPincode" type="text" placeholder="Pincode" style="width:100%;padding:10px;border:1px solid #eee;border-radius:8px" />
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn" id="saveEditBtn">Save</button>
+          <button class="btn-decline" id="cancelEditBtn">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script type="module">
+    // Import API helpers
+    import { getApiBase, authHeaders, getToken } from './assets/js/api.js';
+    
+    // Make functions available globally
+    window.getApiBase = getApiBase;
+    window.authHeaders = authHeaders;
+    window.getToken = getToken;
+    
+    // Load worker profile and bookings
+    let worker = null;
+    let bookings = [];
+    let reviews = [];
+    let reviewStats = { total: 0, averageRating: 0 };
+    let conversations = [];
+    let conversationFilter = '';
+    let activeConversationId = null;
+    let messageCache = {};
+    let messagePollTimer = null;
+    let portfolioItems = [];
+    let documentItems = [];
+    let isSavingPortfolio = false;
+    let isSavingDocuments = false;
+    let jobFilters = { status: 'all', service: '', from: null, to: null, search: '' };
+    let jobDetailBooking = null;
+    let draggedBookingId = null;
+    const CHAT_POLL_MS = 15000;
+    const QUICK_REPLIES = [
+      'On my way, reaching soon!',
+      'Can we reschedule this booking?',
+      'Please share the exact landmark.',
+      'Job completed ✅'
+    ];
+    let workerSettings = loadWorkerSettings();
+    const notificationPrefDefaults = {
+      bookingUpdates: true,
+      reminders: true,
+      newMessages: true,
+      marketing: false
+    };
+    let notificationPrefs = loadNotificationPrefs();
+    let taskProgress = loadTaskProgress();
+    let availabilityInitialized = false;
+
+    const pipelineStages = [
+      { id: 'new', label: 'New', statuses: ['requested','pending'] },
+      { id: 'confirmed', label: 'Confirmed', statuses: ['confirmed'] },
+      { id: 'ongoing', label: 'On job', statuses: ['in_progress'] },
+      { id: 'completed', label: 'Completed', statuses: ['completed'] },
+      { id: 'closed', label: 'Closed', statuses: ['cancelled','declined','rejected'] }
+    ];
+
+    // Toast notification system
+    function showToast(message, type='info', duration=3000){
+      const toastId = 'toast_' + Date.now();
+      const backgroundColor = type === 'success' ? '#00b894' : type === 'error' ? '#e17055' : '#6c5ce7';
+      const toast = document.createElement('div');
+      toast.id = toastId;
+      toast.style.cssText = `
+        position: fixed; top: 20px; right: 20px; background: ${backgroundColor}; color: white;
+        padding: 14px 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        font-weight: 500; z-index: 9999; animation: slideIn 0.3s ease; max-width: 350px;
+      `;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => document.body.removeChild(toast), 300);
+      }, duration);
+    }
+
+    // Add CSS animations for toast if not present
+    if (!document.querySelector('#toast-styles')) {
+      const style = document.createElement('style');
+      style.id = 'toast-styles';
+      style.textContent = `
+        @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(400px); opacity: 0; } }
+      `;
+      document.head.appendChild(style);
+    }
+
+    function loadWorkerSettings(){
+      try{
+        return JSON.parse(localStorage.getItem('nearnect_worker_settings')) || {};
+      }catch(_){
+        return {};
+      }
+    }
+
+    function loadNotificationPrefs(){
+      try{
+        return Object.assign({}, notificationPrefDefaults, JSON.parse(localStorage.getItem('nearnect_notification_prefs')) || {});
+      }catch(_){
+        return Object.assign({}, notificationPrefDefaults);
+      }
+    }
+
+    function persistNotificationPrefs(){
+      try{
+        localStorage.setItem('nearnect_notification_prefs', JSON.stringify(notificationPrefs));
+      }catch(_){}
+    }
+
+    function persistWorkerSettings(){
+      try{
+        localStorage.setItem('nearnect_worker_settings', JSON.stringify(workerSettings));
+      }catch(_){}
+    }
+
+    function updateWorkerSetting(key, value){
+      workerSettings = Object.assign({}, workerSettings, { [key]: value });
+      persistWorkerSettings();
+    }
+
+    function loadTaskProgress(){
+      try{
+        return new Set(JSON.parse(localStorage.getItem('nearnect_worker_task_progress')) || []);
+      }catch(_){
+        return new Set();
+      }
+    }
+
+    function persistTaskProgress(){
+      try{
+        localStorage.setItem('nearnect_worker_task_progress', JSON.stringify(Array.from(taskProgress)));
+      }catch(_){}
+
+    // Helper: ensure user has a token; show a notification and return false when missing
+    function ensureLoggedIn(){
+      try{ if (!getToken()) { showToast('Please login to continue', 'error', 2200); return false; } }catch(_){ return false; }
+      return true;
+    }
+    }
+    
+    async function loadWorkerProfile() {
+      try {
+        // Migrate legacy token keys saved by older pages (workerToken, token, etc.)
+        try {
+          if (!getToken()) {
+            const legacy = localStorage.getItem('workerToken') || localStorage.getItem('token') || localStorage.getItem('worker_token');
+            if (legacy) {
+              localStorage.setItem('nearnect_token', legacy);
+              showToast('Detected previous login and restored session', 'success', 2500);
+            }
+          }
+        } catch (_) {}
+
+        const token = getToken();
+        if (!token) {
+          console.warn('No token found. Attempting demo login or checking localStorage for worker data...');
+          
+          // Try to load from localStorage as fallback
+          try {
+            const savedWorker = localStorage.getItem('nearnect_current_user');
+            const savedWorkers = localStorage.getItem('nearnect_workers');
+            
+            if (savedWorker) {
+              const parsed = JSON.parse(savedWorker);
+              if (parsed.role === 'worker' || parsed.type === 'worker') {
+                worker = parsed;
+                updateWorkerDisplay();
+                updateDashboardBanner();
+                showToast('Loaded from saved session. Please login for full features.', 'warning', 3000);
+                return;
+              }
+            }
+            
+            if (savedWorkers) {
+              const workers = JSON.parse(savedWorkers);
+              const firstWorker = Array.isArray(workers) ? workers.find(w => w.role === 'worker') : null;
+              if (firstWorker) {
+                worker = firstWorker;
+                updateWorkerDisplay();
+                updateDashboardBanner();
+                showToast('Loaded from saved data. Please login for full features.', 'warning', 3000);
+                return;
+              }
+            }
+          } catch (e) {
+            console.error('Failed to load from localStorage:', e);
+          }
+          
+          // If no fallback data, redirect to login
+          showToast('Please login to continue', 'error', 2500);
+          setTimeout(()=> window.location.href = 'login.html?next=worker-dashboard.html', 1500);
+          return;
+        }
+        
+        // Try to fetch from API
+        try {
+          const res = await fetch(getApiBase() + '/auth/me', { 
+            headers: { ...authHeaders() },
+            // Add timeout
+            signal: AbortSignal.timeout(10000)
+          });
+          
+          if (res.ok) {
+            const data = await res.json();
+            worker = data.user;
+            if (worker.role !== 'worker') {
+              window.location.href = 'user-dashboard.html';
+              return;
+            }
+          updateWorkerDisplay();
+          updateDashboardBanner();
+          notificationPrefs = Object.assign({}, notificationPrefDefaults, worker.notificationPrefs || notificationPrefs);
+          renderNotificationPrefs();
+          hydrateWorkerAssets();
+          initAvailabilityControls(true);
+          loadReviews();
+          showToast('Welcome back ' + worker.name + '! 👋', 'success', 2000);
+          // Show dashboard after successful load
+          if (typeof showDashboard === 'function') {
+            showDashboard();
+          } else {
+            const loadingEl = document.getElementById('loading');
+            const dashboardEl = document.querySelector('.dashboard');
+            if (loadingEl) loadingEl.style.display = 'none';
+            if (dashboardEl) dashboardEl.style.display = 'flex';
+          }
+          return;
+          } else if (res.status === 401) {
+            // Token expired or invalid
+            console.warn('Token invalid or expired. Status:', res.status);
+            localStorage.removeItem('nearnect_token');
+            showToast('Session expired. Please login again.', 'error', 2500);
+            setTimeout(()=> window.location.href = 'login.html?next=worker-dashboard.html', 1500);
+            return;
+          } else {
+            console.error('Failed to fetch /auth/me, status:', res.status);
+            // Try fallback to localStorage
+            throw new Error('API call failed');
+          }
+        } catch (fetchError) {
+          console.warn('API fetch failed, trying localStorage fallback:', fetchError);
+          
+          // Fallback to localStorage
+          try {
+            const savedWorker = localStorage.getItem('nearnect_current_user');
+            if (savedWorker) {
+              const parsed = JSON.parse(savedWorker);
+              if (parsed.role === 'worker' || parsed.type === 'worker') {
+                worker = parsed;
+                updateWorkerDisplay();
+                updateDashboardBanner();
+                showToast('Loaded from saved session. Some features may be limited.', 'warning', 3000);
+                // Show dashboard
+                const loadingEl = document.getElementById('loading');
+                const dashboardEl = document.querySelector('.dashboard');
+                if (loadingEl) loadingEl.style.display = 'none';
+                if (dashboardEl) dashboardEl.style.display = 'flex';
+                return;
+              }
+            }
+          } catch (e) {
+            console.error('Fallback also failed:', e);
+          }
+          
+          // Last resort: redirect to login
+          showToast('Unable to load profile. Please login again.', 'error', 2500);
+          setTimeout(()=> window.location.href = 'login.html?next=worker-dashboard.html', 1500);
+        }
+      } catch (e) {
+        console.error('Failed to load worker profile:', e);
+        
+        // Try one more fallback
+        try {
+          const savedWorker = localStorage.getItem('nearnect_current_user');
+          if (savedWorker) {
+            const parsed = JSON.parse(savedWorker);
+            if (parsed.role === 'worker') {
+              worker = parsed;
+              updateWorkerDisplay();
+              updateDashboardBanner();
+              showToast('Loaded from saved data. Please login for full features.', 'warning', 3000);
+              // Show dashboard
+              const loadingEl = document.getElementById('loading');
+              const dashboardEl = document.querySelector('.dashboard');
+              if (loadingEl) loadingEl.style.display = 'none';
+              if (dashboardEl) dashboardEl.style.display = 'flex';
+              return;
+            }
+          }
+        } catch (_) {}
+        
+        showToast('Unable to load profile. Please login again.', 'error', 2500);
+        setTimeout(()=> window.location.href = 'login.html?next=worker-dashboard.html', 1500);
+      }
+    }
+    
+    async function loadBookings() {
+      try {
+        const res = await fetch(getApiBase() + '/bookings', { headers: { ...authHeaders() } });
+        if (res.ok) {
+          bookings = await res.json();
+          // Filter bookings where current user is the worker
+          bookings = bookings.filter(b => b.workerId?._id === worker?._id || b.workerId === worker?._id);
+          renderRequests();
+          updateStats();
+          renderUpcoming();
+          refreshProWidgets();
+          if(activeConversationId){
+            const activeConv = conversations.find(c => c.conversationId === activeConversationId);
+            if(activeConv) updateChatHeader(activeConv);
+          }
+        } else {
+          bookings = [];
+          renderRequests();
+          updateStats();
+          renderUpcoming();
+          refreshProWidgets();
+          if(activeConversationId){
+            const activeConv = conversations.find(c => c.conversationId === activeConversationId);
+            if(activeConv) updateChatHeader(activeConv);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load bookings:', e);
+        bookings = [];
+        renderRequests();
+        updateStats();
+        renderUpcoming();
+        refreshProWidgets();
+        if(activeConversationId){
+          const activeConv = conversations.find(c => c.conversationId === activeConversationId);
+          if(activeConv) updateChatHeader(activeConv);
+        }
+      }
+    }
+
+    async function loadReviews() {
+      if (!worker?._id) return;
+      try {
+        const res = await fetch(`${getApiBase()}/reviews/worker/${worker._id}`, { headers: { ...authHeaders() } });
+        if (res.ok) {
+          const data = await res.json();
+          reviews = data.reviews || [];
+          reviewStats = data.stats || reviewStats;
+          renderReviews();
+          updateStats();
+          refreshProWidgets();
+        } else {
+          reviews = [];
+          reviewStats = { total: 0, averageRating: 0 };
+          renderReviews();
+          updateStats();
+          refreshProWidgets();
+        }
+      } catch (e) {
+        console.error('Failed to load reviews:', e);
+        try {
+          const local = JSON.parse(localStorage.getItem('nearnect_reviews') || '[]');
+          reviews = local.filter(r => r.workerId === worker?._id);
+        } catch (_) {
+          reviews = [];
+        }
+        reviewStats = {
+          total: reviews.length,
+          averageRating: reviews.length ? (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length) : 0
+        };
+        renderReviews();
+        updateStats();
+        refreshProWidgets();
+      }
+    }
+    
+    function updateWorkerDisplay() {
+      if (!worker) return;
+      
+      // Update sidebar
+      const sideNameEl = document.getElementById('sideName');
+      const sideAvatarEl = document.getElementById('sideAvatar');
+      const workerNameEl = document.getElementById('workerName');
+      const workerSkillEl = document.getElementById('workerSkill');
+      const workerBioEl = document.getElementById('workerBio');
+      const profileAvatarEl = document.getElementById('profileAvatar');
+      
+      if (sideNameEl) sideNameEl.textContent = worker.name || 'Worker';
+      if (sideAvatarEl) sideAvatarEl.src = worker.avatarUrl || worker.img || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(worker.name || 'Worker') + '&background=6c5ce7&color=fff';
+      if (workerNameEl) workerNameEl.textContent = worker.name || 'Worker';
+      if (workerSkillEl) workerSkillEl.textContent = (worker.skill || 'Service Provider') + (worker.experience ? (' • ' + worker.experience) : '');
+      if (workerBioEl) workerBioEl.textContent = worker.bio || worker.description || 'No description available.';
+      if (profileAvatarEl) profileAvatarEl.src = worker.avatarUrl || worker.img || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(worker.name || 'Worker') + '&background=6c5ce7&color=fff';
+      
+      // Update worker role in sidebar
+      const workerRoleEl = document.getElementById('workerRole');
+      if (workerRoleEl && worker.skill) {
+        workerRoleEl.textContent = worker.skill + (worker.rating ? (' • ' + worker.rating.toFixed(1) + ' ★') : '');
+      }
+      
+      // Update location
+      const workerLocationEl = document.getElementById('workerLocation');
+      if (workerLocationEl) {
+        workerLocationEl.textContent = (worker.city ? worker.city + (worker.pincode ? (' • ' + worker.pincode) : '') : (worker.address || 'Location not set'));
+      }
+      
+      // Show dashboard once worker data is loaded
+      showDashboard();
+      renderSettingsProfile();
+    }
+
+    function renderSettingsProfile(){
+      const wrap = document.getElementById('settingsProfileSummary');
+      if(!wrap || !worker) return;
+      const rows = [
+        { label: 'Full name', value: worker.name || '—' },
+        { label: 'Primary skill', value: worker.skill || '—' },
+        { label: 'Rate', value: worker.price ? `₹${worker.price}/job` : 'Set your pricing' },
+        { label: 'Availability', value: worker.availability || 'Not specified' }
+        ,{ label: 'Address', value: worker.address || '—' }
+        ,{ label: 'City / Pincode', value: ((worker.city || '') + (worker.pincode ? (' • ' + worker.pincode) : '')) || '—' }
+      ];
+      wrap.innerHTML = rows.map(row=>`
+        <div class="settings-row">
+          <span>${row.label}</span>
+          ${escapeHtml(row.value)}
+        </div>
+      `).join('');
+    }
+
+    function renderNotificationPrefs(){
+      const wrap = document.getElementById('notificationPrefList');
+      if(!wrap) return;
+      const options = [
+        { key:'bookingUpdates', label:'Booking updates', desc:'New requests, changes, cancellations' },
+        { key:'reminders', label:'Reminders', desc:'Upcoming job reminders and follow-ups' },
+        { key:'newMessages', label:'Messages', desc:'Chat alerts from customers' },
+        { key:'marketing', label:'Product updates', desc:'Feature announcements and tips' }
+      ];
+      wrap.innerHTML = options.map(opt=>{
+        const checked = notificationPrefs[opt.key] ? 'checked' : '';
+        return `
+          <label class="pref-row">
+            <div>
+              <strong>${opt.label}</strong>
+              <small>${opt.desc}</small>
+            </div>
+            <label class="switch small">
+              <input type="checkbox" data-pref="${opt.key}" ${checked}>
+              <span class="slider"></span>
+            </label>
+          </label>
+        `;
+      }).join('');
+      wrap.querySelectorAll('input[type="checkbox"]').forEach(input=>{
+        input.addEventListener('change', ()=>{
+          const key = input.dataset.pref;
+          if(!key) return;
+          notificationPrefs[key] = input.checked;
+          saveNotificationPrefs();
+        });
+      });
+    }
+
+    async function saveNotificationPrefs(){
+      persistNotificationPrefs();
+      try{
+        await apiFetch('/auth/me', { method:'PATCH', body: JSON.stringify({ notificationPrefs }) });
+      }catch(e){
+        console.warn('Failed to sync notification prefs', e.message);
+      }
+      persistWorkerSnapshot();
+    }
+
+    function persistWorkerSnapshot(){
+      if(!worker) return;
+      try{
+        const raw = localStorage.getItem('nearnect_workers');
+        const arr = raw ? JSON.parse(raw) : [];
+        const key = worker._id || worker.id;
+        const payload = Object.assign({}, worker, { portfolio: portfolioItems, documents: documentItems, notificationPrefs });
+        const idx = arr.findIndex(w => (w._id || w.id) === key);
+        if(idx > -1){ arr[idx] = payload; }
+        else { arr.push(payload); }
+        localStorage.setItem('nearnect_workers', JSON.stringify(arr));
+      }catch(_){}
+    }
+
+    function hydrateWorkerAssets(){
+      portfolioItems = Array.isArray(worker?.portfolio) ? worker.portfolio.slice() : [];
+      documentItems = Array.isArray(worker?.documents) ? worker.documents.slice() : [];
+      renderPortfolioGrid();
+      renderDocumentsList();
+    }
+
+    async function apiFetch(path, options={}){
+      const base = getApiBase();
+      const headers = Object.assign({'Content-Type':'application/json'}, options.headers || {}, authHeaders());
+      const res = await fetch((base ? base : '') + path, Object.assign({}, options, { headers }));
+      if(!res.ok) {
+        const t = await res.text().catch(()=>null);
+        let errMsg = `Request failed ${res.status}`;
+        try{ const j = JSON.parse(t); if(j && (j.error||j.message)) errMsg = j.error || j.message; }catch(_){}
+        const err = new Error(errMsg);
+        err.status = res.status;
+        throw err;
+      }
+      return res.json().catch(()=>null);
+    }
+
+    // Show dashboard when ready
+    function showDashboard() {
+      const loadingEl = document.getElementById('loading');
+      const dashboardEl = document.querySelector('.dashboard');
+      if (loadingEl) {
+        loadingEl.style.display = 'none';
+      }
+      if (dashboardEl) {
+        dashboardEl.style.display = 'flex';
+        // Ensure the active view is visible
+        const activeView = document.querySelector('.view.view-active');
+        if (activeView) {
+          activeView.style.display = 'block';
+        }
+      }
+    }
+
+    // Initialize - load worker and bookings
+    (async function init() {
+      try {
+        console.log('Initializing worker dashboard...');
+        await loadWorkerProfile();
+        
+        // Only proceed if worker is loaded
+        if (worker) {
+          console.log('Worker loaded:', worker.name);
+          try {
+            await loadBookings();
+          } catch (e) {
+            console.warn('Failed to load bookings:', e);
+          }
+          
+          // initial chart render after initial load
+          try { 
+            renderOverviewCharts(); 
+          } catch(e) {
+            console.warn('Failed to render charts:', e);
+          }
+          
+          // Ensure dashboard is visible
+          showDashboard();
+          
+          // Setup all handlers after worker is loaded
+          try {
+            setupTabHandlers();
+            setupChatArea();
+            setupJobFilters();
+            loadNotifications();
+            
+            // Initial render of all sections
+            renderRequests();
+            renderUpcoming();
+            updateStats();
+            renderReviews();
+            renderEarningsInsight();
+            renderPayoutHistory(bookings.filter(b => b.status === 'completed'));
+            renderTaskList();
+            updatePerformanceInsights();
+            renderOverviewCharts();
+          } catch (err) {
+            console.warn('Some dashboard features failed to initialize:', err);
+          }
+        } else {
+          console.warn('No worker data loaded');
+          // If no worker loaded after all attempts, show error
+          const loadingEl = document.getElementById('loading');
+          if (loadingEl) {
+            loadingEl.innerHTML = '<div style="text-align:center;padding:40px;"><p style="color:#e17055;margin-bottom:16px;">Unable to load dashboard. Please login first.</p><a href="login.html" class="btn" style="margin-top:16px;">Go to Login</a></div>';
+          }
+        }
+      } catch (err) {
+        console.error('Initialization error:', err);
+        // Try to show dashboard with fallback data
+        if (worker) {
+          showDashboard();
+        } else {
+          const loadingEl = document.getElementById('loading');
+          if (loadingEl) {
+            loadingEl.innerHTML = '<div style="text-align:center;padding:40px;"><p style="color:#e17055;margin-bottom:16px;">Error loading dashboard. Please try again.</p><a href="login.html" class="btn" style="margin-top:16px;">Go to Login</a></div>';
+          }
+        }
+      }
+    })();
+
+    const tabToView = {
+      dashboard: 'dashboard',
+      requests: 'jobs',
+      messages: 'messages',
+      earnings: 'earnings',
+      reviews: 'reviews',
+      portfolio: 'portfolio',
+      settings: 'settings'
+    };
+    const viewSections = Array.from(document.querySelectorAll('.view'));
+
+    function setActiveView(tab='dashboard'){
+      const viewName = tabToView[tab] || 'dashboard';
+      let activeSection = null;
+      viewSections.forEach(view=>{
+        const match = view.dataset.view === viewName;
+        if (match) {
+          view.classList.add('view-active');
+          activeSection = view;
+        } else {
+          view.classList.remove('view-active');
+        }
+      });
+      
+      // Update nav links
+      document.querySelectorAll('.sidebar nav a').forEach(link => {
+        if (link.dataset.tab === tab) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+      
+      return activeSection;
+    }
+
+    // tab handling - ensure it works after DOM is ready
+    function setupTabHandlers() {
+      document.querySelectorAll('.sidebar nav a').forEach(a => {
+        // Remove existing listeners to avoid duplicates
+        const newA = a.cloneNode(true);
+        a.parentNode.replaceChild(newA, a);
+        
+        newA.addEventListener('click', e => {
+          const tab = newA.dataset.tab;
+          if (tab === 'logout') { 
+            handleLogout();
+            return; 
+          }
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Update active nav link
+          document.querySelectorAll('.sidebar nav a').forEach(x => x.classList.remove('active'));
+          newA.classList.add('active');
+          
+          // Switch view
+          const activeView = setActiveView(tab);
+
+          // Load data for specific tabs
+          if (tab === 'messages') {
+            loadConversations(!activeConversationId);
+            startMessagePolling();
+          } else if (tab === 'requests' || tab === 'jobs') {
+            renderJobsBoard();
+            renderRequests();
+          } else if (tab === 'earnings') {
+            renderEarningsInsight();
+            renderPayoutHistory(bookings.filter(b => b.status === 'completed'));
+          } else if (tab === 'reviews') {
+            renderReviews();
+          } else if (tab === 'portfolio') {
+            renderPortfolioGrid();
+            renderDocumentsList();
+          } else if (tab === 'settings') {
+            // Settings already rendered
+          } else {
+            stopMessagePolling();
+          }
+          
+          // Scroll to top
+          window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+      });
+    }
+
+    // Initialize tab handlers when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupTabHandlers);
+    } else {
+      setupTabHandlers();
+    }
+
+    // Set initial view
+    setActiveView('dashboard');
+
+    function handleLogout(){
+      try{
+        localStorage.removeItem('nearnect_token');
+        localStorage.removeItem('nearnect_user');
+      }catch(_){}
+      window.location.href = 'login.html';
+    }
+
+    const logoutLink = document.querySelector('a[data-tab="logout"]');
+    if(logoutLink){
+      logoutLink.addEventListener('click', e=>{
+        e.preventDefault();
+        handleLogout();
+      });
+    }
+
+    function formatCurrency(value){
+      if (!value) return '₹0';
+      return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(value);
+    }
+
+    function refreshProWidgets(){
+      renderEarningsInsight();
+      updatePerformanceInsights();
+      renderPipeline();
+      renderTaskList();
+      // Update charts when widgets refresh
+      try{ renderOverviewCharts(); }catch(_){ }
+    }
+
+    function updateStats(){
+      const completed = bookings.filter(b => b.status === 'completed').length;
+      const pending = bookings.filter(b => ['pending','requested','confirmed'].includes(b.status)).length;
+      const earnings = bookings
+        .filter(b => b.status === 'completed')
+        .reduce((sum, b) => sum + (b.amount || 0), 0);
+      const avgRating = reviewStats?.averageRating || (reviews.length ? (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length) : 0);
+      document.getElementById('statCompleted').textContent = completed;
+      document.getElementById('statPending').textContent = pending;
+      document.getElementById('statEarnings').textContent = formatCurrency(earnings);
+      document.getElementById('statRating').textContent = `${avgRating.toFixed(1)}★`;
+      document.getElementById('statReviews').textContent = `${reviewStats?.total || reviews.length} reviews`;
+      updateNavCounts();
+      updateDashboardBanner();
+    }
+
+    function renderUpcoming(){
+      const wrap = document.getElementById('upcomingList');
+      if(!wrap) return;
+      const upcoming = bookings
+        .filter(b => ['pending','requested','confirmed'].includes(b.status))
+        .sort((a,b)=> new Date(a.scheduledFor) - new Date(b.scheduledFor))
+        .slice(0,5);
+      if(!upcoming.length){
+        wrap.innerHTML = '<div style="padding:12px;color:#888;text-align:center;">No upcoming bookings</div>';
+        return;
+      }
+      wrap.innerHTML = upcoming.map(b=>{
+        const customer = b.customerId || {};
+        const date = b.scheduledFor ? new Date(b.scheduledFor).toLocaleString() : 'TBD';
+        return `
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid #f1f1f5;padding:12px;border-radius:10px;">
+            <div>
+              <div style="font-weight:600">${customer.name || b.customerName || 'Customer'}</div>
+              <div style="font-size:13px;color:#666">${b.service || 'Service'} • ${date}</div>
+            </div>
+            <div>
+              <span class="chip" style="background:#f3f4ff;color:var(--primary);text-transform:capitalize;">${b.status || 'pending'}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+      updateDashboardBanner();
+    }
+
+    const boardColumns = [
+      { id:'col-new', title:'New', statuses:['requested','pending'], accent:'#f97316' },
+      { id:'col-confirmed', title:'Confirmed', statuses:['confirmed'], accent:'#0ea5e9' },
+      { id:'col-progress', title:'On Job', statuses:['in_progress'], accent:'#facc15' },
+      { id:'col-complete', title:'Completed', statuses:['completed'], accent:'#22c55e' },
+      { id:'col-closed', title:'Closed', statuses:['cancelled','declined','rejected'], accent:'#9ca3af' }
+    ];
+
+    function filterBookingsForBoard(){
+      return bookings.filter(booking=>{
+        if(jobFilters.status !== 'all' && booking.status !== jobFilters.status) return false;
+        if(jobFilters.service && !(booking.service || '').toLowerCase().includes(jobFilters.service.toLowerCase())) return false;
+        if(jobFilters.search){
+          const haystack = [
+            booking.customerName,
+            booking.customerId?.name,
+            booking.address,
+            booking.instructions,
+            booking.service
+          ].join(' ').toLowerCase();
+          if(!haystack.includes(jobFilters.search.toLowerCase())) return false;
+        }
+        const scheduled = booking.scheduledFor ? new Date(booking.scheduledFor) : null;
+        if(jobFilters.from && scheduled && scheduled < new Date(jobFilters.from)) return false;
+        if(jobFilters.to && scheduled && scheduled > new Date(jobFilters.to)) return false;
+        return true;
+      });
+    }
+
+    function renderJobsBoard(){
+      const board = document.getElementById('jobsBoard');
+      if(!board) return;
+      const filtered = filterBookingsForBoard();
+      board.innerHTML = boardColumns.map(col=>{
+        const items = filtered.filter(b => col.statuses.includes(b.status));
+        const cardsHtml = items.length ? items.map(b=>renderBoardCard(b)).join('') : `<div class="empty-state" style="min-height:80px">No jobs</div>`;
+        return `
+          <div class="kanban-column" data-column="${col.id}">
+            <header>
+              ${col.title}
+              <span>${items.length}</span>
+            </header>
+            <div class="kanban-dropzone" data-status="${col.statuses[0]}">
+              ${cardsHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+      attachBoardInteractions();
+    }
+
+    function renderBoardCard(booking){
+      const customer = booking.customerId?.name || booking.customerName || 'Customer';
+      const date = booking.scheduledFor ? new Date(booking.scheduledFor).toLocaleString() : 'TBD';
+      return `
+        <div class="kanban-card" draggable="true" data-id="${booking._id || booking.id}">
+          <div class="job-card-title">${customer}</div>
+          <div class="job-card-meta">${booking.service || 'Service'} • ${date}</div>
+          <div class="job-card-meta" style="color:#4b5162">${booking.address || 'Address N/A'}</div>
+          <div class="job-card-actions">
+            <button class="secondary" data-action="detail" data-id="${booking._id || booking.id}">Details</button>
+            ${renderPrimaryAction(booking)}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPrimaryAction(booking){
+      if(['requested','pending'].includes(booking.status)){
+        return `<button class="primary" data-action="accept" data-id="${booking._id || booking.id}">Accept</button>`;
+      }
+      if(['confirmed'].includes(booking.status)){
+        return `<button class="primary" data-action="start" data-id="${booking._id || booking.id}">Start job</button>`;
+      }
+      if(['in_progress'].includes(booking.status)){
+        return `<button class="primary" data-action="complete" data-id="${booking._id || booking.id}">Mark done</button>`;
+      }
+      return `<button class="primary" data-action="message" data-id="${booking._id || booking.id}">Message</button>`;
+    }
+
+    function attachBoardInteractions(){
+      const cards = document.querySelectorAll('.kanban-card');
+      cards.forEach(card=>{
+        card.addEventListener('dragstart', e=>{
+          draggedBookingId = card.dataset.id;
+          card.classList.add('dragging');
+          e.dataTransfer.setData('text/plain', draggedBookingId);
+        });
+        card.addEventListener('dragend', ()=> card.classList.remove('dragging'));
+      });
+      document.querySelectorAll('.kanban-dropzone').forEach(zone=>{
+        zone.addEventListener('dragover', e=> e.preventDefault());
+        zone.addEventListener('drop', e=>{
+          e.preventDefault();
+          const id = draggedBookingId || e.dataTransfer.getData('text/plain');
+          if(!id) return;
+          const newStatus = zone.dataset.status;
+          handleStatusChange(id, newStatus);
+        });
+      });
+      document.querySelectorAll('.job-card-actions button').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const id = btn.dataset.id;
+          const action = btn.dataset.action;
+          const booking = bookings.find(b => (b._id || b.id) === id);
+          if(!booking) return;
+          if(action === 'detail') openJobDrawer(booking);
+          if(action === 'accept') handleStatusChange(id, 'confirmed');
+          if(action === 'start') handleStatusChange(id, 'in_progress');
+          if(action === 'complete') handleStatusChange(id, 'completed');
+          if(action === 'message'){
+            window.location.href = `chat.html?userId=${booking.customerId?._id || ''}`;
+          }
+        });
+      });
+    }
+
+    async function handleStatusChange(bookingId, status){
+      try{
+        await apiFetch(`/bookings/${bookingId}`, { method:'PATCH', body: JSON.stringify({ status }) });
+        await loadBookings();
+      }catch(err){
+        alert('Failed to update booking: ' + err.message);
+      }
+    }
+
+    function openJobDrawer(booking){
+      jobDetailBooking = booking;
+      const drawer = document.getElementById('jobDetailDrawer');
+      const body = document.getElementById('drawerBody');
+      const primary = document.getElementById('drawerPrimaryAction');
+      const secondary = document.getElementById('drawerSecondaryAction');
+      document.getElementById('drawerTitle').textContent = booking.customerId?.name || booking.customerName || 'Job detail';
+      body.innerHTML = `
+        <div class="job-detail-row"><span>Service</span>${booking.service || '—'}</div>
+        <div class="job-detail-row"><span>Scheduled</span>${booking.scheduledFor ? new Date(booking.scheduledFor).toLocaleString() : 'Not set'}</div>
+        <div class="job-detail-row"><span>Address</span>${booking.address || 'Not provided'}</div>
+        <div class="job-detail-row"><span>Notes</span>${booking.instructions || '—'}</div>
+        <div class="job-detail-row"><span>Status</span>${booking.status}</div>
+        <div class="job-detail-row"><span>Amount</span>${formatCurrency(booking.amount || 0)}</div>
+      `;
+      primary.textContent = nextStatusLabel(booking.status);
+      primary.disabled = !primary.textContent;
+      primary.onclick = ()=>{
+        const nextStatus = nextStatusValue(booking.status);
+        if(nextStatus) handleStatusChange(booking._id || booking.id, nextStatus);
+      };
+      secondary.onclick = ()=>{
+        window.location.href = `chat.html?userId=${booking.customerId?._id || ''}`;
+      };
+      drawer.classList.add('open');
+    }
+
+    function nextStatusLabel(status){
+      if(['requested','pending'].includes(status)) return 'Mark confirmed';
+      if(status === 'confirmed') return 'Start job';
+      if(status === 'in_progress') return 'Complete job';
+      return '';
+    }
+
+    function nextStatusValue(status){
+      if(['requested','pending'].includes(status)) return 'confirmed';
+      if(status === 'confirmed') return 'in_progress';
+      if(status === 'in_progress') return 'completed';
+      return null;
+    }
+
+    function closeJobDrawer(){
+      document.getElementById('jobDetailDrawer').classList.remove('open');
+      jobDetailBooking = null;
+    }
+    function renderReviews(){
+      const wrap = document.getElementById('reviewsList');
+      if(!wrap) return;
+      if(!reviews.length){
+        wrap.innerHTML = '<div style="padding:12px;color:#888;text-align:center;">No reviews yet</div>';
+        return;
+      }
+      wrap.innerHTML = reviews.slice(0,3).map(r=>{
+        const customer = r.customerId || {};
+        const rating = '★'.repeat(r.rating || 0).padEnd(5,'☆');
+        return `
+          <div style="border:1px solid #f3f3f7;border-radius:12px;padding:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <div style="font-weight:600">${customer.name || 'Customer'}</div>
+              <div style="color:#fbbc04;font-weight:600">${rating}</div>
+            </div>
+            <p style="color:#555;font-size:14px;line-height:1.5">${r.comment || 'No comment provided.'}</p>
+            <div style="font-size:12px;color:#9ca3af;margin-top:6px">${new Date(r.createdAt).toLocaleDateString()}</div>
+          </div>
+        `;
+      }).join('');
+      updateDashboardBanner();
+    }
+
+    function renderPortfolioGrid(){
+      const grid = document.getElementById('portfolioGrid');
+      if(!grid) return;
+      if(!portfolioItems.length){
+        grid.innerHTML = '<div class="empty-state">Upload 2-3 recent projects to build trust.</div>';
+        return;
+      }
+      grid.innerHTML = portfolioItems.map((item, index)=>{
+        const title = escapeHtml(item.title || `Shot ${index+1}`);
+        const desc = escapeHtml(item.description || '');
+        const img = item.imageUrl || item.url || 'https://source.unsplash.com/600x400/?craftsman';
+        const tags = Array.isArray(item.tags) && item.tags.length ? item.tags.join(', ') : (item.category || 'No tags yet');
+        return `
+          <div class="portfolio-card" data-index="${index}">
+            <div class="thumb" style="background-image:url('${img}')"></div>
+            <div class="body">
+              <input type="text" value="${title}" data-field="title" placeholder="Title (e.g., Bathroom remodel)">
+              <textarea data-field="description" placeholder="What did you do? Tools, duration, client feedback...">${desc}</textarea>
+              <div class="meta">${tags}</div>
+              <div class="card-actions">
+                <button type="button" data-remove="${index}"><i class="fa fa-trash"></i> Remove</button>
+                <button type="button" data-open="${index}"><i class="fa fa-external-link"></i> View</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      grid.querySelectorAll('input, textarea').forEach(el=>{
+        el.addEventListener('change', e=>{
+          const idx = parseInt(e.target.closest('.portfolio-card').dataset.index, 10);
+          const field = e.target.dataset.field;
+          if(Number.isInteger(idx) && field){
+            portfolioItems[idx][field] = e.target.value.trim();
+            persistPortfolioChanges('field-update');
+          }
+        });
+      });
+      grid.querySelectorAll('[data-remove]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const idx = parseInt(btn.dataset.remove, 10);
+          if(Number.isInteger(idx)){
+            portfolioItems.splice(idx,1);
+            renderPortfolioGrid();
+            persistPortfolioChanges('remove');
+          }
+        });
+      });
+      grid.querySelectorAll('[data-open]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const idx = parseInt(btn.dataset.open, 10);
+          const item = portfolioItems[idx];
+          if(item?.imageUrl || item?.url){
+            window.open(item.imageUrl || item.url, '_blank');
+          }
+        });
+      });
+    }
+
+    function renderDocumentsList(){
+      const wrap = document.getElementById('documentsList');
+      if(!wrap) return;
+      if(!documentItems.length){
+        wrap.innerHTML = '<div class="empty-state">Upload your license or ID proof to unlock verified badge.</div>';
+        return;
+      }
+      wrap.innerHTML = documentItems.map((doc, index)=>{
+        const status = doc.status || 'pending';
+        const statusClass = status === 'approved' ? 'verified' : status === 'rejected' ? 'rejected' : 'pending';
+        const statusLabel = status === 'approved' ? 'Verified' : status === 'rejected' ? 'Rejected' : 'Pending review';
+        return `
+          <div class="document-item" data-index="${index}">
+            <div class="doc-meta">
+              <strong>${escapeHtml(doc.name || doc.originalname || 'Document')}</strong>
+              <span>${(doc.type || 'General').replace('-', ' ')} • ${formatFileSize(doc.size)} • Uploaded ${formatRelativeDate(doc.uploadedAt || doc.createdAt || new Date())}</span>
+            </div>
+            <span class="status-pill ${statusClass}">${statusLabel}</span>
+            <div class="doc-actions">
+              <button type="button" data-download="${index}" title="Download"><i class="fa fa-download"></i></button>
+              <button type="button" data-remove-doc="${index}" title="Remove"><i class="fa fa-trash"></i></button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      wrap.querySelectorAll('[data-download]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const doc = documentItems[btn.dataset.download];
+          if(doc?.url){ window.open(doc.url, '_blank'); }
+        });
+      });
+      wrap.querySelectorAll('[data-remove-doc]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const idx = parseInt(btn.dataset.removeDoc, 10);
+          if(Number.isInteger(idx)){
+            documentItems.splice(idx,1);
+            renderDocumentsList();
+            persistDocumentChanges('remove');
+          }
+        });
+      });
+    }
+
+    async function handlePortfolioFiles(fileList){
+      const files = Array.from(fileList || []);
+      if(!files.length) return;
+      let uploaded = await uploadGalleryFiles(files);
+      let newItems = [];
+      if(uploaded && uploaded.files){
+        newItems = uploaded.files.map(file=>({
+          id: file.filename,
+          title: file.originalname?.replace(/\.[^/.]+$/, '') || 'Portfolio shot',
+          description: '',
+          imageUrl: absoluteUrl(file.url),
+          size: file.size,
+          createdAt: new Date().toISOString()
+        }));
+      } else {
+        newItems = await Promise.all(files.map(async file=>({
+          id: `local_${Date.now()}_${file.name}`,
+          title: file.name?.replace(/\.[^/.]+$/, '') || 'Portfolio shot',
+          description: '',
+          imageUrl: await readFileAsDataURL(file),
+          size: file.size,
+          createdAt: new Date().toISOString(),
+          localOnly: true
+        })));
+      }
+      portfolioItems = [...newItems, ...portfolioItems].slice(0, 12);
+      renderPortfolioGrid();
+      await persistPortfolioChanges('upload');
+    }
+
+    async function uploadGalleryFiles(files){
+      try{
+        if(!ensureLoggedIn()) return null;
+        const formData = new FormData();
+        files.forEach(file => formData.append('gallery', file));
+        const res = await fetch(getApiBase() + '/upload/gallery', {
+          method:'POST',
+          headers:{ ...authHeaders() },
+          body: formData
+        });
+        if(!res.ok) throw new Error(await res.text());
+        return res.json();
+      }catch(e){
+        console.warn('Gallery upload failed', e.message);
+        return null;
+      }
+    }
+
+    async function handleDocumentFile(file, category='license'){
+      if(!file) return;
+      const uploaded = await uploadDocumentFile(file);
+      let docEntry;
+      if(uploaded && uploaded.file){
+        const doc = uploaded.file;
+        docEntry = {
+          id: doc.filename,
+          name: doc.originalname || file.name,
+          type: category,
+          url: absoluteUrl(doc.url),
+          size: doc.size,
+          status: 'pending',
+          uploadedAt: new Date().toISOString()
+        };
+      } else {
+        docEntry = {
+          id: `local_${Date.now()}_${file.name}`,
+          name: file.name,
+          type: category,
+          url: await readFileAsDataURL(file),
+          size: file.size,
+          status: 'pending',
+          uploadedAt: new Date().toISOString(),
+          localOnly: true
+        };
+      }
+      documentItems = [docEntry, ...documentItems];
+      renderDocumentsList();
+      await persistDocumentChanges('upload');
+    }
+
+    async function uploadDocumentFile(file){
+      try{
+        if(!ensureLoggedIn()) return null;
+        const formData = new FormData();
+        formData.append('document', file);
+        const res = await fetch(getApiBase() + '/upload/document', {
+          method:'POST',
+          headers:{ ...authHeaders() },
+          body: formData
+        });
+        if(!res.ok) throw new Error(await res.text());
+        return res.json();
+      }catch(e){
+        console.warn('Document upload failed', e.message);
+        return null;
+      }
+    }
+
+    async function persistPortfolioChanges(){
+      if(!worker) return;
+      if(isSavingPortfolio) return;
+      isSavingPortfolio = true;
+      worker.portfolio = portfolioItems;
+      try{
+        await apiFetch('/auth/me', { method:'PATCH', body: JSON.stringify({ portfolio: portfolioItems }) });
+      }catch(e){
+        console.warn('Portfolio sync failed', e.message);
+      }
+      persistWorkerSnapshot();
+      isSavingPortfolio = false;
+    }
+
+    async function persistDocumentChanges(){
+      if(!worker) return;
+      if(isSavingDocuments) return;
+      isSavingDocuments = true;
+      worker.documents = documentItems;
+      try{
+        await apiFetch('/auth/me', { method:'PATCH', body: JSON.stringify({ documents: documentItems }) });
+      }catch(e){
+        console.warn('Documents sync failed', e.message);
+      }
+      persistWorkerSnapshot();
+      isSavingDocuments = false;
+    }
+
+    function renderEarningsInsight(){
+      const completed = bookings.filter(b => b.status === 'completed');
+      const upcoming = bookings.filter(b => ['confirmed','in_progress'].includes(b.status));
+      const earningsTrendEl = document.getElementById('earningsTrend');
+      const nextPayout = upcoming.reduce((sum, b) => sum + (b.amount || 0), 0);
+      const nextDate = upcoming.length ? new Date(upcoming.sort((a,b)=>new Date(a.scheduledFor)-new Date(b.scheduledFor))[0].scheduledFor) : null;
+      const last7 = completed.filter(b => {
+        const d = new Date(b.completedAt || b.updatedAt || b.scheduledFor || Date.now());
+        return Date.now() - d.getTime() <= 7 * 24 * 60 * 60 * 1000;
+      });
+
+      const unsettled = bookings.filter(b => b.status === 'completed' && !b.payoutReleased).reduce((sum,b)=>sum+(b.amount||0),0);
+
+      const weekAmount = last7.reduce((sum,b)=>sum + (b.amount || 0),0);
+      document.getElementById('nextPayout').textContent = formatCurrency(nextPayout);
+      document.getElementById('nextPayoutDate').textContent = nextDate ? `Expected ${nextDate.toLocaleDateString()}` : 'No payout scheduled';
+      document.getElementById('weekEarnings').textContent = formatCurrency(weekAmount);
+      document.getElementById('weekJobs').textContent = `${last7.length} jobs`;
+      document.getElementById('pendingEarnings').textContent = formatCurrency(unsettled);
+
+      renderEarningsTrend(completed, earningsTrendEl);
+      renderPayoutHistory(completed);
+    }
+
+    function renderEarningsTrend(completed, container){
+      if(!container) return;
+      if(!completed.length){
+        container.innerHTML = '<div class="empty-state" style="width:100%">Complete jobs to unlock trends</div>';
+        return;
+      }
+      const buckets = {};
+      completed.forEach(b=>{
+        const d = new Date(b.completedAt || b.updatedAt || b.scheduledFor || Date.now());
+        const key = d.toLocaleString('default',{month:'short'}) + ' ' + d.getFullYear().toString().slice(-2);
+        buckets[key] = (buckets[key] || 0) + (b.amount || 0);
+      });
+      const labels = Object.keys(buckets).slice(-5);
+      const max = Math.max(...labels.map(label => buckets[label] || 0), 1);
+      container.innerHTML = labels.map(label=>{
+        const value = buckets[label] || 0;
+        const pct = Math.max(10, Math.round((value / max) * 100));
+        return `
+          <div class="trend-item">
+            <div class="trend-bar" style="height:${pct}px"></div>
+            <span>${label}</span>
+            <span style="font-weight:600;color:#4c4f63">${formatCurrency(value)}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ----------------- Charts (Chart.js) -----------------
+    let bookingTrendChart = null;
+    let revenueChart = null;
+    let statusPieChart = null;
+
+    function getLastNWeeks(n=6){
+      const now = new Date();
+      const weeks = [];
+      for(let i=n-1;i>=0;i--){
+        const d = new Date(now);
+        d.setDate(d.getDate() - i*7);
+        const label = `Wk ${getWeekNumber(d)}`;
+        weeks.push({start: startOfWeek(d), end: endOfWeek(d), label});
+      }
+      return weeks;
+    }
+
+    function startOfWeek(d){ const copy = new Date(d); const day = copy.getDay(); copy.setDate(copy.getDate() - day); copy.setHours(0,0,0,0); return copy; }
+    function endOfWeek(d){ const copy = new Date(d); const day = copy.getDay(); copy.setDate(copy.getDate() + (6-day)); copy.setHours(23,59,59,999); return copy; }
+    function getWeekNumber(d){ const onejan = new Date(d.getFullYear(),0,1); const millis = d - onejan; return Math.ceil(((millis/86400000) + onejan.getDay()+1)/7); }
+
+    function aggregateBookingsByWeek(weeks){
+      const counts = weeks.map(w=>0);
+      const revenues = weeks.map(w=>0);
+      bookings.forEach(b=>{
+        const dt = b.scheduledFor ? new Date(b.scheduledFor) : (b.createdAt ? new Date(b.createdAt) : null);
+        if(!dt) return;
+        weeks.forEach((wk, idx)=>{
+          if(dt >= wk.start && dt <= wk.end){ counts[idx] += 1; revenues[idx] += (b.amount || 0); }
+        });
+      });
+      return {counts, revenues};
+    }
+
+    function renderOverviewCharts(){
+      // Ensure Chart.js loaded
+      if(typeof Chart === 'undefined') return;
+      const weeks = getLastNWeeks(6);
+      const ag = aggregateBookingsByWeek(weeks);
+      const labels = weeks.map(w=>w.label);
+
+      // Booking Trend (line)
+      const bCtx = document.getElementById('bookingTrendChart').getContext('2d');
+      if(bookingTrendChart) bookingTrendChart.data.labels = labels, bookingTrendChart.data.datasets[0].data = ag.counts, bookingTrendChart.update();
+      else bookingTrendChart = new Chart(bCtx, {
+        type: 'line', data: { labels, datasets:[{ label:'Bookings', data: ag.counts, borderColor:'#7B2FFF', backgroundColor:'rgba(123,47,255,0.08)', fill:true, tension:0.3 }] }, options:{ responsive:true, maintainAspectRatio:false }
+      });
+
+      // Revenue Chart (bar)
+      const rCtx = document.getElementById('revenueChart').getContext('2d');
+      if(revenueChart) revenueChart.data.labels = labels, revenueChart.data.datasets[0].data = ag.revenues, revenueChart.update();
+      else revenueChart = new Chart(rCtx, {
+        type:'bar', data:{ labels, datasets:[{ label:'Revenue', data: ag.revenues, backgroundColor:'#E91E63' }] }, options:{ responsive:true, maintainAspectRatio:false }
+      });
+
+      // Status distribution pie
+      const statusCounts = bookings.reduce((acc,b)=>{ const s = b.status || 'unknown'; acc[s] = (acc[s]||0)+1; return acc; }, {});
+      const pieLabels = Object.keys(statusCounts);
+      const pieData = pieLabels.map(l=>statusCounts[l]);
+      const pCtx = document.getElementById('statusPieChart').getContext('2d');
+      if(statusPieChart) statusPieChart.data.labels = pieLabels, statusPieChart.data.datasets[0].data = pieData, statusPieChart.update();
+      else statusPieChart = new Chart(pCtx, { type:'pie', data:{ labels: pieLabels, datasets:[{ data: pieData, backgroundColor: ['#7B2FFF','#E91E63','#FF5722','#FFC107','#9CA3AF'] }] }, options:{ responsive:true, maintainAspectRatio:false } });
+    }
+
+    function renderPayoutHistory(completedJobs){
+      const wrap = document.getElementById('payoutHistory');
+      if(!wrap) return;
+      const rows = (completedJobs || []).slice().sort((a,b)=> new Date(b.completedAt || b.updatedAt || b.scheduledFor || 0) - new Date(a.completedAt || a.updatedAt || a.scheduledFor || 0)).slice(0,5);
+      if(!rows.length){
+        wrap.innerHTML = '<div class="empty-state">No payouts yet.</div>';
+        return;
+      }
+      wrap.innerHTML = rows.map(job=>{
+        const customer = job.customerId?.name || job.customerName || 'Customer';
+        const when = new Date(job.completedAt || job.updatedAt || job.scheduledFor || Date.now()).toLocaleDateString();
+        return `
+          <div class="payout-row">
+            <div>
+              <strong>${customer}</strong>
+              <span>${job.service || 'Service'} • ${when}</span>
+            </div>
+            <strong>${formatCurrency(job.amount || 0)}</strong>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updatePerformanceInsights(){
+      const total = bookings.length || 1;
+      const responded = bookings.filter(b => b.status && b.status !== 'requested').length;
+      const accepted = bookings.filter(b => ['confirmed','in_progress','completed'].includes(b.status)).length;
+      const cancelled = bookings.filter(b => ['cancelled','declined','rejected'].includes(b.status)).length;
+      const responseTimes = bookings.map(b => b.responseTimeHours).filter(Boolean);
+      const avgResponse = responseTimes.length ? (responseTimes.reduce((sum, hrs) => sum + hrs, 0) / responseTimes.length) : Math.max(1, Math.min(12, 36 / Math.max(1, responded)));
+
+      document.getElementById('responseRate').textContent = `${Math.min(100, Math.round((responded / total) * 100))}%`;
+      document.getElementById('acceptanceRate').textContent = `${Math.min(100, Math.round((accepted / total) * 100))}%`;
+      document.getElementById('cancelRate').textContent = `${Math.round((cancelled / total) * 100)}%`;
+      document.getElementById('avgResponseTime').textContent = `${avgResponse.toFixed(1)}h`;
+
+      const healthBadge = document.getElementById('healthBadge');
+      if(!healthBadge) return;
+      if(cancelled / total > 0.3){
+        healthBadge.textContent = 'Needs attention';
+        healthBadge.classList.remove('success');
+        healthBadge.classList.add('warning');
+      }else{
+        healthBadge.textContent = 'Healthy';
+        healthBadge.classList.remove('warning');
+        healthBadge.classList.add('success');
+      }
+    }
+
+    function renderPipeline(){
+      const board = document.getElementById('pipelineBoard');
+      if(!board) return;
+      const total = bookings.length || 1;
+      board.innerHTML = pipelineStages.map(stage=>{
+        const stageBookings = bookings.filter(b => stage.statuses.includes(b.status));
+        const amount = stageBookings.reduce((sum,b)=>sum+(b.amount||0),0);
+        const pct = Math.round((stageBookings.length / total) * 100);
+        return `
+          <div class="pipeline-step">
+            <div>
+              <strong>${stage.label}</strong>
+              <small>${stageBookings.length} jobs • ${formatCurrency(amount)}</small>
+            </div>
+            <span class="badge-soft ${pct >= 30 ? 'success' : ''}">${pct}%</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function buildTaskSuggestions(){
+      const tasks = [];
+      const needsResponse = bookings.filter(b => ['pending','requested'].includes(b.status)).slice(0,2);
+      needsResponse.forEach(b=>{
+        tasks.push({
+          id: `respond-${b._id || b.id}`,
+          title: `Respond to ${b.customerId?.name || 'client'}`,
+          meta: `Requested ${formatRelativeDate(b.createdAt || b.scheduledFor)}`
+        });
+      });
+      const confirmed = bookings.filter(b => b.status === 'confirmed').sort((a,b)=>new Date(a.scheduledFor)-new Date(b.scheduledFor)).slice(0,1);
+      if(confirmed[0]){
+        tasks.push({
+          id: `prep-${confirmed[0]._id || confirmed[0].id}`,
+          title: `Prep for ${confirmed[0].service || 'upcoming job'}`,
+          meta: new Date(confirmed[0].scheduledFor).toLocaleString()
+        });
+      }
+      if(reviews.length < 3){
+        tasks.push({
+          id: 'collect-reviews',
+          title: 'Ask recent clients for reviews',
+          meta: 'Higher rating = more leads'
+        });
+      }
+      if(!worker?.portfolio?.length){
+        tasks.push({
+          id: 'update-portfolio',
+          title: 'Upload 2 new portfolio photos',
+          meta: 'Showcase your best work'
+        });
+      }
+      return tasks;
+    }
+
+    function renderTaskList(){
+      const list = document.getElementById('taskList');
+      if(!list) return;
+      const tasks = buildTaskSuggestions();
+      if(!tasks.length){
+        list.innerHTML = '<div class="empty-state">All caught up for today.</div>';
+        return;
+      }
+      list.innerHTML = tasks.map(task=>{
+        const checked = taskProgress.has(task.id);
+        const inputId = `task-${task.id}`;
+        return `
+          <div class="task-item ${checked ? 'done' : ''}">
+            <input type="checkbox" id="${inputId}" data-task="${task.id}" ${checked ? 'checked' : ''}>
+            <label for="${inputId}">
+              ${task.title}
+              <div class="tiny">${task.meta}</div>
+            </label>
+          </div>
+        `;
+      }).join('');
+
+      list.querySelectorAll('input[type="checkbox"]').forEach(input=>{
+        input.addEventListener('change', ()=>{
+          const taskId = input.dataset.task;
+          if(!taskId) return;
+          if(input.checked){
+            taskProgress.add(taskId);
+            input.parentElement.classList.add('done');
+          }else{
+            taskProgress.delete(taskId);
+            input.parentElement.classList.remove('done');
+          }
+          persistTaskProgress();
+        });
+      });
+    }
+
+    function updateNavCounts(){
+      const jobsCountEl = document.getElementById('navJobsCount');
+      const msgCountEl = document.getElementById('navMsgCount');
+      if(jobsCountEl){
+        const actionable = bookings.filter(b => ['pending','requested'].includes(b.status)).length;
+        jobsCountEl.textContent = actionable;
+        jobsCountEl.style.display = actionable ? 'inline-flex' : 'none';
+      }
+      if(msgCountEl){
+        const unread = (conversations || []).reduce((sum, conv)=> sum + (conv.unreadCount || 0), 0);
+        msgCountEl.textContent = unread;
+        msgCountEl.style.display = unread ? 'inline-flex' : 'none';
+      }
+    }
+
+    function updateDashboardBanner(){
+      const availabilityChip = document.getElementById('bannerAvailability');
+      const availabilityHint = document.getElementById('bannerAvailabilityHint');
+      const nextJobEl = document.getElementById('bannerNextJob');
+      const nextJobMeta = document.getElementById('bannerNextJobMeta');
+      const openJobsEl = document.getElementById('bannerOpenJobs');
+      const openJobsMeta = document.getElementById('bannerOpenJobsMeta');
+      const outstandingEl = document.getElementById('bannerOutstanding');
+      const outstandingMeta = document.getElementById('bannerOutstandingMeta');
+      if(!availabilityChip) return;
+
+      const isOnline = workerSettings?.availability !== false;
+      availabilityChip.textContent = isOnline ? 'Online' : 'Away';
+      availabilityChip.classList.toggle('online', isOnline);
+      availabilityChip.classList.toggle('offline', !isOnline);
+      if(availabilityHint){
+        availabilityHint.textContent = isOnline ? 'Available for new bookings' : 'Clients won’t see you in search';
+      }
+
+      const upcoming = bookings
+        .filter(b => ['pending','requested','confirmed','in_progress'].includes(b.status))
+        .sort((a,b)=> new Date(a.scheduledFor) - new Date(b.scheduledFor));
+      if(upcoming.length){
+        const first = upcoming[0];
+        nextJobEl.textContent = `${first.customerId?.name || first.customerName || 'Client'} • ${new Date(first.scheduledFor).toLocaleDateString()}`;
+        nextJobMeta.textContent = `${first.service || 'Service'} at ${new Date(first.scheduledFor).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`;
+      }else{
+        nextJobEl.textContent = 'No jobs scheduled';
+        nextJobMeta.textContent = 'Add availability to get more leads';
+      }
+
+      const openRequests = bookings.filter(b => ['requested','pending'].includes(b.status));
+      openJobsEl.textContent = openRequests.length;
+      openJobsMeta.textContent = openRequests.length ? 'Respond to lock in work' : 'All caught up';
+
+      const outstanding = bookings
+        .filter(b => ['confirmed','in_progress'].includes(b.status))
+        .reduce((sum,b)=> sum + (b.amount || 0), 0);
+      outstandingEl.textContent = formatCurrency(outstanding);
+      outstandingMeta.textContent = outstanding ? 'Finish jobs to release payouts' : 'No unpaid jobs';
+    }
+
+    function formatRelativeDate(date){
+      if(!date) return 'Just now';
+      const target = new Date(date).getTime();
+      const diffHours = (Date.now() - target) / (1000 * 60 * 60);
+      if(diffHours <= 0) return 'Just now';
+      if(diffHours < 24) return `${Math.max(1, Math.round(diffHours))}h ago`;
+      const days = Math.round(diffHours / 24);
+      return `${days}d ago`;
+    }
+
+    function formatFileSize(bytes){
+      if(!bytes) return '—';
+      if(bytes < 1024) return `${bytes} B`;
+      if(bytes < 1024 * 1024) return `${(bytes/1024).toFixed(1)} KB`;
+      return `${(bytes/1024/1024).toFixed(1)} MB`;
+    }
+
+    function absoluteUrl(path=''){
+      if(!path) return '';
+      if(path.startsWith('http')) return path;
+      const base = getApiBase();
+      return base ? `${base}${path}` : path;
+    }
+
+    function readFileAsDataURL(file){
+      return new Promise((resolve,reject)=>{
+        const reader = new FileReader();
+        reader.onload = ()=> resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function initAvailabilityControls(forceRefresh){
+      if(availabilityInitialized && !forceRefresh) return syncAvailabilityCard();
+      const toggle = document.getElementById('availabilityToggle');
+      const radiusInput = document.getElementById('serviceRadius');
+      const slotSelect = document.getElementById('slotPreset');
+      const breakInput = document.getElementById('nextBreak');
+      const statusChip = document.getElementById('availabilityStatus');
+      if(!toggle || !radiusInput || !slotSelect || !breakInput || !statusChip) return;
+
+      const handler = async (statusText)=>{
+        updateWorkerSetting('availability', toggle.checked);
+        statusChip.textContent = statusText;
+        statusChip.classList.toggle('success', toggle.checked);
+        statusChip.classList.toggle('muted', !toggle.checked);
+        try{
+          await apiFetch('/auth/me', { method:'PATCH', body: JSON.stringify({ availability: toggle.checked ? 'Available' : 'Away' }) });
+        }catch(_){}
+      };
+
+      toggle.addEventListener('change', ()=> handler(toggle.checked ? 'Online' : 'Offline'));
+      radiusInput.addEventListener('input', ()=>{
+        updateWorkerSetting('radius', parseInt(radiusInput.value, 10) || 5);
+      });
+      slotSelect.addEventListener('change', ()=>{
+        updateWorkerSetting('slotPreset', slotSelect.value);
+        if(worker){
+          worker.availability = slotSelect.value === 'full-day' ? '9 AM - 6 PM' : slotSelect.value;
+        }
+      });
+      breakInput.addEventListener('change', ()=>{
+        updateWorkerSetting('nextBreak', breakInput.value);
+      });
+      availabilityInitialized = true;
+      syncAvailabilityCard();
+    }
+
+    function syncAvailabilityCard(){
+      const toggle = document.getElementById('availabilityToggle');
+      const radiusInput = document.getElementById('serviceRadius');
+      const slotSelect = document.getElementById('slotPreset');
+      const breakInput = document.getElementById('nextBreak');
+      const statusChip = document.getElementById('availabilityStatus');
+      if(!toggle || !radiusInput || !slotSelect || !breakInput || !statusChip) return;
+      const isOnline = workerSettings?.availability !== false;
+      toggle.checked = isOnline;
+      radiusInput.value = workerSettings?.radius || 10;
+      slotSelect.value = workerSettings?.slotPreset || 'full-day';
+      breakInput.value = workerSettings?.nextBreak || '';
+      statusChip.textContent = isOnline ? 'Online' : 'Offline';
+      statusChip.classList.toggle('success', isOnline);
+      statusChip.classList.toggle('muted', !isOnline);
+    }
+
+    function exportEarningsReport(){
+      const completed = bookings.filter(b => b.status === 'completed');
+      if(!completed.length){
+        alert('Complete a few jobs to export earnings.');
+        return;
+      }
+      const rows = [['Date','Client','Service','Amount','Status']];
+      completed.forEach(b=>{
+        rows.push([
+          new Date(b.completedAt || b.updatedAt || b.scheduledFor || Date.now()).toLocaleString(),
+          b.customerId?.name || b.customerName || 'Customer',
+          b.service || 'Service',
+          b.amount || 0,
+          b.status || ''
+        ]);
+      });
+      const csv = rows.map(row => row.map(field => `"${String(field ?? '').replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type:'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'nearnect-earnings.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    // render requests from bookings
+    async function renderRequests(){
+      const wrap = document.getElementById('requestsList'); 
+      if(wrap){
+        wrap.innerHTML='';
+        if (!bookings || bookings.length === 0) {
+          wrap.innerHTML = '<div style="padding:20px;text-align:center;color:#888;">No booking requests yet</div>';
+        } else {
+          bookings.forEach(booking=>{
+            const customer = booking.customerId || {};
+            const customerName = customer.name || booking.customerName || 'Customer';
+            const customerAvatar = customer.avatarUrl || 'https://source.unsplash.com/80x80/?person';
+            const bookingDate = booking.scheduledFor ? new Date(booking.scheduledFor).toLocaleDateString() : 'TBD';
+            const bookingBody = booking.instructions || booking.service || 'Service request';
+            
+            const el = document.createElement('div'); 
+            el.className='request';
+        el.innerHTML = `
+              <div class="r-avatar"><img src="${customerAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:12px"/></div>
+          <div class="r-body">
+                <h4>${customerName} <small style="color:#888;font-weight:600">• ${bookingDate}</small></h4>
+                <p>${bookingBody}</p>
+            <div class="actions">
+                  <button class="btn-accept" data-id="${booking._id || booking.id}">Accept</button>
+                  <button class="btn-decline" data-id="${booking._id || booking.id}">Decline</button>
+                  <button class="btn" data-view="${booking._id || booking.id}">View</button>
+            </div>
+          </div>
+        `;
+        wrap.appendChild(el);
+      });
+
+          wrap.querySelectorAll('[data-id]').forEach(btn=>btn.addEventListener('click', async e=>{
+            const id = btn.dataset.id; 
+            const action = btn.classList.contains('btn-accept') ? 'confirmed' : 'cancelled';
+            try {
+              await apiFetch(`/bookings/${id}`, { method: 'PATCH', body: JSON.stringify({ status: action }) });
+              await loadBookings(); // Reload bookings
+            } catch (e) {
+              alert('Failed to update booking: ' + e.message);
+            }
+      }));
+
+      wrap.querySelectorAll('[data-view]').forEach(btn=>btn.addEventListener('click', e=>{
+            const id = btn.dataset.view; 
+            openRequestModal(id);
+          }));
+        }
+      }
+      renderJobsBoard();
+    }
+
+    async function openRequestModal(bookingId){
+      const booking = bookings.find(b => (b._id || b.id) === bookingId);
+      if(!booking) return;
+      
+      const customer = booking.customerId || {};
+      const customerName = customer.name || booking.customerName || 'Customer';
+      const customerAvatar = customer.avatarUrl || 'https://source.unsplash.com/80x80/?person';
+      const customerPhone = customer.phone || booking.customerPhone || 'Contact hidden';
+      
+      document.getElementById('modalAvatar').src = customerAvatar;
+      document.getElementById('modalName').textContent = customerName;
+      document.getElementById('modalContact').textContent = customerPhone;
+      document.getElementById('modalRequestBody').textContent = booking.instructions || booking.service || 'Service request';
+      
+      const activity = document.getElementById('modalActivity'); 
+      activity.innerHTML='';
+      const activities = [
+        `Service: ${booking.service || 'N/A'}`,
+        `Scheduled: ${new Date(booking.scheduledFor).toLocaleString()}`,
+        `Status: ${booking.status || 'pending'}`,
+        `Address: ${booking.address || 'N/A'}`
+      ];
+      activities.forEach(a=>{ const li=document.createElement('li'); li.textContent=a; activity.appendChild(li); });
+      
+      document.getElementById('userModal').classList.add('open');
+      // wire modal buttons
+      document.getElementById('modalAccept').onclick = async ()=>{ 
+        try {
+          await apiFetch(`/bookings/${bookingId}`, { method: 'PATCH', body: JSON.stringify({ status: 'confirmed' }) });
+          await loadBookings();
+          closeModal();
+        } catch (e) {
+          alert('Failed to accept booking: ' + e.message);
+        }
+      };
+      document.getElementById('modalDecline').onclick = async ()=>{ 
+        try {
+          await apiFetch(`/bookings/${bookingId}`, { method: 'PATCH', body: JSON.stringify({ status: 'cancelled' }) });
+          await loadBookings();
+          closeModal();
+        } catch (e) {
+          alert('Failed to decline booking: ' + e.message);
+        }
+      };
+      document.getElementById('modalMessage').onclick = ()=>{ 
+        window.location.href = `chat.html?userId=${customer._id || customer.id || ''}`;
+      };
+    }
+    function closeModal(){ document.getElementById('userModal').classList.remove('open'); }
+    document.getElementById('closeModal').addEventListener('click', closeModal);
+
+    // Initial render will be done after loadBookings() completes
+
+    // Guard: if logged in as customer, redirect to customer dashboard
+    (async function ensureWorker(){
+      try{
+        if(!getToken()) return; // no token, let loadWorkerProfile handle redirect
+        const res = await fetch(getApiBase() + '/auth/me', { headers: { ...authHeaders() } });
+        if(res.ok){ const data = await res.json(); if(data?.user?.role === 'customer'){ window.location.href = 'user-dashboard.html'; } }
+      }catch(_){ /* ignore */ }
+    })();
+
+    // Edit profile modal behavior with avatar upload
+    const editModal = document.getElementById('editModal');
+    const editBtn = document.getElementById('editProfileBtn');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    const saveEditBtn = document.getElementById('saveEditBtn');
+    const chooseAvatarBtn = document.getElementById('chooseAvatarBtn');
+    const editAvatarFile = document.getElementById('editAvatarFile');
+    const editAvatarPreview = document.getElementById('editAvatarPreview');
+    const editName = document.getElementById('editName');
+    const editSkill = document.getElementById('editSkill');
+    const editPrice = document.getElementById('editPrice');
+    const editAvail = document.getElementById('editAvail');
+    const editBio = document.getElementById('editBio');
+    const editAddress = document.getElementById('editAddress');
+    const editCity = document.getElementById('editCity');
+    const editPincode = document.getElementById('editPincode');
+
+    function openEdit(){
+      editName.value = worker.name || '';
+      editSkill.value = worker.skill || '';
+      editPrice.value = worker.price || 0;
+      editAvail.value = worker.availability || '';
+      editBio.value = worker.bio || worker.description || '';
+      editAddress.value = worker.address || '';
+      editCity.value = worker.city || '';
+      editPincode.value = worker.pincode || '';
+      editAvatarPreview.src = worker.img || 'https://source.unsplash.com/240x240/?portrait';
+      editModal.classList.add('open');
+    }
+    function closeEdit(){ editModal.classList.remove('open'); }
+
+    editBtn.addEventListener('click', openEdit);
+    cancelEditBtn.addEventListener('click', closeEdit);
+    chooseAvatarBtn.addEventListener('click', ()=> editAvatarFile.click());
+    editAvatarFile.addEventListener('change', ()=>{
+      const f = editAvatarFile.files && editAvatarFile.files[0];
+      if(!f) return; const reader = new FileReader();
+      reader.onload = () => { editAvatarPreview.src = reader.result; };
+      reader.readAsDataURL(f);
+    });
+
+    saveEditBtn.addEventListener('click', async ()=>{
+      const nextData = {
+        name: editName.value.trim() || worker.name,
+        skill: editSkill.value.trim(),
+        price: parseInt(editPrice.value,10)||0,
+        availability: editAvail.value.trim(),
+        bio: editBio.value.trim(),
+        address: editAddress.value.trim(),
+        city: editCity.value.trim(),
+        pincode: editPincode.value.trim(),
+        avatarUrl: editAvatarPreview.src || worker.avatarUrl || 'https://source.unsplash.com/240x240/?portrait'
+      };
+
+      worker = Object.assign({}, worker, nextData, {
+        description: nextData.bio,
+        img: nextData.avatarUrl
+      });
+
+      try{
+        const payload = Object.assign({}, nextData, { notificationPrefs });
+        const updated = await apiFetch('/auth/me', { method:'PATCH', body: JSON.stringify(payload) });
+        if(updated){
+          worker = Object.assign({}, worker, updated, { description: updated.bio });
+        }
+      }catch(e){
+        console.warn('API profile update failed, saving locally', e.message);
+      }
+
+      persistWorkerSnapshot();
+      updateWorkerDisplay();
+      renderSettingsProfile();
+      closeEdit();
+    });
+
+    const openProfileFromSettingsBtn = document.getElementById('openProfileFromSettings');
+    if(openProfileFromSettingsBtn){
+      openProfileFromSettingsBtn.addEventListener('click', openEdit);
+    }
+
+    // view public profile placeholder
+    document.getElementById('goPublic').addEventListener('click', ()=>{ window.open('user.html','_blank'); });
+
+    // Notifications: fetch and render
+    async function loadNotifications(){
+      const btn = document.getElementById('notifBtn');
+      const countEl = document.getElementById('notifCount');
+      try{
+        const token = getToken();
+        if(token){
+          const res = await fetch(getApiBase() + '/notifications', { headers: { ...authHeaders() } });
+          if(res.ok){ const data = await res.json(); countEl.textContent = (data.length||0); return; }
+        }
+      }catch(e){ console.warn('Notifications fetch failed', e.message); }
+      // fallback demo count
+      const demo = JSON.parse(localStorage.getItem('nearnect_notifications')||'[]');
+      countEl.textContent = demo.length || 0;
+    }
+    document.getElementById('notifBtn').addEventListener('click', async ()=>{
+      // simple dropdown: show alert with notifications titles for now
+      try{
+        const token = localStorage.getItem('nearnect_token');
+        let items = [];
+        if(token){ const res = await fetch(getApiBase() + '/notifications', { headers: { ...authHeaders() } }); if(res.ok) items = await res.json(); }
+        if(!items.length) items = JSON.parse(localStorage.getItem('nearnect_notifications')||'[]');
+        if(!items.length) return alert('No notifications');
+        const list = items.map(i=>i.title + ': ' + (i.message||'')).join('\n\n');
+        alert(list);
+      }catch(e){ alert('Unable to load notifications'); }
+    });
+
+    // Messages: conversations + thread
+    function setupChatArea(){
+      const refreshBtn = document.getElementById('refreshChats');
+      if(refreshBtn){
+        refreshBtn.addEventListener('click', ()=> loadConversations(true));
+      }
+      const searchInput = document.getElementById('convoSearch');
+      if(searchInput){
+        searchInput.addEventListener('input', e=>{
+          conversationFilter = (e.target.value || '').toLowerCase();
+          renderConversationList();
+        });
+      }
+      const openChatBtn = document.getElementById('openChatPage');
+      if(openChatBtn){
+        openChatBtn.addEventListener('click', ()=> window.open('chat.html','_blank'));
+      }
+      const input = document.getElementById('msgInput');
+      if(input){
+        input.addEventListener('input', toggleSendState);
+        input.addEventListener('keydown', e=>{
+          if(e.key === 'Enter' && !e.shiftKey){
+            e.preventDefault();
+            sendCurrentMessage();
+          }
+        });
+      }
+      const sendBtn = document.getElementById('sendMsgBtn');
+      if(sendBtn){
+        sendBtn.addEventListener('click', sendCurrentMessage);
+      }
+      renderQuickReplies();
+    }
+
+    function renderQuickReplies(){
+      const wrap = document.getElementById('quickReplies');
+      if(!wrap){ return; }
+      wrap.innerHTML = QUICK_REPLIES.map(reply=>`<button type="button" data-reply="${reply}">${reply}</button>`).join('');
+      wrap.querySelectorAll('button').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const text = btn.dataset.reply || '';
+          const input = document.getElementById('msgInput');
+          if(input){
+            input.value = text;
+            input.focus();
+            toggleSendState();
+          }
+        });
+      });
+    }
+
+    function persistConversationCache(){
+      try{
+        localStorage.setItem('nearnect_conversations', JSON.stringify(conversations));
+      }catch(_){}
+    }
+
+    function readConversationCache(){
+      try{
+        return JSON.parse(localStorage.getItem('nearnect_conversations') || '[]');
+      }catch(_){
+        return [];
+      }
+    }
+
+    async function loadConversations(selectFirst=false){
+      const convEl = document.getElementById('convoList');
+      if(!convEl) return;
+      if(!conversations.length){
+        convEl.innerHTML = '<div class="chat-empty">Loading conversations...</div>';
+      }
+      try{
+        if(!ensureLoggedIn()) return;
+        const res = await fetch(getApiBase() + '/messages', { headers: { ...authHeaders() } });
+        if(res.ok){
+          conversations = await res.json();
+          persistConversationCache();
+        } else {
+          throw new Error('Failed to fetch conversations');
+        }
+      }catch(e){
+        console.warn('Load conversations failed', e.message);
+        conversations = readConversationCache();
+      }
+      renderConversationList();
+      if(selectFirst && conversations.length){
+        selectConversation(conversations[0].conversationId);
+      } else if(activeConversationId){
+        highlightActiveConversation();
+      }
+      updateInboxStatus();
+      updateNavCounts();
+    }
+
+    function renderConversationList(){
+      const convEl = document.getElementById('convoList');
+      if(!convEl) return;
+      const filtered = (conversations || []).filter(conv=>{
+        if(!conversationFilter) return true;
+        const name = conv?.otherUser?.name || '';
+        return name.toLowerCase().includes(conversationFilter);
+      });
+      if(!filtered.length){
+        convEl.innerHTML = '<div class="chat-empty">No conversations found.</div>';
+        return;
+      }
+      convEl.innerHTML = filtered.map(conv=>{
+        const lastContent = conv?.lastMessage?.content || 'No messages yet';
+        const timeLabel = conv?.lastMessage?.createdAt ? formatRelativeDate(conv.lastMessage.createdAt) : '';
+        const unread = conv?.unreadCount || 0;
+        const active = conv.conversationId === activeConversationId ? 'active' : '';
+        return `
+          <div class="conversation-item ${active}" data-convo="${conv.conversationId}">
+            <img src="${conv?.otherUser?.avatarUrl || 'https://source.unsplash.com/80x80/?person'}" alt="user avatar" />
+            <div class="meta">
+              <h4>${conv?.otherUser?.name || 'Customer'}</h4>
+              <p>${escapeHtml(lastContent).slice(0,60)}</p>
+              <small>${timeLabel}</small>
+            </div>
+            ${unread ? `<span class="badge">${unread}</span>` : ''}
+          </div>
+        `;
+      }).join('');
+      convEl.querySelectorAll('.conversation-item').forEach(item=>{
+        item.addEventListener('click', ()=> selectConversation(item.dataset.convo));
+      });
+    }
+
+    function updateInboxStatus(){
+      const statusEl = document.getElementById('inboxStatus');
+      if(!statusEl) return;
+      if(!conversations.length){
+        statusEl.textContent = 'No conversations yet.';
+        return;
+      }
+      const unread = conversations.reduce((sum, conv)=> sum + (conv.unreadCount || 0), 0);
+      statusEl.textContent = unread ? `${unread} unread conversation${unread>1?'s':''}` : `${conversations.length} conversation${conversations.length>1?'s':''}`;
+    }
+
+    function highlightActiveConversation(){
+      const convEl = document.getElementById('convoList');
+      if(!convEl) return;
+      convEl.querySelectorAll('.conversation-item').forEach(item=>{
+        item.classList.toggle('active', item.dataset.convo === activeConversationId);
+      });
+    }
+
+    function selectConversation(conversationId){
+      if(!conversationId) return;
+      activeConversationId = conversationId;
+      highlightActiveConversation();
+      const conversation = conversations.find(conv => conv.conversationId === conversationId);
+      if(conversation){
+        updateChatHeader(conversation);
+        toggleSendState();
+        loadConversationMessages(conversationId);
+      }
+    }
+
+    async function loadConversationMessages(conversationId){
+      const thread = document.getElementById('messageThread');
+      if(!thread) return;
+      thread.innerHTML = '<div class="chat-empty">Loading messages...</div>';
+      try{
+        if(!ensureLoggedIn()) return;
+        const res = await fetch(`${getApiBase()}/messages/${conversationId}`, { headers: { ...authHeaders() } });
+        if(res.ok){
+          const data = await res.json();
+          messageCache[conversationId] = data;
+          renderMessageThread(conversationId);
+          scrollThreadToBottom();
+        } else {
+          throw new Error('Failed to fetch messages');
+        }
+      }catch(e){
+        console.warn('Load conversation messages failed', e.message);
+        const cached = messageCache[conversationId] || [];
+        if(cached.length){
+          renderMessageThread(conversationId);
+        } else {
+          thread.innerHTML = '<div class="chat-empty">Unable to load messages.</div>';
+        }
+      }
+    }
+
+    function renderMessageThread(conversationId){
+      const thread = document.getElementById('messageThread');
+      if(!thread) return;
+      const messages = messageCache[conversationId] || [];
+      if(!messages.length){
+        thread.innerHTML = '<div class="chat-empty">No messages yet. Say hello!</div>';
+        return;
+      }
+      thread.innerHTML = '';
+      messages.forEach(message=>{
+        const bubble = document.createElement('div');
+        const isMine = isCurrentUser(message.senderId);
+        bubble.className = `chat-bubble ${isMine ? 'me' : 'them'}`;
+        bubble.innerHTML = `
+          <div>${escapeHtml(message.content || '')}</div>
+          <div class="bubble-meta">${new Date(message.createdAt).toLocaleString()}${isMine ? ` • ${message.read ? 'Read' : 'Sent'}` : ''}</div>
+        `;
+        thread.appendChild(bubble);
+      });
+      scrollThreadToBottom();
+    }
+
+    function isCurrentUser(userRef){
+      if(!worker?._id || !userRef) return false;
+      if(typeof userRef === 'string') return userRef === worker._id;
+      if(typeof userRef === 'object'){
+        if(userRef._id) return userRef._id === worker._id;
+        if(typeof userRef.toString === 'function') return userRef.toString() === worker._id;
+      }
+      return false;
+    }
+
+    function scrollThreadToBottom(){
+      const thread = document.getElementById('messageThread');
+      if(thread){
+        thread.scrollTop = thread.scrollHeight;
+      }
+    }
+
+    function toggleSendState(){
+      const input = document.getElementById('msgInput');
+      const btn = document.getElementById('sendMsgBtn');
+      if(!input || !btn) return;
+      btn.disabled = !(activeConversationId && input.value.trim().length);
+    }
+
+    async function sendCurrentMessage(){
+      const input = document.getElementById('msgInput');
+      const btn = document.getElementById('sendMsgBtn');
+      if(!input || !btn || !activeConversationId) return;
+      const content = input.value.trim();
+      if(!content) return;
+      const conversation = conversations.find(conv => conv.conversationId === activeConversationId);
+      const recipientId = conversation?.otherUser?._id;
+      if(!recipientId){
+        alert('Select a customer before sending.');
+        return;
+      }
+      btn.disabled = true;
+      try{
+        if(!ensureLoggedIn()) throw new Error('Not logged in');
+        const res = await fetch(getApiBase() + '/messages', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json', ...authHeaders() },
+          body: JSON.stringify({ recipientId, content })
+        });
+        if(!res.ok){
+          const errText = await res.text().catch(()=>null);
+          throw new Error(errText || 'Failed to send');
+        }
+        const saved = await res.json();
+        messageCache[activeConversationId] = [...(messageCache[activeConversationId] || []), saved];
+        input.value = '';
+        renderMessageThread(activeConversationId);
+        toggleSendState();
+            loadConversations();
+      }catch(e){
+        alert(`Send failed: ${e.message || e}`);
+      }finally{
+        btn.disabled = false;
+      }
+    }
+
+    function updateChatHeader(conversation){
+      const nameEl = document.getElementById('chatName');
+      const metaEl = document.getElementById('chatMeta');
+      const avatarEl = document.getElementById('chatAvatar');
+      const callBtn = document.getElementById('callClientBtn');
+      const bookingBtn = document.getElementById('openBookingBtn');
+      if(nameEl) nameEl.textContent = conversation?.otherUser?.name || 'Customer';
+      if(metaEl){
+        const phone = conversation?.otherUser?.phone;
+        const roleInfo = conversation?.otherUser?.skill || conversation?.otherUser?.role || '';
+        metaEl.textContent = `${phone ? phone + ' • ' : ''}${roleInfo || 'No additional details'}`;
+      }
+      if(avatarEl){
+        avatarEl.src = conversation?.otherUser?.avatarUrl || 'https://source.unsplash.com/120x120/?user';
+      }
+      if(callBtn){
+        if(conversation?.otherUser?.phone){
+          callBtn.disabled = false;
+          callBtn.onclick = ()=> window.open(`tel:${conversation.otherUser.phone}`);
+          } else {
+          callBtn.disabled = true;
+          callBtn.onclick = null;
+        }
+      }
+      if(bookingBtn){
+        const relatedBooking = bookings.find(b => (b.customerId?._id === conversation?.otherUser?._id) || (b.customerId === conversation?.otherUser?._id));
+        if(relatedBooking){
+          bookingBtn.disabled = false;
+          bookingBtn.onclick = ()=> openRequestModal(relatedBooking._id || relatedBooking.id);
+        } else {
+          bookingBtn.disabled = true;
+          bookingBtn.onclick = null;
+        }
+      }
+    }
+
+    function startMessagePolling(){
+      if(messagePollTimer) return;
+      messagePollTimer = setInterval(()=> loadConversations(), CHAT_POLL_MS);
+    }
+
+    function stopMessagePolling(){
+      if(messagePollTimer){
+        clearInterval(messagePollTimer);
+        messagePollTimer = null;
+      }
+    }
+
+    function escapeHtml(str=''){
+      return str.replace(/[&<>"']/g, ch=>({
+        '&':'&amp;',
+        '<':'&lt;',
+        '>':'&gt;',
+        '"':'&quot;',
+        '\'':'&#39;'
+      }[ch] || ch));
+    }
+
+    const downloadBtn = document.getElementById('downloadReport');
+    if(downloadBtn){
+      downloadBtn.addEventListener('click', exportEarningsReport);
+    }
+
+    const addPortfolioBtn = document.getElementById('addPortfolioBtn');
+    const portfolioInput = document.getElementById('portfolioFileInput');
+    if(addPortfolioBtn && portfolioInput){
+      addPortfolioBtn.addEventListener('click', ()=> portfolioInput.click());
+      portfolioInput.addEventListener('change', e=>{
+        handlePortfolioFiles(e.target.files);
+        portfolioInput.value = '';
+      });
+    }
+
+    const portfolioGuideBtn = document.getElementById('portfolioGuideBtn');
+    if(portfolioGuideBtn){
+      portfolioGuideBtn.addEventListener('click', ()=>{
+        alert('Pro tips: add before/after shots, include close-ups, keep lighting bright, and mention job scope in the description.');
+      });
+    }
+
+    const addDocumentBtn = document.getElementById('addDocumentBtn');
+    const documentInput = document.getElementById('documentFileInput');
+    const documentTypeSelect = document.getElementById('documentTypeSelect');
+    if(addDocumentBtn && documentInput){
+      addDocumentBtn.addEventListener('click', ()=> documentInput.click());
+      documentInput.addEventListener('change', e=>{
+        const category = documentTypeSelect ? documentTypeSelect.value : 'license';
+        handleDocumentFile(e.target.files && e.target.files[0], category);
+        documentInput.value = '';
+      });
+    }
+
+    setupChatArea();
+    const filterStatusEl = document.getElementById('filterStatus');
+    const filterServiceEl = document.getElementById('filterService');
+    const filterSearchEl = document.getElementById('filterSearch');
+    const filterFromEl = document.getElementById('filterFrom');
+    const filterToEl = document.getElementById('filterTo');
+    if(filterStatusEl){
+      filterStatusEl.addEventListener('change', e=>{
+        jobFilters.status = e.target.value;
+        renderJobsBoard();
+      });
+    }
+    if(filterServiceEl){
+      filterServiceEl.addEventListener('input', e=>{
+        jobFilters.service = e.target.value.trim();
+        renderJobsBoard();
+      });
+    }
+    if(filterSearchEl){
+      filterSearchEl.addEventListener('input', e=>{
+        jobFilters.search = e.target.value.trim();
+        renderJobsBoard();
+      });
+    }
+    if(filterFromEl){
+      filterFromEl.addEventListener('change', e=>{
+        jobFilters.from = e.target.value || null;
+        renderJobsBoard();
+      });
+    }
+    if(filterToEl){
+      filterToEl.addEventListener('change', e=>{
+        jobFilters.to = e.target.value || null;
+        renderJobsBoard();
+      });
+    }
+    const closeJobDrawerBtn = document.getElementById('closeJobDrawer');
+    if(closeJobDrawerBtn){
+      closeJobDrawerBtn.addEventListener('click', closeJobDrawer);
+    }
+    document.addEventListener('keydown', e=>{
+      if(e.key === 'Escape') closeJobDrawer();
+    });
+    // Setup job filters
+    function setupJobFilters() {
+      const filterStatus = document.getElementById('filterStatus');
+      const filterService = document.getElementById('filterService');
+      const filterFrom = document.getElementById('filterFrom');
+      const filterTo = document.getElementById('filterTo');
+      const filterSearch = document.getElementById('filterSearch');
+      
+      if (filterStatus) {
+        filterStatus.addEventListener('change', () => {
+          jobFilters.status = filterStatus.value;
+          renderJobsBoard();
+        });
+      }
+      
+      if (filterService) {
+        filterService.addEventListener('input', () => {
+          jobFilters.service = filterService.value;
+          renderJobsBoard();
+        });
+      }
+      
+      if (filterFrom) {
+        filterFrom.addEventListener('change', () => {
+          jobFilters.from = filterFrom.value;
+          renderJobsBoard();
+        });
+      }
+      
+      if (filterTo) {
+        filterTo.addEventListener('change', () => {
+          jobFilters.to = filterTo.value;
+          renderJobsBoard();
+        });
+      }
+      
+      if (filterSearch) {
+        filterSearch.addEventListener('input', () => {
+          jobFilters.search = filterSearch.value;
+          renderJobsBoard();
+        });
+      }
+    }
+
+    renderJobsBoard();
+    renderNotificationPrefs();
+    const logoutBtnTop = document.getElementById('logoutBtn');
+    if(logoutBtnTop){
+      logoutBtnTop.addEventListener('click', e=>{
+        e.preventDefault();
+        handleLogout();
+      });
+    }
+
+    // load initial counts
+    loadNotifications();
+    initAvailabilityControls();
+    
+    // Ensure all handlers are set up after page load
+    setTimeout(() => {
+      setupTabHandlers();
+      setupChatArea();
+      setupJobFilters();
+    }, 500);
+
+    // === PRO FEATURES ===
+    
+    // Auto-refresh bookings every 30 seconds (when dashboard is active)
+    let autoRefreshInterval = null;
+    function startAutoRefresh() {
+      if (autoRefreshInterval) return;
+      autoRefreshInterval = setInterval(() => {
+        loadBookings();
+        loadReviews();
+        loadNotifications();
+      }, 30000); // 30 seconds
+    }
+    
+    function stopAutoRefresh() {
+      if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+      }
+    }
+    
+    // Start auto-refresh
+    startAutoRefresh();
+    
+    // Pause auto-refresh when user is idle (after 5 min)
+    let idleTimer = null;
+    function resetIdleTimer() {
+      if (idleTimer) clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => {
+        stopAutoRefresh();
+      }, 300000); // 5 minutes
+      startAutoRefresh();
+    }
+    
+    ['mousedown', 'keydown', 'scroll', 'touchstart'].forEach(event => {
+      document.addEventListener(event, resetIdleTimer, true);
+    });
+    
+    // Mini Calendar Widget (shows upcoming bookings by date)
+    function renderMiniCalendar() {
+      const upcoming = bookings.filter(b => ['pending','requested','confirmed'].includes(b.status));
+      const dateMap = {};
+      upcoming.forEach(b => {
+        const date = new Date(b.scheduledFor).toLocaleDateString();
+        dateMap[date] = (dateMap[date] || 0) + 1;
+      });
+      return Object.keys(dateMap).slice(0, 5).map(date => ({
+        date,
+        count: dateMap[date]
+      }));
+    }
+    
+    // Quick Status Badge Generator
+    function getStatusBadge(status) {
+      const badges = {
+        'pending': { bg: '#fff6e5', color: '#d88a16', icon: 'fa-hourglass-half' },
+        'requested': { bg: '#fff6e5', color: '#d88a16', icon: 'fa-bell' },
+        'confirmed': { bg: '#e7f8f0', color: '#1c9f61', icon: 'fa-check-circle' },
+        'in_progress': { bg: '#e1f5ff', color: '#0288d1', icon: 'fa-play-circle' },
+        'completed': { bg: '#e7f8f0', color: '#1c9f61', icon: 'fa-check-double' },
+        'cancelled': { bg: '#ffe1e1', color: '#d63031', icon: 'fa-times-circle' }
+      };
+      return badges[status] || badges['pending'];
+    }
+    
+    // Performance Indicators
+    function getPerformanceScore() {
+      const total = bookings.length || 1;
+      const completed = bookings.filter(b => b.status === 'completed').length;
+      const cancelled = bookings.filter(b => b.status === 'cancelled').length;
+      const avgRating = reviewStats?.averageRating || 0;
+      
+      const completionRate = (completed / total) * 100;
+      const cancellationRate = (cancelled / total) * 100;
+      const ratingScore = avgRating * 20; // out of 100
+      
+      const score = (completionRate * 0.4) + (100 - cancellationRate * 5) * 0.3 + ratingScore * 0.3;
+      return Math.min(100, Math.max(0, score));
+    }
+    
+    // Update header with performance badge
+    function updatePerformanceBadge() {
+      const score = getPerformanceScore();
+      let badgeText = 'Excellent';
+      let badgeColor = '#00b894';
+      
+      if (score >= 85) {
+        badgeText = '⭐ Excellent';
+        badgeColor = '#00b894';
+      } else if (score >= 70) {
+        badgeText = '✓ Good';
+        badgeColor = '#55efc4';
+      } else if (score >= 50) {
+        badgeText = '⚠ Fair';
+        badgeColor = '#fdcb6e';
+      } else {
+        badgeText = '✕ Needs Work';
+        badgeColor = '#e17055';
+      }
+      
+      // You can display this in a badge if you add it to the topbar
+      console.log('Performance Score:', score.toFixed(1), badgeText);
+    }
+    
+    // Call performance badge update
+    updatePerformanceBadge();
+    
+    // Keyboard shortcuts for power users
+    document.addEventListener('keydown', (e) => {
+      // Ctrl/Cmd + R: Refresh bookings
+      if ((e.ctrlKey || e.metaKey) && e.key === 'r' && document.activeElement.tagName !== 'INPUT') {
+        e.preventDefault();
+        loadBookings();
+        showToast('Bookings refreshed', 'info', 2000);
+      }
+      // Ctrl/Cmd + B: Go to bookings
+      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+        e.preventDefault();
+        const jobTab = document.querySelector('[data-tab="requests"]');
+        if (jobTab) jobTab.click();
+      }
+    });
+    
+    // Page visibility API - pause/resume auto-refresh
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stopAutoRefresh();
+      } else {
+        startAutoRefresh();
+      }
+    });
+  </script>
+  
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+  <script src="js/worker-dashboard.js"></script>
+  <script>
+    // Fallback: Show dashboard after a delay if main init fails
+    // This ensures dashboard is visible even if there are minor errors
+    document.addEventListener('DOMContentLoaded', function() {
+      // Give main script time to load worker profile
+      setTimeout(() => {
+        const loading = document.getElementById('loading');
+        const dashboard = document.querySelector('.dashboard');
+        
+        // Only show dashboard if it's still hidden (main script didn't show it)
+        if (dashboard && dashboard.style.display === 'none') {
+          // Check if we have worker data (even from localStorage)
+          try {
+            const savedWorker = localStorage.getItem('nearnect_current_user');
+            const token = localStorage.getItem('nearnect_token');
+            
+            if (token || savedWorker) {
+              // We have some data, show dashboard
+              if (loading) loading.style.display = 'none';
+              if (dashboard) dashboard.style.display = 'flex';
+            }
+          } catch(e) {
+            // If still no data after 3 seconds, keep loading or redirect
+            console.warn('No worker data found after timeout');
+          }
+        }
+      }, 3000);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NearNect - Create Account</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    :root{ --primary:#6c5ce7; --secondary:#E91E63; --radius:14px; --shadow:0 10px 30px rgba(0,0,0,0.08);} 
+    body{ background:#f7f7fb; }
+    .container { width: 100%; max-width: 900px; margin: 0 auto; padding: 0 20px; }
+    header { box-shadow: 0 2px 10px rgba(0,0,0,0.04); background:#fff; }
+    .header-row { display:flex; align-items:center; justify-content:space-between; padding:14px 0; }
+
+    .auth-wrap{ min-height: calc(100vh - 120px); display:flex; align-items:center; }
+    .auth-card{ width:100%; background:#fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px; }
+    .auth-card h2{ color:var(--primary); margin-bottom:6px; }
+    .auth-sub{ color:#555; margin-bottom:16px; }
+
+    .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .field{ display:flex; flex-direction:column; }
+    .field label{ font-size:12px; color:#666; margin-bottom:6px; }
+    .field input{ padding:12px; border:1px solid #e5e7eb; border-radius:10px; outline:none; }
+    .error{ color:#b91c1c; font-size:12px; margin-top:4px; display:none; }
+
+    .actions{ margin-top:16px; display:flex; gap:10px; align-items:center; }
+    .btn-primary{ background:linear-gradient(45deg, var(--primary), var(--secondary)); color:#fff; border:none; padding:12px 18px; border-radius:10px; cursor:pointer; font-weight:700; }
+    .btn-secondary{ background:#fff; color:var(--primary); border:1px solid var(--primary); padding:12px 18px; border-radius:10px; cursor:pointer; font-weight:700; }
+
+    @media(max-width:768px){ .grid-2{ grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-row">
+      <h1>NearNect</h1>
+      <a href="index.html" style="text-decoration:none; color:#6c5ce7; font-weight:700;">Home</a>
+    </div>
+  </header>
+
+  <section class="auth-wrap">
+    <div class="container">
+      <div class="auth-card">
+        <h2>Create your NearNect account</h2>
+        <p class="auth-sub">Book services faster and track your bookings.</p>
+        <form id="userRegForm" novalidate>
+          <div class="grid-2">
+            <div class="field">
+              <label for="urName">Full Name</label>
+              <input id="urName" type="text" placeholder="Your Name" required>
+              <span id="erName" class="error">Please enter your name</span>
+            </div>
+            <div class="field">
+              <label for="urEmail">Email</label>
+              <input id="urEmail" type="email" placeholder="you@example.com" required>
+              <span id="erEmail" class="error">Enter a valid email</span>
+            </div>
+            <div class="field">
+              <label for="urPhone">Phone</label>
+              <input id="urPhone" type="tel" placeholder="10-digit phone" required>
+              <span id="erPhone" class="error">Enter a valid phone</span>
+            </div>
+            <div class="field">
+              <label for="urAddress">Address (auto-detected)</label>
+              <input id="urAddress" type="text" placeholder="Allow location to auto-fill">
+              <span id="erAddress" class="error">Enter your address</span>
+            </div>
+            <input type="hidden" id="urLat" name="latitude">
+            <input type="hidden" id="urLng" name="longitude">
+            <div class="field">
+              <label for="urPassword">Password</label>
+              <input id="urPassword" type="password" placeholder="At least 6 characters" minlength="6" required>
+              <span id="erPassword" class="error">Password must be 6+ characters</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn-primary" type="submit">Create Account</button>
+            <a class="btn-secondary" href="user.html">Skip for now</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer style="text-align:center; padding:18px;">
+    <p>© 2025 NearNect</p>
+  </footer>
+
+  <script>
+    (function(){
+      function show(el, ok){ el.style.display = ok ? 'none' : 'block'; }
+      function validEmail(v){ return /.+@.+\..+/.test(v); }
+      function validPhone(v){ return /^\d{10}$/.test(v); }
+
+      const form = document.getElementById('userRegForm');
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        const name = document.getElementById('urName').value.trim();
+        const email = document.getElementById('urEmail').value.trim();
+        const phone = document.getElementById('urPhone').value.trim();
+        const pwd = document.getElementById('urPassword').value;
+
+        let ok = true;
+        show(document.getElementById('erName'), !!name);
+        if(!name) ok=false;
+        show(document.getElementById('erEmail'), validEmail(email));
+        if(!validEmail(email)) ok=false;
+        show(document.getElementById('erPhone'), validPhone(phone));
+        if(!validPhone(phone)) ok=false;
+        show(document.getElementById('erPassword'), pwd.length >= 6);
+        if(pwd.length < 6) ok=false;
+
+        if(!ok) return;
+
+        const user = { id: 'u_' + Date.now(), name, email, phone };
+
+        // capture browser geolocation (if available) and include in signup
+        async function getLocation() {
+          return new Promise((resolve) => {
+            if (!navigator.geolocation) return resolve(null);
+            navigator.geolocation.getCurrentPosition((pos) => {
+              resolve({ type: 'Point', coordinates: [pos.coords.longitude, pos.coords.latitude] });
+            }, () => resolve(null), { enableHighAccuracy: true, timeout: 5000 });
+          });
+        }
+
+        // Try to register with backend if available, then login to get token
+        (async function(){
+          const geo = await getLocation();
+          try{
+            // attempt signup on backend
+            const payload = { name, email, phone, password: pwd };
+            // prefer explicit hidden coords if available
+            const latField = document.getElementById('urLat') && document.getElementById('urLat').value;
+            const lngField = document.getElementById('urLng') && document.getElementById('urLng').value;
+            if (latField && lngField) {
+              payload.location = { type: 'Point', coordinates: [Number(lngField), Number(latField)] };
+            } else if (geo) {
+              payload.location = geo;
+            }
+            const addrField = document.getElementById('urAddress') && document.getElementById('urAddress').value;
+            if (addrField) payload.address = addrField;
+            const res = await fetch((location.hostname === 'localhost' ? 'http://localhost:5000' : '') + '/auth/signup', {
+              method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+            });
+            if(res.ok){
+              // signup succeeded on backend, now login to retrieve token
+              const loginRes = await fetch((location.hostname === 'localhost' ? 'http://localhost:5000' : '') + '/auth/login', {
+                method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email, password: pwd })
+              });
+              if(loginRes.ok){
+                const data = await loginRes.json();
+                try{ localStorage.setItem('nearnect_token', data.token); }catch(e){}
+              }
+            } else if (res.status === 409) {
+              // Email already exists - attempt to login automatically (user may have registered before)
+              try{
+                const loginRes = await fetch((location.hostname === 'localhost' ? 'http://localhost:5000' : '') + '/auth/login', {
+                  method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email, password: pwd })
+                });
+                if(loginRes.ok){ const data = await loginRes.json(); try{ localStorage.setItem('nearnect_token', data.token); }catch(e){} }
+                else {
+                  // login failed (wrong password) -> fall back to storing locally and inform user
+                  const raw = localStorage.getItem('nearnect_users');
+                  const list = raw ? JSON.parse(raw) : [];
+                  list.push(user);
+                  localStorage.setItem('nearnect_users', JSON.stringify(list));
+                  localStorage.setItem('nearnect_current_user', JSON.stringify(user));
+                }
+              }catch(e){
+                const raw = localStorage.getItem('nearnect_users');
+                const list = raw ? JSON.parse(raw) : [];
+                list.push(user);
+                localStorage.setItem('nearnect_users', JSON.stringify(list));
+                localStorage.setItem('nearnect_current_user', JSON.stringify(user));
+              }
+            } else {
+              // Other signup failure -> fallback to localStorage
+              const raw = localStorage.getItem('nearnect_users');
+              const list = raw ? JSON.parse(raw) : [];
+              list.push(user);
+              localStorage.setItem('nearnect_users', JSON.stringify(list));
+              localStorage.setItem('nearnect_current_user', JSON.stringify(user));
+            }
+          }catch(err){
+            // backend not reachable -> fallback to localStorage
+            try{
+              const raw = localStorage.getItem('nearnect_users');
+              const list = raw ? JSON.parse(raw) : [];
+              list.push(user);
+              localStorage.setItem('nearnect_users', JSON.stringify(list));
+              localStorage.setItem('nearnect_current_user', JSON.stringify(user));
+            }catch(_){ }
+          } finally {
+            // Redirect to the user dashboard after registration (backend or local)
+            window.location.href = 'user-dashboard.html';
+          }
+        })();
+      });
+      // Attempt to auto-detect user location on page load and reverse geocode to address
+      (function autoDetectLocation(){
+        async function reverseGeocode(lat, lng){
+          try{
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
+            if(!res.ok) return null;
+            const data = await res.json();
+            return data;
+          }catch(e){ return null; }
+        }
+
+        if (!navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const latEl = document.getElementById('urLat');
+          const lngEl = document.getElementById('urLng');
+          if (latEl) latEl.value = lat;
+          if (lngEl) lngEl.value = lng;
+          const geo = await reverseGeocode(lat, lng);
+          if (geo && geo.display_name) {
+            const addrInput = document.getElementById('urAddress');
+            if (addrInput && !addrInput.value) addrInput.value = geo.display_name;
+          }
+        }, () => {}, { enableHighAccuracy: true, timeout: 5000 });
+      })();
+    })();
+  </script>
+</body>
+</html>

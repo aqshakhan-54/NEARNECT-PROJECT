@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications - NearNect</title>
+  <meta name="author" content="Aqsha Khan">
+  <meta name="description" content="NearNect Notifications - Built by Aqsha Khan, Asian Institute of Technology">
+  <meta property="og:title" content="NearNect - Notifications">
+  <meta property="og:site_name" content="NearNect">
+  <meta property="og:description" content="Project by Aqsha Khan (Asian Institute of Technology). Contact: aqshakhan554@gmail.com, 9428768786">
+  <meta property="og:type" content="website">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --secondary: #E91E63;
+      --success: #00b894;
+      --warning: #fdcb6e;
+      --danger: #e17055;
+      --info: #74b9ff;
+      --dark: #2d3436;
+      --light: #ddd6fe;
+      --bg: #f8f9fa;
+      --text: #2d3436;
+      --border: #e9ecef;
+      --shadow: 0 4px 6px rgba(0,0,0,0.1);
+      --radius: 12px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .notifications-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      background: white;
+      padding: 25px 30px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 15px;
+    }
+
+    .btn {
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(108,92,231,0.3);
+    }
+
+    .btn-secondary {
+      background: #f8f9fa;
+      color: var(--text);
+      border: 2px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .notification-filters {
+      background: white;
+      padding: 20px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 30px;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .filter-tab {
+      padding: 10px 20px;
+      border: 2px solid var(--border);
+      border-radius: 25px;
+      background: white;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .filter-tab.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .filter-tab:hover {
+      border-color: var(--primary);
+    }
+
+    .notification-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+    }
+
+    .stat-card {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+
+    .notifications-list {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .notification-item {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .notification-item:hover {
+      background: #f8f9fa;
+    }
+
+    .notification-item:last-child {
+      border-bottom: none;
+    }
+
+    .notification-item.unread {
+      background: rgba(108,92,231,0.05);
+      border-left: 4px solid var(--primary);
+    }
+
+    .notification-icon {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .notification-content {
+      flex: 1;
+    }
+
+    .notification-title {
+      font-weight: 700;
+      margin-bottom: 5px;
+      color: var(--text);
+    }
+
+    .notification-message {
+      color: #6c757d;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .notification-time {
+      font-size: 0.8rem;
+      color: #6c757d;
+    }
+
+    .notification-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .action-btn {
+      padding: 5px 12px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: white;
+      color: var(--text);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .action-btn:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .action-btn.primary {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6c757d;
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    .empty-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    .empty-description {
+      margin-bottom: 30px;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--danger);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .mark-all-read {
+      background: var(--success);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .mark-all-read:hover {
+      background: #00a085;
+    }
+
+    /* Real-time notification popup */
+    .notification-popup {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      padding: 20px;
+      max-width: 350px;
+      z-index: 1000;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+      border-left: 4px solid var(--primary);
+    }
+
+    .notification-popup.show {
+      transform: translateX(0);
+    }
+
+    .popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .popup-title {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .popup-close {
+      background: none;
+      border: none;
+      color: #6c757d;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    .popup-message {
+      color: #6c757d;
+      margin-bottom: 15px;
+    }
+
+    .popup-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .popup-btn {
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .popup-btn.primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .popup-btn.secondary {
+      background: #f8f9fa;
+      color: var(--text);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .notifications-container {
+        padding: 15px;
+      }
+
+      .header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+
+      .filter-tabs {
+        flex-wrap: wrap;
+      }
+
+      .notification-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .notification-item {
+        padding: 15px;
+      }
+
+      .notification-popup {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+      }
+    }
+
+    /* Animation for new notifications */
+    .notification-item.new {
+      animation: slideInRight 0.5s ease-out;
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* Loading states */
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="notifications-container">
+    <!-- Header -->
+    <div class="header">
+      <h1>
+        <img src="assets/logo-horizontal.svg" alt="NearNect" style="height:36px; vertical-align:middle; margin-right:10px;"/>
+        <i class="fas fa-bell"></i> Notifications
+      </h1>
+      <div class="header-actions">
+        <button class="mark-all-read" onclick="markAllAsRead()">
+          <i class="fas fa-check-double"></i> Mark All Read
+        </button>
+        <a href="user-dashboard.html" class="btn-secondary">
+          <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="notification-filters">
+      <div class="filter-tabs">
+        <div class="filter-tab active" data-filter="all">All</div>
+        <div class="filter-tab" data-filter="booking">Bookings</div>
+        <div class="filter-tab" data-filter="message">Messages</div>
+        <div class="filter-tab" data-filter="payment">Payments</div>
+        <div class="filter-tab" data-filter="system">System</div>
+      </div>
+
+      <div class="notification-stats">
+        <div class="stat-card">
+          <div class="stat-number" id="totalNotifications">12</div>
+          <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="unreadNotifications">5</div>
+          <div class="stat-label">Unread</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="todayNotifications">3</div>
+          <div class="stat-label">Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="urgentNotifications">1</div>
+          <div class="stat-label">Urgent</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="notifications-list" id="notificationsList">
+      <!-- Notifications will be loaded here -->
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState" style="display: none;">
+      <div class="empty-icon">🔔</div>
+      <h3 class="empty-title">No notifications</h3>
+      <p class="empty-description">You're all caught up! New notifications will appear here.</p>
+      <a href="user.html" class="btn">Find Services</a>
+    </div>
+  </div>
+
+  <!-- Real-time Notification Popup -->
+  <div class="notification-popup" id="notificationPopup">
+    <div class="popup-header">
+      <div class="popup-title">New Notification</div>
+      <button class="popup-close" onclick="closePopup()">×</button>
+    </div>
+    <div class="popup-message" id="popupMessage">You have a new message from Ali Khan</div>
+    <div class="popup-actions">
+      <button class="popup-btn secondary" onclick="closePopup()">Dismiss</button>
+      <button class="popup-btn primary" onclick="viewNotification()">View</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { getApiBase, authHeaders, ensureDemoLogin } from './assets/js/api.js';
+    
+    // Make functions available globally
+    window.getApiBase = getApiBase;
+    window.authHeaders = authHeaders;
+    window.ensureDemoLogin = ensureDemoLogin;
+
+    class NotificationSystem {
+      constructor() {
+        this.notifications = [];
+        this.currentFilter = 'all';
+        this.init();
+      }
+
+      init() {
+        this.loadNotifications();
+        this.setupEventListeners();
+        this.renderNotifications();
+        this.startRealTimeUpdates();
+      }
+
+      async loadNotifications() {
+        await ensureDemoLogin();
+        const res = await fetch(`${getApiBase()}/notifications`, { headers: { ...authHeaders() } });
+        if (!res.ok) {
+          this.notifications = [];
+          this.renderNotifications();
+          return;
+        }
+        const list = await res.json();
+        // Map API fields to UI fields
+        this.notifications = list.map(n => ({
+          id: n.id,
+          type: n.type,
+          title: n.title,
+          message: n.message,
+          time: n.createdAt,
+          read: n.read,
+          urgent: n.urgent,
+          icon: n.icon || 'fas fa-bell',
+          iconColor: n.iconColor || '#6c5ce7',
+          actions: ['View Details']
+        }));
+      }
+
+      setupEventListeners() {
+        // Filter tabs
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+          tab.addEventListener('click', () => {
+            this.setFilter(tab.getAttribute('data-filter'));
+          });
+        });
+      }
+
+      setFilter(filter) {
+        this.currentFilter = filter;
+        
+        // Update active tab
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+          tab.classList.remove('active');
+        });
+        document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+        
+        this.renderNotifications();
+      }
+
+      renderNotifications() {
+        const container = document.getElementById('notificationsList');
+        const emptyState = document.getElementById('emptyState');
+        
+        let filteredNotifications = this.notifications;
+        
+        if (this.currentFilter !== 'all') {
+          filteredNotifications = this.notifications.filter(n => n.type === this.currentFilter);
+        }
+        
+        // Sort by time (newest first)
+        filteredNotifications.sort((a, b) => new Date(b.time) - new Date(a.time));
+        
+        if (filteredNotifications.length === 0) {
+          container.style.display = 'none';
+          emptyState.style.display = 'block';
+          return;
+        }
+        
+        container.style.display = 'block';
+        emptyState.style.display = 'none';
+        
+        container.innerHTML = filteredNotifications.map(notification => `
+          <div class="notification-item ${notification.read ? '' : 'unread'}" onclick="markAsRead('${notification.id}')">
+            <div class="notification-icon" style="background: ${notification.iconColor};">
+              <i class="${notification.icon}"></i>
+            </div>
+            <div class="notification-content">
+              <div class="notification-title">${notification.title}</div>
+              <div class="notification-message">${notification.message}</div>
+              <div class="notification-time">${this.formatTime(notification.time)}</div>
+              <div class="notification-actions">
+                ${notification.actions.map(action => `
+                  <button class="action-btn" onclick="handleNotificationAction('${notification.id}', '${action}')">${action}</button>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `).join('');
+        
+        this.updateStats();
+      }
+
+      formatTime(timeString) {
+        const time = new Date(timeString);
+        const now = new Date();
+        const diff = now - time;
+        
+        if (diff < 60 * 1000) {
+          return 'Just now';
+        } else if (diff < 60 * 60 * 1000) {
+          const minutes = Math.floor(diff / (60 * 1000));
+          return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+        } else if (diff < 24 * 60 * 60 * 1000) {
+          const hours = Math.floor(diff / (60 * 60 * 1000));
+          return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+        } else {
+          const days = Math.floor(diff / (24 * 60 * 60 * 1000));
+          return `${days} day${days > 1 ? 's' : ''} ago`;
+        }
+      }
+
+      updateStats() {
+        const total = this.notifications.length;
+        const unread = this.notifications.filter(n => !n.read).length;
+        const today = this.notifications.filter(n => {
+          const notificationDate = new Date(n.time);
+          const today = new Date();
+          return notificationDate.toDateString() === today.toDateString();
+        }).length;
+        const urgent = this.notifications.filter(n => n.urgent && !n.read).length;
+        
+        document.getElementById('totalNotifications').textContent = total;
+        document.getElementById('unreadNotifications').textContent = unread;
+        document.getElementById('todayNotifications').textContent = today;
+        document.getElementById('urgentNotifications').textContent = urgent;
+      }
+
+      async markAsRead(notificationId) {
+        await fetch(`${getApiBase()}/notifications/${notificationId}/read`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() }
+        });
+        await this.loadNotifications();
+        this.renderNotifications();
+      }
+
+      async markAllAsRead() {
+        await fetch(`${getApiBase()}/notifications/mark-all-read`, {
+          method: 'POST',
+          headers: { ...authHeaders() }
+        });
+        await this.loadNotifications();
+        this.renderNotifications();
+        this.showToast('All notifications marked as read', 'success');
+      }
+
+      startRealTimeUpdates() {
+        // Simulate real-time notifications
+        setInterval(() => {
+          if (Math.random() < 0.3) { // 30% chance every 30 seconds
+            this.addRandomNotification();
+          }
+        }, 30000);
+      }
+
+      async addRandomNotification() {
+        const randomNotifications = [
+          {
+            type: 'message',
+            title: 'New Message',
+            message: 'You have a new message from a service provider',
+            icon: 'fas fa-comments',
+            iconColor: '#6c5ce7',
+            actions: ['View Message']
+          },
+          {
+            type: 'booking',
+            title: 'Booking Update',
+            message: 'Your service provider has updated the schedule',
+            icon: 'fas fa-calendar-alt',
+            iconColor: '#00b894',
+            actions: ['View Details']
+          },
+          {
+            type: 'system',
+            title: 'Service Reminder',
+            message: 'Don\'t forget your upcoming service appointment',
+            icon: 'fas fa-bell',
+            iconColor: '#fdcb6e',
+            actions: ['View Booking']
+          }
+        ];
+        
+        const randomNotif = randomNotifications[Math.floor(Math.random() * randomNotifications.length)];
+        const res = await fetch(`${getApiBase()}/notifications`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({
+            type: randomNotif.type,
+            title: randomNotif.title,
+            message: randomNotif.message,
+            urgent: Math.random() < 0.2,
+            icon: randomNotif.icon,
+            iconColor: randomNotif.iconColor
+          })
+        });
+        if (res.ok) {
+          const created = await res.json();
+          const ui = {
+            id: created.id,
+            type: created.type,
+            title: created.title,
+            message: created.message,
+            time: created.createdAt,
+            read: created.read,
+            urgent: created.urgent,
+            icon: created.icon,
+            iconColor: created.iconColor,
+            actions: ['View Details']
+          };
+          this.notifications.unshift(ui);
+          this.renderNotifications();
+          this.showNotificationPopup(ui);
+        }
+      }
+
+      showNotificationPopup(notification) {
+        const popup = document.getElementById('notificationPopup');
+        const message = document.getElementById('popupMessage');
+        
+        message.textContent = notification.message;
+        popup.classList.add('show');
+        
+        // Auto hide after 5 seconds
+        setTimeout(() => {
+          popup.classList.remove('show');
+        }, 5000);
+      }
+
+      showToast(message, type = 'success') {
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `toast ${type} show`;
+        toast.textContent = message;
+        toast.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: ${type === 'success' ? '#00b894' : '#e17055'};
+          color: white;
+          padding: 15px 20px;
+          border-radius: 8px;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          z-index: 1000;
+          transform: translateX(0);
+          transition: transform 0.3s ease;
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+          toast.style.transform = 'translateX(400px)';
+          setTimeout(() => {
+            document.body.removeChild(toast);
+          }, 300);
+        }, 3000);
+      }
+    }
+
+    // Global functions
+    function markAsRead(notificationId) {
+      if (window.notificationSystem) {
+        window.notificationSystem.markAsRead(notificationId);
+      }
+    }
+
+    function markAllAsRead() {
+      if (window.notificationSystem) {
+        window.notificationSystem.markAllAsRead();
+      }
+    }
+
+    function handleNotificationAction(notificationId, action) {
+      event.stopPropagation();
+      
+      const notification = window.notificationSystem.notifications.find(n => n.id === notificationId);
+      
+      switch (action) {
+        case 'View Details':
+        case 'View Booking':
+          window.location.href = 'user-dashboard.html';
+          break;
+        case 'Reply':
+        case 'View Chat':
+        case 'View Message':
+          window.open('chat.html', '_blank');
+          break;
+        case 'Rate Service':
+          window.location.href = 'user-dashboard.html#reviews';
+          break;
+        case 'View Profile':
+          window.location.href = 'user.html';
+          break;
+        case 'Get Started':
+          window.location.href = 'user.html';
+          break;
+        default:
+          window.notificationSystem.showToast(`${action} action triggered`, 'success');
+      }
+    }
+
+    function closePopup() {
+      document.getElementById('notificationPopup').classList.remove('show');
+    }
+
+    function viewNotification() {
+      closePopup();
+      window.location.href = 'user-dashboard.html';
+    }
+
+    // Initialize notification system
+    document.addEventListener('DOMContentLoaded', async () => {
+      await ensureDemoLogin();
+      window.notificationSystem = new NotificationSystem();
+    });
+  </script>
+</body>
+</html>

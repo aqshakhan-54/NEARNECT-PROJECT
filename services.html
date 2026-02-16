@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Services - NearNect</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    :root{ --primary:#6c5ce7; --secondary:#E91E63; --shadow:0 20px 60px rgba(0,0,0,0.08); --text:#1f2330; }
+    body { background:#f7f7fb; color:var(--text); }
+    .container { width:100%; max-width:1200px; margin:0 auto; padding:0 20px; }
+
+    header { position:sticky; top:0; z-index:10; background:rgba(255,255,255,0.85); backdrop-filter:blur(10px); box-shadow:0 2px 12px rgba(0,0,0,0.05); }
+    .bar { display:flex; align-items:center; justify-content:space-between; padding:14px 0; }
+    header h1 { font-size:1.6rem; font-weight:800; background:linear-gradient(45deg,#7B2FFF,var(--secondary)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; }
+    nav a { margin:0 12px; color:#374151; text-decoration:none; font-weight:600; }
+    nav a:hover { color:#7B2FFF; }
+
+    .page { padding: 40px 0; }
+    .hero { padding: 40px 0 10px; }
+    .hero h2 { margin: 0 0 6px; color:#6c5ce7; font-size: 2rem; }
+    .hero p { margin: 0; color:#6b7280; }
+
+    .filters { display:flex; flex-wrap:wrap; gap:12px; margin:20px 0 30px; background:#fff; border-radius:12px; padding:14px; box-shadow:0 10px 30px rgba(0,0,0,0.06); }
+    .filters select, .filters input { padding:10px 12px; border:1px solid #e5e7eb; border-radius:8px; }
+    .filters button { padding:10px 14px; border:none; border-radius:8px; background:linear-gradient(45deg,#7B2FFF,var(--secondary)); color:#fff; font-weight:700; }
+
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px; }
+    .card { background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.08); }
+    .card img { width:100%; height:180px; object-fit:cover; }
+    .card .pad { padding:16px; }
+    .row { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .price { background:#ffd166; color:#333; padding:6px 10px; border-radius:16px; font-weight:700; font-size:12px; }
+    .stars { color:#f5a623; font-size: 14px; }
+    .actions { display:flex; gap:8px; margin-top:10px; }
+    .btn-primary { background:linear-gradient(45deg,#7B2FFF,var(--secondary)); color:#fff; border:none; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:700; }
+    .btn-secondary { background:#fff; color:#7B2FFF; border:2px solid #7B2FFF; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:700; }
+
+    footer { text-align:center; padding:20px; color:#6b7280; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container bar">
+      <h1>NearNect</h1>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="services.html">Services</a>
+        <a href="how-it-works.html">How it Works</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <a class="btn" href="user-register.html">Sign Up</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="container">
+      <section class="hero">
+        <h2>Services</h2>
+        <p>Top local services you can book instantly</p>
+      </section>
+
+      <section class="filters">
+        <select id="fCat">
+          <option value="">All Categories</option>
+          <option value="plumber">Plumber</option>
+          <option value="electrician">Electrician</option>
+          <option value="painter">Painter</option>
+        </select>
+        <select id="fRating">
+          <option value="">Any Rating</option>
+          <option value="4.5">4.5+ stars</option>
+          <option value="4.0">4.0+ stars</option>
+        </select>
+        <input id="fMaxD" type="number" placeholder="Max distance (km)" min="1" step="0.5">
+        <button id="apply">Apply</button>
+      </section>
+
+      <section class="grid" id="servicesGrid">
+        <div class="card" data-cat="plumber" data-rating="4.7" data-dist="2.5">
+          <img src="images/plumber.png" alt="Plumber">
+          <div class="pad">
+            <div class="row"><h3 style="margin:0;">Expert Plumber</h3><span class="price">₹500/hr</span></div>
+            <div class="row"><span class="stars">★★★★★</span><small> 4.7</small></div>
+            <p style="margin:8px 0; color:#6b7280;">Leak fixes, installations, bathroom fittings.</p>
+            <div class="actions">
+              <a class="btn-primary" href="user.html?cat=plumber">Book Now</a>
+              <a class="btn-secondary" href="user.html?cat=plumber">View</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" data-cat="electrician" data-rating="4.8" data-dist="3.0">
+          <img src="images/electrician.png" alt="Electrician">
+          <div class="pad">
+            <div class="row"><h3 style="margin:0;">Certified Electrician</h3><span class="price">₹600/hr</span></div>
+            <div class="row"><span class="stars">★★★★★</span><small> 4.8</small></div>
+            <p style="margin:8px 0; color:#6b7280;">Wiring, repair, appliance installation.</p>
+            <div class="actions">
+              <a class="btn-primary" href="user.html?cat=electrician">Book Now</a>
+              <a class="btn-secondary" href="user.html?cat=electrician">View</a>
+            </div>
+          </div>
+        </div>
+        <div class="card" data-cat="electrician" data-rating="4.8" data-dist="3.0">
+          <img src="images/mehndiartist.png" alt="MEhndi Artist">
+          <div class="pad">
+            <div class="row"><h3 style="margin:0;">Mehndi Artist</h3><span class="price">₹400/event</span></div>
+            <div class="row"><span class="stars">★★★★★</span><small> 4.5</small></div>
+            <p style="margin:8px 0; color:#6b7280;">Bridal and party mehndi with custom designs.</p>
+            <div class="actions">
+              <a class="btn-primary" href="user.html?cat=electrician">Book Now</a>
+              <a class="btn-secondary" href="user.html?cat=electrician">View</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" data-cat="painter" data-rating="4.5" data-dist="1.8">
+          <img src="images/homepainter.png" alt="Painter">
+          <div class="pad">
+            <div class="row"><h3 style="margin:0;">Home Painter</h3><span class="price">₹800/day</span></div>
+            <div class="row"><span class="stars">★★★★☆</span><small> 4.5</small></div>
+            <p style="margin:8px 0; color:#6b7280;">Interior & exterior painting, quick finish.</p>
+            <div class="actions">
+              <a class="btn-primary" href="user.html?cat=painter">Book Now</a>
+              <a class="btn-secondary" href="user.html?cat=painter">View</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 NearNect</p>
+  </footer>
+
+  <script>
+    (function(){
+      const grid = document.getElementById('servicesGrid');
+      const fCat = document.getElementById('fCat');
+      const fRating = document.getElementById('fRating');
+      const fMaxD = document.getElementById('fMaxD');
+      document.getElementById('apply').addEventListener('click', function(){
+        const cat = fCat.value;
+        const minR = parseFloat(fRating.value || '0') || 0;
+        const maxD = parseFloat(fMaxD.value || '1000') || 1000;
+        Array.from(grid.children).forEach(card => {
+          const ccat = card.getAttribute('data-cat');
+          const rating = parseFloat(card.getAttribute('data-rating'));
+          const dist = parseFloat(card.getAttribute('data-dist'));
+          const okCat = !cat || ccat === cat;
+          const okR = !minR || rating >= minR;
+          const okD = !maxD || dist <= maxD;
+          card.style.display = (okCat && okR && okD) ? '' : 'none';
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

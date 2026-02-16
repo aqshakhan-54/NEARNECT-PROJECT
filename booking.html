@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking - NearNect</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .booking-wrap { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    .booking-card { display:flex; gap:20px; background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.08); overflow:hidden; }
+    .booking-card img { width: 360px; height: 260px; object-fit: cover; }
+    .booking-content { padding:16px; flex:1; }
+    .booking-content h2 { margin-bottom:8px; }
+    .booking-content p { margin: 6px 0; color:#555; }
+    .booking-form { margin-top:16px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .booking-form input, .booking-form textarea { padding:10px; border:1px solid #ddd; border-radius:8px; }
+    .booking-actions { margin-top:16px; display:flex; gap:10px; }
+    .btn-primary { background:#6c5ce7; color:#fff; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; }
+    .btn-secondary { background:#fff; color:#6c5ce7; border:1px solid #6c5ce7; padding:10px 16px; border-radius:8px; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Confirm Your Booking</h1>
+  </header>
+
+  <div class="booking-wrap">
+    <div id="bookingCard" class="booking-card" style="display:none;"></div>
+  </div>
+
+  <script type="module">
+    import { getApiBase, authHeaders, getToken } from './assets/js/api.js';
+    (async function(){
+      const raw = localStorage.getItem('nearnect_selected_worker');
+      if (!raw) {
+        // try to load from query param
+        const params = new URLSearchParams(window.location.search);
+        const workerId = params.get('workerId');
+        if(workerId){
+          try{
+            const res = await fetch(`${getApiBase()}/workers/${workerId}`);
+            if(res.ok){ const w = await res.json(); localStorage.setItem('nearnect_selected_worker', JSON.stringify(w)); location.reload(); return; }
+          }catch(_){ }
+        }
+        // if still missing, redirect to listing
+        window.location.href = 'user.html';
+        return;
+      }
+      const worker = JSON.parse(raw);
+      const card = document.getElementById('bookingCard');
+      card.style.display = 'flex';
+      card.innerHTML = `
+        <img src="${worker.img}" alt="${worker.skill}" onerror="this.onerror=null;this.src='https://source.unsplash.com/400x300/?services,people';">
+        <div class="booking-content">
+          <h2>${worker.name}</h2>
+          <p><strong>Skill:</strong> ${worker.skill}</p>
+          <p><strong>Rate:</strong> ₹${worker.price}</p>
+          ${worker.availability ? `<p><strong>Availability:</strong> ${worker.availability}</p>` : ''}
+
+          <form id="bookingForm" class="booking-form">
+            <input id="bfName" type="text" placeholder="Your Name" required>
+            <input id="bfPhone" type="tel" placeholder="Phone Number" required>
+            <input id="bfAddress" type="text" placeholder="Service Address" required>
+            <input id="bfDate" type="date" required>
+            <input id="bfTime" type="time" required>
+            <textarea id="bfNotes" placeholder="Notes (optional)" style="grid-column:1/-1"></textarea>
+          </form>
+          <div class="booking-actions">
+            <button id="confirmBtn" class="btn-primary">Confirm Booking</button>
+            <button id="backBtn" class="btn-secondary">Back to List</button>
+          </div>
+        </div>
+      `;
+
+      // Pre-fill address from saved user location/address if available
+      try {
+        const savedAddress = localStorage.getItem('nearnect_user_address');
+        if (savedAddress) {
+          const addrInput = document.getElementById('bfAddress');
+          if (addrInput) addrInput.value = savedAddress;
+        }
+      } catch(_) {}
+
+      document.getElementById('backBtn').addEventListener('click', function(){
+        window.location.href = 'user.html';
+      });
+      document.getElementById('confirmBtn').addEventListener('click', async function(){
+        const name = document.getElementById('bfName').value.trim();
+        const phone = document.getElementById('bfPhone').value.trim();
+        const address = document.getElementById('bfAddress').value.trim();
+        const date = document.getElementById('bfDate').value;
+        const time = document.getElementById('bfTime').value;
+        const notes = document.getElementById('bfNotes').value.trim();
+        if (!name || !phone || !address || !date || !time) { alert('Please fill required fields'); return; }
+        const scheduledFor = new Date(`${date}T${time}:00`);
+        // require login to create booking
+        const token = getToken();
+        if(!token){ window.location.href = `login.html?next=${encodeURIComponent(location.pathname.split('/').pop() + location.search)}`; return; }
+
+        const res = await fetch(`${getApiBase()}/bookings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({
+            providerId: worker.id || worker.providerId || worker.userId,
+            service: worker.skill || 'Service',
+            scheduledFor,
+            address,
+            instructions: notes,
+            customerName: name,
+            customerPhone: phone,
+            amount: worker.price || 0
+          })
+        });
+        if (res.ok) {
+          alert('Booking confirmed!');
+          window.location.href = 'user.html';
+        } else {
+          alert('Failed to create booking');
+        }
+      });
+      // Shortlist by money: show cheaper options for same skill (no rating/distance)
+      try{
+        const wrap = document.createElement('div');
+        wrap.style.marginTop = '18px';
+        const allRaw = localStorage.getItem('nearnect_workers');
+        const list = allRaw ? JSON.parse(allRaw) : [];
+        const sameSkill = list.filter(w => (w.skill||'').toLowerCase() === (worker.skill||'').toLowerCase() && (w.id||w.email) !== (worker.id||worker.email));
+        sameSkill.sort((a,b)=> (a.price||0) - (b.price||0));
+        const top = sameSkill.slice(0,3);
+        if(top.length){
+          const items = top.map(w=>`
+            <div style="display:flex;align-items:center;gap:10px;background:#fafafa;border:1px solid #eee;padding:10px;border-radius:10px">
+              <img src="${w.img||'https://source.unsplash.com/100x100/?person'}" style="width:64px;height:64px;object-fit:cover;border-radius:10px"/>
+              <div style="flex:1">
+                <div style="font-weight:700">${w.name||'Provider'}</div>
+                <div style="color:#555;font-size:13px">${w.skill||''}</div>
+              </div>
+              <div style="font-weight:800;color:#6c5ce7">₹${w.price||0}</div>
+              <button data-pick="${w.id||w.email}" class="btn-secondary">Choose</button>
+            </div>
+          `).join('');
+          wrap.innerHTML = `<h3 style="margin:12px 0">Budget-friendly options</h3><div style="display:grid;gap:10px">${items}</div>`;
+          card.appendChild(wrap);
+          wrap.querySelectorAll('[data-pick]').forEach(btn=>btn.addEventListener('click',()=>{
+            const id = btn.getAttribute('data-pick');
+            const chosen = sameSkill.find(x=> (x.id||x.email) == id);
+            if(chosen){ localStorage.setItem('nearnect_selected_worker', JSON.stringify(chosen)); location.reload(); }
+          }));
+        }
+      }catch(_){ }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Dashboard - NearNect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --secondary: #E91E63;
+      --success: #00b894;
+      --warning: #fdcb6e;
+      --danger: #e17055;
+      --info: #74b9ff;
+      --dark: #2d3436;
+      --light: #ddd6fe;
+      --bg: #f8f9fa;
+      --text: #2d3436;
+      --border: #e9ecef;
+      --shadow: 0 4px 6px rgba(0,0,0,0.1);
+      --radius: 12px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .dashboard-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 20px 0;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar-header {
+      padding: 0 20px 30px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .user-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      position: relative;
+    }
+
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .online-indicator {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 3px solid white;
+      background: var(--success);
+    }
+
+    .user-info h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .user-info p {
+      opacity: 0.8;
+      font-size: 0.9rem;
+    }
+
+    .sidebar-nav {
+      padding: 20px 0;
+    }
+
+    .nav-item {
+      display: block;
+      padding: 15px 20px;
+      color: white;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+      position: relative;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      background: rgba(255,255,255,0.1);
+      border-left-color: white;
+      transform: translateX(5px);
+    }
+
+    .nav-item i {
+      margin-right: 12px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .nav-badge {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--danger);
+      color: white;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 280px;
+      padding: 20px;
+    }
+
+    .top-bar {
+      background: white;
+      padding: 20px 30px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .top-bar h2 {
+      color: var(--primary);
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .notification-btn {
+      position: relative;
+      width: 45px;
+      height: 45px;
+      border: none;
+      background: #f8f9fa;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .notification-btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background: var(--danger);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .btn {
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(108,92,231,0.3);
+    }
+
+    /* Dashboard Grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 25px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .stat-title {
+      font-size: 0.9rem;
+      color: #6c757d;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .stat-change {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .stat-change.positive {
+      color: var(--success);
+    }
+
+    .stat-change.negative {
+      color: var(--danger);
+    }
+
+    /* Content Sections */
+    .content-section {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 25px 30px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .section-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .dashboard-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .dashboard-table th,
+    .dashboard-table td {
+      padding: 15px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dashboard-table th {
+      background: #f8f9fa;
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .dashboard-table tr:hover {
+      background: #f8f9fa;
+    }
+
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-confirmed {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-completed {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+
+    .status-cancelled {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .quick-action-card {
+      background: white;
+      padding: 25px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .quick-action-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .quick-action-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      margin: 0 auto 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: white;
+    }
+
+    .quick-action-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .quick-action-desc {
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+
+    /* Recent Activity */
+  /* User gallery (instagram-like) */
+  .gallery-upload { display:flex; gap:12px; align-items:center; margin-bottom:14px }
+  .gallery-upload input[type="file"] { display:none }
+  .gallery-upload .upload-btn { background: linear-gradient(90deg,var(--secondary),var(--primary)); color:#fff; padding:10px 14px; border-radius:10px; cursor:pointer; border:none }
+  .gallery-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap:12px }
+  .gallery-item { background:#fff;border-radius:12px;overflow:hidden;position:relative;box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+  .gallery-item img { width:100%;height:160px;object-fit:cover;display:block }
+  .gallery-item .meta { padding:8px;font-size:13px;color:#444 }
+  .gallery-item .delete { position:absolute; right:8px; top:8px; background:rgba(255,255,255,0.9); border-radius:8px; padding:6px; cursor:pointer; border:none }
+
+  /* image modal */
+  .img-modal { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background: rgba(0,0,0,0.6); z-index:2000 }
+  .img-modal.open { display:flex }
+  .img-modal .panel { background:#fff; border-radius:12px; padding:12px; max-width:900px; width:95%; display:flex; gap:12px; align-items:flex-start }
+  .img-modal .panel img { max-width:420px; width:420px; height:auto; border-radius:8px }
+  .img-modal .panel .right { flex:1 }
+    .activity-item {
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: white;
+    }
+
+    .activity-content {
+      flex: 1;
+    }
+
+    .activity-title {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .activity-time {
+      font-size: 0.8rem;
+      color: #6c757d;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 15px;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-actions {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      }
+    }
+
+    /* Hidden sections */
+    .section-content {
+      display: none;
+    }
+
+    .section-content.active {
+      display: block;
+    }
+
+    /* Toast notifications */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--success);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      z-index: 1000;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.error {
+      background: var(--danger);
+    }
+
+    .toast.warning {
+      background: var(--warning);
+    }
+
+    /* Loading states */
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="user-profile">
+          <div class="user-avatar">
+            <img src="https://ui-avatars.com/api/?name=John+Doe&background=6c5ce7&color=fff&size=200" alt="Profile" id="userAvatar">
+            <div class="online-indicator"></div>
+          </div>
+          <div class="user-info">
+            <h3 id="userName">John Doe</h3>
+            <p id="userEmail">john@example.com</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="sidebar-nav">
+        <a href="#" class="nav-item active" data-section="overview">
+          <i class="fas fa-tachometer-alt"></i> Overview
+        </a>
+        <a href="#" class="nav-item" data-section="bookings">
+          <i class="fas fa-calendar-check"></i> My Bookings
+          <span class="nav-badge" id="bookingBadge">3</span>
+        </a>
+        <a href="#" class="nav-item" data-section="favorites">
+          <i class="fas fa-heart"></i> Favorites
+        </a>
+        <a href="#" class="nav-item" data-section="gallery">
+          <i class="fas fa-images"></i> My Gallery
+        </a>
+        <a href="#" class="nav-item" data-section="reviews">
+          <i class="fas fa-star"></i> Reviews
+        </a>
+        <a href="#" class="nav-item" data-section="messages">
+          <i class="fas fa-comments"></i> Messages
+          <span class="nav-badge" id="messageBadge">2</span>
+        </a>
+        <a href="#" class="nav-item" data-section="profile">
+          <i class="fas fa-user"></i> Profile Settings
+        </a>
+        <a href="#" class="nav-item" data-section="help">
+          <i class="fas fa-question-circle"></i> Help & Support
+        </a>
+        <a href="#" class="nav-item" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <div class="top-bar">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button id="sidebarToggle" class="btn" style="padding:8px 10px;">☰</button>
+          <h2 id="page-title">Dashboard Overview</h2>
+        </div>
+        <div class="top-actions">
+          <button class="notification-btn" onclick="showNotifications()">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" id="notificationBadge">5</span>
+          </button>
+          <a href="user.html" class="btn">
+            <i class="fas fa-search"></i> Find Services
+          </a>
+        </div>
+      </div>
+
+      <!-- Overview Section -->
+      <div id="overview" class="section-content active">
+        <!-- Stats Cards -->
+        <div class="dashboard-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-title">Total Bookings</div>
+              <div class="stat-icon" style="background: var(--primary);">
+                <i class="fas fa-calendar-check"></i>
+              </div>
+            </div>
+            <div class="stat-value">0</div>
+           <!---- <div class="stat-change positive">+3 this month</div> -->
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-title">Completed Services</div>
+              <div class="stat-icon" style="background: var(--success);">
+                <i class="fas fa-check-circle"></i>
+              </div>
+            </div>
+            <div class="stat-value">0</div>
+           <!--- <div class="stat-change positive">+2 this week</div>-->
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-title">Total Spent</div>
+              <div class="stat-icon" style="background: var(--warning);">
+                <i class="fas fa-rupee-sign"></i>
+              </div>
+            </div>
+            <div class="stat-value">₹0</div>
+            <!--<div class="stat-change positive">+₹800 this month</div> -->
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-title">Favorite Providers</div>
+              <div class="stat-icon" style="background: var(--info);">
+                <i class="fas fa-heart"></i>
+              </div>
+            </div>
+            <div class="stat-value">0</div>
+           <!--- <div class="stat-change positive">+1 this week</div> -->
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="content-section">
+          <div class="section-header">
+            <div class="section-title">Quick Actions</div>
+          </div>
+          <div style="padding: 25px;">
+            <div class="quick-actions">
+              <div class="quick-action-card" onclick="showSection('bookings')">
+                <div class="quick-action-icon" style="background: var(--primary);">
+                  <i class="fas fa-calendar-plus"></i>
+                </div>
+                <div class="quick-action-title">Book Service</div>
+                <div class="quick-action-desc">Find and book new services</div>
+              </div>
+              
+              <div class="quick-action-card" onclick="showSection('messages')">
+                <div class="quick-action-icon" style="background: var(--success);">
+                  <i class="fas fa-comments"></i>
+                </div>
+                <div class="quick-action-title">Messages</div>
+                <div class="quick-action-desc">Chat with providers</div>
+              </div>
+              
+              <div class="quick-action-card" onclick="showSection('reviews')">
+                <div class="quick-action-icon" style="background: var(--warning);">
+                  <i class="fas fa-star"></i>
+                </div>
+                <div class="quick-action-title">Write Review</div>
+                <div class="quick-action-desc">Rate your experience</div>
+              </div>
+              
+              <div class="quick-action-card" onclick="showSection('profile')">
+                <div class="quick-action-icon" style="background: var(--info);">
+                  <i class="fas fa-user-edit"></i>
+                </div>
+                <div class="quick-action-title">Update Profile</div>
+                <div class="quick-action-desc">Manage your account</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="content-section">
+          <div class="section-header">
+            <div class="section-title">Recent Activity</div>
+            <div class="section-actions">
+              <button class="btn">View All</button>
+            </div>
+          </div>
+          <div>
+            <div class="activity-item">
+              <div class="activity-icon" style="background: var(--success);">
+                <i class="fas fa-check"></i>
+              </div>
+              <div class="activity-content">
+                <div class="activity-title">Plumbing service completed by Ali Khan</div>
+                <div class="activity-time">2 hours ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon" style="background: var(--primary);">
+                <i class="fas fa-calendar"></i>
+              </div>
+              <div class="activity-content">
+                <div class="activity-title">New booking confirmed for tomorrow</div>
+                <div class="activity-time">5 hours ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon" style="background: var(--warning);">
+                <i class="fas fa-star"></i>
+              </div>
+              <div class="activity-content">
+                <div class="activity-title">You rated Sara Patel 5 stars</div>
+                <div class="activity-time">1 day ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon" style="background: var(--info);">
+                <i class="fas fa-comment"></i>
+              </div>
+              <div class="activity-content">
+                <div class="activity-title">New message from Rohit Sharma</div>
+                <div class="activity-time">2 days ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bookings Section -->
+      <div id="bookings" class="section-content">
+        <div class="content-section">
+          <div class="section-header">
+            <div class="section-title">My Bookings</div>
+            <div class="section-actions">
+              <button class="btn">New Booking</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="dashboard-table">
+              <thead>
+                <tr>
+                  <th>Service</th>
+                  <th>Provider</th>
+                  <th>Date & Time</th>
+                  <th>Status</th>
+                  <th>Amount</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <img src="https://images.unsplash.com/photo-1581091014534-3e89df7cf2a5?q=80&w=50&h=50&auto=format&fit=crop" alt="Service" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+                      <div>
+                        <div style="font-weight: 600;">Plumbing Repair</div>
+                        <div style="font-size: 0.8rem; color: #6c757d;">Kitchen faucet fix</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>Ali Khan</td>
+                  <td>Today, 2:00 PM</td>
+                  <td><span class="status-badge status-confirmed">Confirmed</span></td>
+                  <td>₹500</td>
+                  <td>
+                    <button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Chat</button>
+                    <button class="btn" style="padding: 5px 10px; font-size: 0.8rem; background: var(--danger);">Cancel</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <img src="https://images.unsplash.com/photo-1564540583246-934409427776?q=80&w=50&h=50&auto=format&fit=crop" alt="Service" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+                      <div>
+                        <div style="font-weight: 600;">Mehndi Design</div>
+                        <div style="font-size: 0.8rem; color: #6c757d;">Bridal mehndi</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>Sara Patel</td>
+                  <td>Tomorrow, 10:00 AM</td>
+                  <td><span class="status-badge status-pending">Pending</span></td>
+                  <td>₹1,200</td>
+                  <td>
+                    <button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Chat</button>
+                    <button class="btn" style="padding: 5px 10px; font-size: 0.8rem; background: var(--danger);">Cancel</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <img src="https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?q=80&w=50&h=50&auto=format&fit=crop" alt="Service" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">
+                      <div>
+                        <div style="font-weight: 600;">Interior Painting</div>
+                        <div style="font-size: 0.8rem; color: #6c757d;">Living room</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>Rohit Sharma</td>
+                  <td>Jan 25, 9:00 AM</td>
+                  <td><span class="status-badge status-completed">Completed</span></td>
+                  <td>₹800</td>
+                  <td>
+                    <button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Review</button>
+                    <button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Re-book</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Favorites Section -->
+      <div id="favorites" class="section-content">
+        <div class="content-section">
+          <div class="section-header">
+            <div class="section-title">Favorite Providers</div>
+            <div class="section-actions">
+              <button class="btn">Find More</button>
+            </div>
+          </div>
+          <div style="padding: 25px;">
+            <div class="dashboard-grid">
+              <div class="stat-card">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                  <img src="https://images.unsplash.com/photo-1581091014534-3e89df7cf2a5?q=80&w=80&h=80&auto=format&fit=crop" alt="Provider" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
+                  <div>
+                    <h4 style="margin-bottom: 5px;">Ali Khan</h4>
+                    <p style="color: #6c757d; font-size: 0.9rem;">Plumber</p>
+                    <div style="display: flex; align-items: center; gap: 5px; margin-top: 5px;">
+                      <span style="color: #ffc107;">★★★★★</span>
+                      <span style="font-size: 0.8rem; color: #6c757d;">4.8 (150 reviews)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Gallery Section -->
+                <div id="gallery" class="section-content">
+                  <div class="content-section">
+                    <div class="section-header">
+                      <div class="section-title">My Gallery</div>
+                      <div class="section-actions">
+                        <button id="openUploadBtn" class="btn">Upload Photo</button>
+                      </div>
+                    </div>
+                    <div style="padding:25px">
+                      <div class="gallery-upload">
+                        <label class="upload-btn" for="galleryInput">Choose photos</label>
+                        <input id="galleryInput" type="file" accept="image/*" multiple>
+                        <div style="color:#666;font-size:13px">Images are stored locally (demo). Max 10 images.</div>
+                      </div>
+                      <div class="gallery-grid" id="galleryGrid"></div>
+                    </div>
+                  </div>
+                </div>
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                  <button class="btn" style="flex: 1; padding: 8px;">Book Now</button>
+                  <button class="btn" style="background: var(--danger); padding: 8px 15px;">
+                    <i class="fas fa-heart-broken"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                  <img src="https://images.unsplash.com/photo-1564540583246-934409427776?q=80&w=80&h=80&auto=format&fit=crop" alt="Provider" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
+                  <div>
+                    <h4 style="margin-bottom: 5px;">Sara Patel</h4>
+                    <p style="color: #6c757d; font-size: 0.9rem;">Mehndi Artist</p>
+                    <div style="display: flex; align-items: center; gap: 5px; margin-top: 5px;">
+                      <span style="color: #ffc107;">★★★★★</span>
+                      <span style="font-size: 0.8rem; color: #6c757d;">4.9 (200 reviews)</span>
+                    </div>
+                  </div>
+                </div>
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                  <button class="btn" style="flex: 1; padding: 8px;">Book Now</button>
+                  <button class="btn" style="background: var(--danger); padding: 8px 15px;">
+                    <i class="fas fa-heart-broken"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                  <img src="https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?q=80&w=80&h=80&auto=format&fit=crop" alt="Provider" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
+                  <div>
+                    <h4 style="margin-bottom: 5px;">Rohit Sharma</h4>
+                    <p style="color: #6c757d; font-size: 0.9rem;">Painter</p>
+                    <div style="display: flex; align-items: center; gap: 5px; margin-top: 5px;">
+                      <span style="color: #ffc107;">★★★★☆</span>
+                      <span style="font-size: 0.8rem; color: #6c757d;">4.4 (120 reviews)</span>
+                    </div>
+                  </div>
+                </div>
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                  <button class="btn" style="flex: 1; padding: 8px;">Book Now</button>
+                  <button class="btn" style="background: var(--danger); padding: 8px 15px;">
+                    <i class="fas fa-heart-broken"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reviews Section -->
+      <div id="reviews" class="section-content">
+        <div class="content-section">
+          <div class="section-header">
+            <div class="section-title">My Reviews</div>
+            <div class="section-actions">
+              <button class="btn">Write Review</button>
+            </div>
+          </div>
+          <div style="padding: 25px;">
+            <div class="dashboard-grid">
+              <div class="stat-card">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                  <div>
+                    <h4 style="margin-bottom: 5px;">Ali Khan - Plumber</h4>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                      <span style="color: #ffc107;">★★★★★</span>
+                      <span style="font-size: 0.9rem; color: #6c757d;">5.0</span>
+                    </div>
+                  </div>
+                  <span style="font-size: 0.8rem; color: #6c757d;">2 days ago</span>
+                </div>
+                <p style="color: #6c757d; line-height: 1.5; margin-bottom: 15px;">
+                  "Excellent service! Ali fixed my kitchen faucet quickly and professionally. Very reasonable pricing and clean work."
+                </p>
+                <div style="display: flex; gap: 10px;">
+                  <button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Edit</button>
+                  <button class="btn" style="padding: 5px 10px; font-size: 0.8rem; background: var(--danger);">Delete</button>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                  <div>
+                    <h4 style="margin-bottom: 5px;">Rohit Sharma - Painter</h4>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                      <span style="color: #ffc107;">★★★★☆</span>
+                      <span style="font-size: 0.9rem; color: #6c757d;">4.0</span>
+                    </div>
+                  </div>
+                  <span style="font-size: 0.8rem; color: #6c757d;">1 week ago</span>
+                </div>
+                <p style="color: #6c757d; line-height: 1.5; margin-bottom: 15px;">
+                  "Good painting work, but took longer than expected. Quality is decent for the price."
+                </p>
+                <div style="display: flex; gap: 10px;">
+                  <button class="btn" style="padding: 5px 10px; font-size: 0.8rem;">Edit</button>
+                  <button class="btn" style="padding: 5px 10px; font-size: 0.8rem; background: var(--danger);">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages Section -->
+      <div id="messages" class="section-content">
+        <div class="content-section">
+          <div class="section-header">
+            <div class="section-title">Messages</div>
+            <div class="section-actions">
+              <button class="btn">New Message</button>
+            </div>
+          </div>
+          <div>
+            <div class="activity-item" onclick="window.open('chat.html', '_blank')">
+              <div class="activity-icon" style="background: var(--primary);">
+                <i class="fas fa-comments"></i>
+              </div>
+              <div class="activity-content">
+                <div class="activity-title">Ali Khan - Plumber</div>
+                <div class="activity-time">I'll be there at 2 PM as scheduled</div>
+              </div>
+              <div style="color: var(--primary); font-size: 0.8rem;">2 min ago</div>
+            </div>
+            <div class="activity-item" onclick="window.open('chat.html', '_blank')">
+              <div class="activity-icon" style="background: var(--success);">
+                <i class="fas fa-comments"></i>
+              </div>
+              <div class="activity-content">
+                <div class="activity-title">Sara Patel - Mehndi Artist</div>
+                <div class="activity-time">Please confirm the design you want</div>
+              </div>
+              <div style="color: var(--primary); font-size: 0.8rem;">1 hour ago</div>
+            </div>
+            <div class="activity-item" onclick="window.open('chat.html', '_blank')">
+              <div class="activity-icon" style="background: var(--warning);">
+                <i class="fas fa-comments"></i>
+              </div>
+              <div class="activity-content">
+                <div class="activity-title">Rohit Sharma - Painter</div>
+                <div class="activity-time">Thank you for the great review!</div>
+              </div>
+              <div style="color: #6c757d; font-size: 0.8rem;">2 days ago</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Section -->
+      <div id="profile" class="section-content">
+        <div class="content-section">
+          <div class="section-header">
+            <div class="section-title">Profile Settings</div>
+            <div class="section-actions">
+              <button id="saveProfileBtn" class="btn">Save Changes</button>
+            </div>
+          </div>
+          <div style="padding: 25px;">
+            <div style="display: grid; gap: 25px;">
+              <div>
+                <h3 style="margin-bottom: 15px;">Personal Information</h3>
+                <div style="display: grid; gap: 15px;">
+                  <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Full Name</label>
+                    <input id="fullNameInput" type="text" value="John Doe" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                  </div>
+                  <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Email Address</label>
+                    <input id="emailInput" type="email" value="john@example.com" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                  </div>
+                  <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Phone Number</label>
+                    <input id="phoneInput" type="tel" value="+91 9876543210" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 style="margin-bottom: 15px;">Address Information</h3>
+                <div style="display: grid; gap: 15px;">
+                  <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Street Address</label>
+                    <input id="streetInput" type="text" placeholder="Enter your street address" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                  </div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                      <label style="display: block; margin-bottom: 5px; font-weight: 600;">City</label>
+                      <input id="cityInput" type="text" placeholder="City" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                    </div>
+                    <div>
+                      <label style="display: block; margin-bottom: 5px; font-weight: 600;">Pincode</label>
+                      <input id="pincodeInput" type="text" placeholder="Pincode" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 style="margin-bottom: 15px;">Preferences</h3>
+                <div style="display: grid; gap: 15px;">
+                  <div>
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                      <input id="emailNotif" type="checkbox" checked>
+                      <span>Receive email notifications</span>
+                    </label>
+                  </div>
+                  <div>
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                      <input id="smsNotif" type="checkbox" checked>
+                      <span>Receive SMS notifications</span>
+                    </label>
+                  </div>
+                  <div>
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                      <input id="shareData" type="checkbox">
+                      <span>Share my data with service providers</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 style="margin-bottom: 15px;">Profile Photo</h3>
+                <div style="display:flex;gap:12px;align-items:center;">
+                  <img id="profilePhotoPreview" src="" alt="avatar" style="width:76px;height:76px;border-radius:12px;object-fit:cover;border:2px solid var(--border);background:#fff" />
+                  <div>
+                    <label class="btn" style="cursor:pointer;padding:8px 12px">
+                      Upload Photo
+                      <input id="avatarUpload" type="file" accept="image/*" style="display:none">
+                    </label>
+                    <div style="font-size:13px;color:#666;margin-top:6px">Optional. Add a profile picture for your public profile.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Help Section -->
+      <div id="help" class="section-content">
+        <div class="content-section">
+          <div class="section-header">
+            <div class="section-title">Help & Support</div>
+          </div>
+          <div style="padding: 25px;">
+            <div class="dashboard-grid">
+              <div class="stat-card">
+                <div class="quick-action-icon" style="background: var(--primary); margin: 0 0 15px 0;">
+                  <i class="fas fa-question-circle"></i>
+                </div>
+                <h4 style="margin-bottom: 10px;">FAQ</h4>
+                <p style="color: #6c757d; margin-bottom: 15px;">Find answers to common questions</p>
+                <button class="btn" style="width: 100%;">View FAQ</button>
+              </div>
+
+              <div class="stat-card">
+                <div class="quick-action-icon" style="background: var(--success); margin: 0 0 15px 0;">
+                  <i class="fas fa-headset"></i>
+                </div>
+                <h4 style="margin-bottom: 10px;">Contact Support</h4>
+                <p style="color: #6c757d; margin-bottom: 15px;">Get help from our support team</p>
+                <button class="btn" style="width: 100%;">Contact Us</button>
+              </div>
+
+              <div class="stat-card">
+                <div class="quick-action-icon" style="background: var(--warning); margin: 0 0 15px 0;">
+                  <i class="fas fa-bug"></i>
+                </div>
+                <h4 style="margin-bottom: 10px;">Report Issue</h4>
+                <p style="color: #6c757d; margin-bottom: 15px;">Report bugs or technical issues</p>
+                <button class="btn" style="width: 100%;">Report Bug</button>
+              </div>
+
+              <div class="stat-card">
+                <div class="quick-action-icon" style="background: var(--info); margin: 0 0 15px 0;">
+                  <i class="fas fa-lightbulb"></i>
+                </div>
+                <h4 style="margin-bottom: 10px;">Feature Request</h4>
+                <p style="color: #6c757d; margin-bottom: 15px;">Suggest new features</p>
+                <button class="btn" style="width: 100%;">Suggest Feature</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Image Modal -->
+  <div id="imgModal" class="img-modal">
+    <div class="panel">
+      <img id="modalImg" src="" alt="">
+      <div class="right">
+        <h3 id="modalOwner">User</h3>
+        <p id="modalDate" style="color:#666;font-size:13px"></p>
+        <p id="modalCaption" style="margin-top:12px;color:#333"></p>
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button id="modalDelete" class="btn" style="background:var(--danger);">Delete</button>
+          <button id="modalClose" class="btn">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // API helpers
+    function getApiBase(){
+      if(typeof window === 'undefined') return '';
+      if(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' || !window.location.hostname) 
+        return (window.NEARNect_API_BASE || 'http://localhost:5000');
+      return (window.NEARNect_API_BASE || 'https://your-render-app.onrender.com');
+    }
+
+    function getToken(){ try { return localStorage.getItem('nearnect_token'); } catch(e){ return null; } }
+    function authHeaders(){ const t = getToken(); return t ? { Authorization: `Bearer ${t}` } : {}; }
+
+    class UserDashboard {
+      constructor() {
+        this.currentUser = null;
+        this.init();
+      }
+
+      init() {
+        this.loadUserData();
+        this.setupNavigation();
+        this.setupEventListeners();
+        this.updateBadges();
+      }
+
+      loadUserData() {
+        try {
+          const userData = localStorage.getItem('nearnect_current_user');
+          if (userData) {
+            this.currentUser = JSON.parse(userData);
+          } else {
+            // No logged-in user found — create a demo user so dashboard works locally
+            this.currentUser = {
+              id: 'demo_user',
+              name: 'John Doe',
+              email: 'john@example.com',
+              avatar: null,
+              phone: '+91 9876543210',
+              address: {
+                street: '', city: '', pincode: ''
+              },
+              preferences: { emailNotif: true, smsNotif: true, shareData: false }
+            };
+            try { localStorage.setItem('nearnect_current_user', JSON.stringify(this.currentUser)); } catch(e){}
+          }
+          this.updateUserProfile();
+        } catch (e) {
+          console.error('Error loading user data:', e);
+          // fallback to demo user on error
+          this.currentUser = { id: 'demo_user', name: 'John Doe', email: 'john@example.com' };
+          this.updateUserProfile();
+        }
+      }
+
+      updateUserProfile() {
+        if (this.currentUser) {
+          document.getElementById('userName').textContent = this.currentUser.name || 'User';
+          document.getElementById('userEmail').textContent = this.currentUser.email || 'user@example.com';
+          
+          const avatar = document.getElementById('userAvatar');
+          if (this.currentUser.avatar) {
+            avatar.src = this.currentUser.avatar;
+          } else {
+            avatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(this.currentUser.name)}&background=6c5ce7&color=fff&size=200`;
+          }
+          // populate profile form fields if present
+          const full = document.getElementById('fullNameInput'); if(full) full.value = this.currentUser.name || '';
+          const email = document.getElementById('emailInput'); if(email) email.value = this.currentUser.email || '';
+          const phone = document.getElementById('phoneInput'); if(phone) phone.value = this.currentUser.phone || '';
+          const street = document.getElementById('streetInput'); if(street) street.value = (this.currentUser.address && this.currentUser.address.street) || '';
+          const city = document.getElementById('cityInput'); if(city) city.value = (this.currentUser.address && this.currentUser.address.city) || '';
+          const pincode = document.getElementById('pincodeInput'); if(pincode) pincode.value = (this.currentUser.address && this.currentUser.address.pincode) || '';
+          const emailNotif = document.getElementById('emailNotif'); if(emailNotif) emailNotif.checked = !!(this.currentUser.preferences && this.currentUser.preferences.emailNotif);
+          const smsNotif = document.getElementById('smsNotif'); if(smsNotif) smsNotif.checked = !!(this.currentUser.preferences && this.currentUser.preferences.smsNotif);
+          const shareData = document.getElementById('shareData'); if(shareData) shareData.checked = !!(this.currentUser.preferences && this.currentUser.preferences.shareData);
+        }
+      }
+
+      setupNavigation() {
+        const navItems = document.querySelectorAll('.nav-item[data-section]');
+        navItems.forEach(item => {
+          item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const section = item.getAttribute('data-section');
+            this.showSection(section);
+          });
+        });
+      }
+
+      showSection(sectionId) {
+        // Hide all sections
+        document.querySelectorAll('.section-content').forEach(section => {
+          section.classList.remove('active');
+        });
+        
+        // Remove active class from all nav items
+        document.querySelectorAll('.nav-item').forEach(item => {
+          item.classList.remove('active');
+        });
+        
+        // Show selected section (guard if not found)
+        const target = document.getElementById(sectionId);
+        if (target) {
+          target.classList.add('active');
+        } else {
+          console.warn('Section not found:', sectionId);
+          return;
+        }
+        
+        // Add active class to clicked nav item (guard)
+        const navItem = document.querySelector(`[data-section="${sectionId}"]`);
+        if (navItem) navItem.classList.add('active');
+        
+        // Update page title
+        const titles = {
+          'overview': 'Dashboard Overview',
+          'bookings': 'My Bookings',
+          'favorites': 'Favorite Providers',
+          'reviews': 'My Reviews',
+          'messages': 'Messages',
+          'profile': 'Profile Settings',
+          'help': 'Help & Support'
+        };
+        
+        document.getElementById('page-title').textContent = titles[sectionId] || 'Dashboard';
+      }
+
+      setupEventListeners() {
+        // Quick action cards
+        document.querySelectorAll('.quick-action-card').forEach(card => {
+          card.addEventListener('click', () => {
+            const action = card.querySelector('.quick-action-title').textContent;
+            this.showToast(`${action} clicked!`, 'success');
+          });
+        });
+
+        // Notification button
+        document.querySelector('.notification-btn').addEventListener('click', () => {
+          this.showNotifications();
+        });
+
+        // Table action buttons
+        document.querySelectorAll('.dashboard-table button').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const action = btn.textContent.trim();
+            this.showToast(`${action} action triggered`, 'success');
+          });
+        });
+
+        // Save profile button
+        const saveBtn = document.getElementById('saveProfileBtn');
+        if (saveBtn) {
+          saveBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.saveProfile();
+          });
+        }
+
+        // Sidebar toggle (mobile)
+        const sbToggle = document.getElementById('sidebarToggle');
+        if (sbToggle) sbToggle.addEventListener('click', ()=>{
+          const sb = document.getElementById('sidebar'); if(sb) sb.classList.toggle('open');
+        });
+      }
+
+      saveProfile() {
+        // read inputs and save to localStorage
+        try {
+          const name = (document.getElementById('fullNameInput')||{}).value || this.currentUser.name;
+          const email = (document.getElementById('emailInput')||{}).value || this.currentUser.email;
+          const phone = (document.getElementById('phoneInput')||{}).value || this.currentUser.phone;
+          const street = (document.getElementById('streetInput')||{}).value || '';
+          const city = (document.getElementById('cityInput')||{}).value || '';
+          const pincode = (document.getElementById('pincodeInput')||{}).value || '';
+          const emailNotif = !!(document.getElementById('emailNotif') && document.getElementById('emailNotif').checked);
+          const smsNotif = !!(document.getElementById('smsNotif') && document.getElementById('smsNotif').checked);
+          const shareData = !!(document.getElementById('shareData') && document.getElementById('shareData').checked);
+
+          this.currentUser = this.currentUser || {};
+          this.currentUser.name = name;
+          this.currentUser.email = email;
+          this.currentUser.phone = phone;
+          this.currentUser.address = { street, city, pincode };
+          this.currentUser.preferences = { emailNotif, smsNotif, shareData };
+
+          localStorage.setItem('nearnect_current_user', JSON.stringify(this.currentUser));
+          this.updateUserProfile();
+          this.showToast('Profile saved', 'success');
+        } catch (e) {
+          console.error(e);
+          this.showToast('Error saving profile', 'error');
+        }
+      }
+
+      updateBadges() {
+        // Update notification badge
+        const notificationCount = Math.floor(Math.random() * 10) + 1;
+        document.getElementById('notificationBadge').textContent = notificationCount;
+
+        // Update booking badge
+        const bookingCount = Math.floor(Math.random() * 5) + 1;
+        document.getElementById('bookingBadge').textContent = bookingCount;
+
+        // Update message badge
+        const messageCount = Math.floor(Math.random() * 3) + 1;
+        document.getElementById('messageBadge').textContent = messageCount;
+      }
+
+      showNotifications() {
+        this.showToast('Notifications panel would open here', 'success');
+      }
+
+      showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = `toast ${type} show`;
+        
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => {
+            toast.textContent = '';
+          }, 300);
+        }, 3000);
+      }
+    }
+
+    // Global functions
+    function showSection(sectionId) {
+      if (window.dashboard) {
+        window.dashboard.showSection(sectionId);
+      }
+    }
+
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('nearnect_current_user');
+        window.location.href = 'index.html';
+      }
+    }
+
+    function showNotifications() {
+      if (window.dashboard) {
+        window.dashboard.showNotifications();
+      }
+    }
+
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', () => {
+      window.dashboard = new UserDashboard();
+    });
+
+    /* Gallery logic (uses localStorage for demo) */
+    const GALLERY_KEY = 'nearnect_user_gallery';
+    function ensureGallery(){ try{ const raw=localStorage.getItem(GALLERY_KEY); if(!raw){ localStorage.setItem(GALLERY_KEY, JSON.stringify([])); return []; } return JSON.parse(raw);}catch(e){return[]} }
+
+    function renderGallery(){
+      const grid = document.getElementById('galleryGrid'); if(!grid) return; const list = ensureGallery(); grid.innerHTML='';
+      list.slice().reverse().forEach(item=>{
+        const d = document.createElement('div'); d.className='gallery-item'; d.innerHTML = `
+          <button class="delete" data-id="${item.id}" title="Delete">✕</button>
+          <img src="${item.data}" alt="img" data-id="${item.id}" />
+          <div class="meta">${item.caption?escapeHtml(item.caption):''}</div>
+        `;
+        grid.appendChild(d);
+      });
+      // wire events
+      grid.querySelectorAll('.gallery-item img').forEach(img=>img.addEventListener('click', e=>openImageModal(e.target.dataset.id)));
+      grid.querySelectorAll('.gallery-item .delete').forEach(btn=>btn.addEventListener('click', e=>{ const id=btn.dataset.id; if(confirm('Delete this photo?')){ deleteImage(id); } }));
+    }
+
+    function escapeHtml(s){ return (s||'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    function addImages(files){
+      if(!files || !files.length) return;
+      const list = ensureGallery();
+      const max = 10; if(list.length + files.length > max){ alert('Max '+max+' images allowed (demo).'); }
+      const toProcess = Array.from(files).slice(0, max - list.length);
+      let processed=0;
+      toProcess.forEach(f=>{
+        const reader = new FileReader(); reader.onload = function(ev){
+          list.push({ id:'g_'+Date.now()+'_'+Math.floor(Math.random()*9999), data:ev.target.result, caption:'', date:new Date().toISOString() });
+          processed++; if(processed===toProcess.length){ localStorage.setItem(GALLERY_KEY, JSON.stringify(list)); renderGallery(); window.dashboard && window.dashboard.showToast('Uploaded '+processed+' photo(s)','success'); }
+        };
+        reader.readAsDataURL(f);
+      });
+    }
+
+    function deleteImage(id){ try{ const list=ensureGallery(); const idx=list.findIndex(x=>x.id===id); if(idx>-1){ list.splice(idx,1); localStorage.setItem(GALLERY_KEY, JSON.stringify(list)); renderGallery(); window.dashboard && window.dashboard.showToast('Deleted photo','success'); } }catch(e){console.error(e);} }
+
+    function openImageModal(id){ const list=ensureGallery(); const item=list.find(x=>x.id===id); if(!item) return; document.getElementById('modalImg').src = item.data; document.getElementById('modalDate').textContent = new Date(item.date).toLocaleString(); document.getElementById('modalCaption').textContent = item.caption || ''; document.getElementById('modalOwner').textContent = (window.dashboard && window.dashboard.currentUser && window.dashboard.currentUser.name) || 'You'; document.getElementById('modalDelete').dataset.id = id; document.getElementById('imgModal').classList.add('open'); }
+    function closeImageModal(){ document.getElementById('imgModal').classList.remove('open'); }
+
+    // wire gallery inputs and avatar upload (clean structure)
+    document.addEventListener('DOMContentLoaded', () => {
+      const input = document.getElementById('galleryInput');
+      const openBtn = document.getElementById('openUploadBtn');
+      if (openBtn && input) openBtn.addEventListener('click', () => input.click());
+      if (input) input.addEventListener('change', () => { addImages(input.files); input.value = ''; });
+
+      // modal controls
+      const modalClose = document.getElementById('modalClose');
+      if (modalClose) modalClose.addEventListener('click', closeImageModal);
+      const modalDelete = document.getElementById('modalDelete');
+      if (modalDelete) modalDelete.addEventListener('click', () => { const id = modalDelete.dataset.id; if (confirm('Delete this photo?')) { deleteImage(id); closeImageModal(); } });
+
+      // avatar upload
+      const avatarInput = document.getElementById('avatarUpload');
+      if (avatarInput) {
+        avatarInput.addEventListener('change', async (e) => {
+          const f = e.target.files && e.target.files[0];
+          if (!f) return;
+
+          // Validate file type
+          if (!f.type.startsWith('image/')) {
+            if (window.dashboard) window.dashboard.showToast('Please select an image file', 'error');
+            return;
+          }
+
+          // Validate file size (5MB)
+          if (f.size > 5 * 1024 * 1024) {
+            if (window.dashboard) window.dashboard.showToast('File size must be less than 5MB', 'error');
+            return;
+          }
+
+          // Show preview immediately
+          const r = new FileReader();
+          r.onload = function (ev) {
+            const previewEl = document.getElementById('profilePhotoPreview');
+            if (previewEl) previewEl.src = ev.target.result;
+          };
+          r.readAsDataURL(f);
+
+          // Upload to server
+          try {
+            const formData = new FormData();
+            formData.append('avatar', f);
+
+            const res = await fetch(`${getApiBase()}/upload/avatar`, {
+              method: 'POST',
+              headers: authHeaders(),
+              body: formData
+            });
+
+            if (!res.ok) {
+              const error = await res.json().catch(() => ({ error: 'Upload failed' }));
+              throw new Error(error.error || 'Upload failed');
+            }
+
+            const data = await res.json();
+            const avatarUrl = `${getApiBase()}${data.file.url}`;
+
+            // Update user profile with new avatar URL
+            const updateRes = await fetch(`${getApiBase()}/auth/me`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json', ...authHeaders() },
+              body: JSON.stringify({ avatarUrl: avatarUrl })
+            });
+
+            if (updateRes.ok) {
+              const updatedUser = await updateRes.json();
+              if (window.dashboard) {
+                window.dashboard.currentUser = { ...window.dashboard.currentUser, avatarUrl: avatarUrl };
+                window.dashboard.updateUserProfile();
+                window.dashboard.showToast('Profile photo updated successfully', 'success');
+              }
+
+              // Update preview
+              const previewEl = document.getElementById('profilePhotoPreview');
+              if (previewEl) previewEl.src = avatarUrl;
+            } else {
+              throw new Error('Failed to update profile');
+            }
+          } catch (err) {
+            console.error('Upload error:', err);
+            if (window.dashboard) {
+              window.dashboard.showToast(err.message || 'Failed to upload image', 'error');
+            }
+            // Reset file input
+            avatarInput.value = '';
+          }
+        });
+      }
+
+      // initial preview
+      const preview = document.getElementById('profilePhotoPreview');
+      try {
+        const cu = JSON.parse(localStorage.getItem('nearnect_current_user') || '{}');
+        if (cu && cu.avatar && preview) preview.src = cu.avatar;
+        else if (preview) preview.src = `https://ui-avatars.com/api/?name=${encodeURIComponent((cu && cu.name) || 'User')}&background=6c5ce7&color=fff&size=200`;
+      } catch (e) { /* ignore */ }
+
+      // render gallery on load
+      renderGallery();
+    });
+  </script>
+</body>
+</html>

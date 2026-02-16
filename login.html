@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - NearNect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --secondary: #E91E63;
+      --success: #00b894;
+      --warning: #fdcb6e;
+      --danger: #e17055;
+      --info: #74b9ff;
+      --dark: #2d3436;
+      --light: #ddd6fe;
+      --bg: #f8f9fa;
+      --text: #2d3436;
+      --border: #e9ecef;
+      --shadow: 0 4px 6px rgba(0,0,0,0.1);
+      --radius: 12px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, rgba(108,92,231,0.1), rgba(233,30,99,0.1));
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .auth-container {
+      width: 100%;
+      max-width: 400px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .auth-header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 30px;
+      text-align: center;
+      position: relative;
+    }
+
+    .auth-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+      opacity: 0.3;
+    }
+
+    .auth-header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-header p {
+      opacity: 0.9;
+      font-size: 0.95rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .auth-tabs {
+      display: flex;
+      background: #f8f9fa;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      color: #6c757d;
+      position: relative;
+    }
+
+    .auth-tab.active {
+      color: var(--primary);
+      background: white;
+    }
+
+    .auth-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--primary);
+    }
+
+    .auth-content {
+      padding: 30px;
+    }
+
+    .auth-form {
+      display: none;
+    }
+
+    .auth-form.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    .input-group {
+      position: relative;
+    }
+
+    .input-group i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6c757d;
+      font-size: 1rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 15px 15px 15px 45px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(108,92,231,0.1);
+    }
+
+    .form-input::placeholder {
+      color: #6c757d;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #6c757d;
+      font-size: 1rem;
+    }
+
+    .password-toggle:hover {
+      color: var(--primary);
+    }
+
+    /* Role selector */
+    .role-group {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      padding: 10px 12px;
+      background: #f8f9fa;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+    }
+    .role-option { display:flex; align-items:center; gap:8px; font-weight:600; color:#495057; }
+    .role-group input[type="radio"] { width:16px; height:16px; accent-color: var(--primary); }
+
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      font-size: 0.9rem;
+    }
+
+    .remember-me {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #6c757d;
+    }
+
+    .remember-me input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--primary);
+    }
+
+    .forgot-password {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .forgot-password:hover {
+      text-decoration: underline;
+    }
+
+    .auth-button {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(108,92,231,0.4);
+    }
+
+    .auth-button:active {
+      transform: translateY(0);
+    }
+
+    .auth-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .auth-button.loading {
+      pointer-events: none;
+    }
+
+    .auth-button.loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .divider {
+      text-align: center;
+      margin: 25px 0;
+      position: relative;
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+
+    .divider::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .divider span {
+      background: white;
+      padding: 0 15px;
+    }
+
+    .social-login {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+
+    .social-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      background: white;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .social-button:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-1px);
+    }
+
+    .social-button.google:hover {
+      border-color: #db4437;
+      color: #db4437;
+    }
+
+    .social-button.facebook:hover {
+      border-color: #4267B2;
+      color: #4267B2;
+    }
+
+    .auth-footer {
+      text-align: center;
+      margin-top: 25px;
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+
+    .auth-footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .auth-footer a:hover {
+      text-decoration: underline;
+    }
+
+    .back-to-home {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: white;
+      text-decoration: none;
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+    }
+
+    .back-to-home:hover {
+      transform: scale(1.1);
+    }
+
+    /* Toast Notifications */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--success);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      z-index: 1000;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.error {
+      background: var(--danger);
+    }
+
+    .toast.warning {
+      background: var(--warning);
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .auth-container {
+        margin: 10px;
+        border-radius: 15px;
+      }
+
+      .auth-header {
+        padding: 25px 20px;
+      }
+
+      .auth-header h1 {
+        font-size: 1.6rem;
+      }
+
+      .auth-content {
+        padding: 25px 20px;
+      }
+
+      .social-login {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Animation for form switching */
+    .auth-form {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <a href="index.html" class="back-to-home">
+      <i class="fas fa-arrow-left"></i>
+    </a>
+
+    <div class="auth-header">
+      <h1>Welcome Back!</h1>
+      <p>Log in to your NearNect account</p>
+    </div>
+
+    <div class="auth-tabs">
+      <div class="auth-tab active" data-tab="login">
+        <i class="fas fa-sign-in-alt"></i> Login
+      </div>
+      <div class="auth-tab" data-tab="register">
+        <i class="fas fa-user-plus"></i> Register
+      </div>
+    </div>
+
+    <div class="auth-content">
+      <!-- Login Form -->
+      <form class="auth-form active" id="loginForm">
+        <div class="form-group">
+          <label for="loginEmail">Email Address</label>
+          <div class="input-group">
+            <i class="fas fa-envelope"></i>
+            <input type="email" id="loginEmail" class="form-input" placeholder="Enter your email" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
+            <i class="fas fa-eye password-toggle" onclick="togglePassword('loginPassword')"></i>
+          </div>
+        </div>
+
+        <div class="form-options">
+          <label class="remember-me">
+            <input type="checkbox" id="rememberMe">
+            <span>Remember me</span>
+          </label>
+          <a href="#" class="forgot-password">Forgot Password?</a>
+        </div>
+
+        <button type="submit" class="auth-button" id="loginButton">
+          <i class="fas fa-sign-in-alt"></i> Log In
+        </button>
+
+        <div class="divider">
+          <span>Or continue with</span>
+        </div>
+
+        <div class="social-login">
+          <a href="#" class="social-button google">
+            <i class="fab fa-google"></i>
+            Google
+          </a>
+          <a href="#" class="social-button facebook">
+            <i class="fab fa-facebook-f"></i>
+            Facebook
+          </a>
+        </div>
+      </form>
+
+      <!-- Register Form -->
+      <form class="auth-form" id="registerForm">
+        <div class="form-group">
+          <label>Register as</label>
+          <div class="role-group">
+            <label class="role-option">
+              <input type="radio" name="registerRole" value="customer" checked>
+              <span>Customer</span>
+            </label>
+            <label class="role-option">
+              <input type="radio" name="registerRole" value="worker">
+              <span>Worker</span>
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="registerName">Full Name</label>
+          <div class="input-group">
+            <i class="fas fa-user"></i>
+            <input type="text" id="registerName" class="form-input" placeholder="Enter your full name" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="registerEmail">Email Address</label>
+          <div class="input-group">
+            <i class="fas fa-envelope"></i>
+            <input type="email" id="registerEmail" class="form-input" placeholder="Enter your email" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="registerPhone">Phone Number</label>
+          <div class="input-group">
+            <i class="fas fa-phone"></i>
+            <input type="tel" id="registerPhone" class="form-input" placeholder="Enter your phone number" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="registerPassword">Password</label>
+          <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="registerPassword" class="form-input" placeholder="Create a password" required>
+            <i class="fas fa-eye password-toggle" onclick="togglePassword('registerPassword')"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="confirmPassword" class="form-input" placeholder="Confirm your password" required>
+            <i class="fas fa-eye password-toggle" onclick="togglePassword('confirmPassword')"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="remember-me">
+            <input type="checkbox" id="agreeTerms" required>
+            <span>I agree to the <a href="#" style="color: var(--primary);">Terms & Conditions</a> and <a href="#" style="color: var(--primary);">Privacy Policy</a></span>
+          </label>
+        </div>
+
+        <button type="submit" class="auth-button" id="registerButton">
+          <i class="fas fa-user-plus"></i> Create Account
+        </button>
+
+        <div class="divider">
+          <span>Or continue with</span>
+        </div>
+
+        <div class="social-login">
+          <a href="#" class="social-button google">
+            <i class="fab fa-google"></i>
+            Google
+          </a>
+          <a href="#" class="social-button facebook">
+            <i class="fab fa-facebook-f"></i>
+            Facebook
+          </a>
+        </div>
+      </form>
+
+      <div class="auth-footer">
+        <p>By continuing, you agree to NearNect's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // If the page is opened from the filesystem (file://) the hostname is empty
+    // or when developing with file://, make sure the front-end points to local API.
+    if (!window.location.hostname || window.location.protocol === 'file:') {
+      // Allow an override if someone set window.NEARNect_API_BASE elsewhere
+      window.NEARNect_API_BASE = window.NEARNect_API_BASE || 'http://localhost:5000';
+    }
+
+    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' || !window.location.hostname)
+      ? (window.NEARNect_API_BASE || 'http://localhost:5000')
+      : (window.NEARNect_API_BASE || 'https://your-render-app.onrender.com');
+    console.log('NEARNect API_BASE ->', API_BASE);
+    function saveToken(t){ try{ localStorage.setItem('nearnect_token', t); }catch(_){} }
+    class NearNectAuth {
+      constructor() {
+        this.currentTab = 'login';
+        this.init();
+      }
+
+      init() {
+        this.setupTabSwitching();
+        this.setupFormHandlers();
+        this.loadStoredUsers();
+        this.applyRoleFromUrl();
+      }
+
+      setupTabSwitching() {
+        const tabs = document.querySelectorAll('.auth-tab');
+        const forms = document.querySelectorAll('.auth-form');
+
+        tabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            const tabType = tab.getAttribute('data-tab');
+            this.switchTab(tabType);
+          });
+        });
+      }
+
+      applyRoleFromUrl(){
+        try{
+          const hash = window.location.hash || '';
+          const paramsStr = window.location.search || '';
+          const combined = new URLSearchParams(paramsStr.replace(/^\?/, ''));
+          // also support #register?role=worker
+          if (hash.startsWith('#register')) {
+            this.switchTab('register');
+            const qIndex = hash.indexOf('?');
+            if (qIndex >= 0) {
+              const hashParams = new URLSearchParams(hash.slice(qIndex+1));
+              const role = hashParams.get('role');
+              if (role === 'worker' || role === 'customer') {
+                const el = document.querySelector(`input[name=registerRole][value=${role}]`);
+                if (el) el.checked = true;
+              }
+            }
+          } else if (combined.has('role')) {
+            const role = combined.get('role');
+            if (role === 'worker' || role === 'customer') {
+              const el = document.querySelector(`input[name=registerRole][value=${role}]`);
+              if (el) {
+                this.switchTab('register');
+                el.checked = true;
+              }
+            }
+          }
+        }catch(_){ }
+      }
+
+      switchTab(tabType) {
+        // Update tabs
+        document.querySelectorAll('.auth-tab').forEach(tab => {
+          tab.classList.remove('active');
+        });
+        document.querySelector(`[data-tab="${tabType}"]`).classList.add('active');
+
+        // Update forms
+        document.querySelectorAll('.auth-form').forEach(form => {
+          form.classList.remove('active');
+        });
+        document.getElementById(`${tabType}Form`).classList.add('active');
+
+        // Update header content
+        const header = document.querySelector('.auth-header');
+        if (tabType === 'login') {
+          header.querySelector('h1').textContent = 'Welcome Back!';
+          header.querySelector('p').textContent = 'Log in to your NearNect account';
+        } else {
+          header.querySelector('h1').textContent = 'Join NearNect!';
+          header.querySelector('p').textContent = 'Create your account and start booking services';
+        }
+
+        this.currentTab = tabType;
+      }
+
+      setupFormHandlers() {
+        // Login form
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.handleLogin();
+        });
+
+        // Register form
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.handleRegister();
+        });
+
+        // Social login buttons
+        document.querySelectorAll('.social-button').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.handleSocialLogin(btn.classList.contains('google') ? 'google' : 'facebook');
+          });
+        });
+
+        // Forgot password
+        document.querySelector('.forgot-password').addEventListener('click', (e) => {
+          e.preventDefault();
+          this.handleForgotPassword();
+        });
+      }
+
+      async handleLogin() {
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        const rememberMe = document.getElementById('rememberMe').checked;
+        if (!email || !password) { this.showToast('Please fill in all fields', 'error'); return; }
+        this.setLoading('loginButton', true);
+          try {
+            const res = await fetch(`${API_BASE}/auth/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email, password }) });
+            // Try to parse JSON response (may contain { error: '...' })
+            let payload = null;
+            try { payload = await res.json(); } catch (e) { payload = null; }
+
+            if (!res.ok) {
+              const msg = (payload && (payload.error || payload.message)) || `Login failed (${res.status})`;
+              throw new Error(msg);
+            }
+
+            if (!payload || !payload.token) throw new Error('Invalid server response (no token)');
+
+            saveToken(payload.token);
+            this.showToast('Login successful! Redirecting...', 'success');
+            const role = payload.role;
+            setTimeout(() => { 
+              if (role === 'worker') {
+                window.location.href = 'worker-dashboard.html';
+              } else {
+                window.location.href = 'user-dashboard.html';
+              }
+            }, 800);
+          } catch (err) {
+            // Network errors come as TypeError in fetch
+            if (err instanceof TypeError) {
+              this.showToast(`Unable to reach API at ${API_BASE}`, 'error');
+              console.error('Network error contacting API:', err);
+            } else {
+              this.showToast(err.message || 'Invalid email or password', 'error');
+            }
+          } finally {
+            this.setLoading('loginButton', false);
+          }
+      }
+
+      async handleRegister() {
+        const name = document.getElementById('registerName').value;
+        const email = document.getElementById('registerEmail').value;
+        const phone = document.getElementById('registerPhone').value;
+        const password = document.getElementById('registerPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const agreeTerms = document.getElementById('agreeTerms').checked;
+
+        if (!name || !email || !phone || !password || !confirmPassword) {
+          this.showToast('Please fill in all fields', 'error');
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          this.showToast('Passwords do not match', 'error');
+          return;
+        }
+
+        if (password.length < 6) {
+          this.showToast('Password must be at least 6 characters', 'error');
+          return;
+        }
+
+        if (!agreeTerms) {
+          this.showToast('Please agree to the terms and conditions', 'error');
+          return;
+        }
+
+        this.setLoading('registerButton', true);
+        try {
+          const role = (document.querySelector('input[name="registerRole"]:checked')?.value) || 'customer';
+          const res = await fetch(`${API_BASE}/auth/signup`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, email, phone, password, role }) });
+          let payload = null;
+          try { payload = await res.json(); } catch (e) { payload = null; }
+          if (!res.ok) {
+            const msg = (payload && (payload.error || payload.message)) || `Signup failed (${res.status})`;
+            throw new Error(msg);
+          }
+          // Auto login after signup
+          try {
+            const loginRes = await fetch(`${API_BASE}/auth/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email, password }) });
+            const loginPayload = await loginRes.json();
+            if (!loginRes.ok || !loginPayload?.token) throw new Error('Auto-login failed');
+            saveToken(loginPayload.token);
+            this.showToast('Account created! Redirecting...', 'success');
+            setTimeout(() => {
+              if ((loginPayload.role || role) === 'worker') {
+                window.location.href = 'worker-dashboard.html';
+              } else {
+                window.location.href = 'user-dashboard.html';
+              }
+            }, 800);
+          } catch {
+            this.showToast('Account created! Please login.', 'success');
+            setTimeout(() => { this.switchTab('login'); document.getElementById('loginEmail').value = email; }, 800);
+          }
+        } catch (err) {
+          if (err instanceof TypeError) {
+            this.showToast(`Unable to reach API at ${API_BASE}`, 'error');
+            console.error('Network error contacting API:', err);
+          } else {
+            this.showToast(err.message || 'Signup failed (email may exist)', 'error');
+          }
+        } finally {
+          this.setLoading('registerButton', false);
+        }
+      }
+
+      handleSocialLogin(provider) {
+        this.showToast(`Signing in with ${provider}...`, 'success');
+        
+        // Simulate social login
+        setTimeout(() => {
+          const socialUser = {
+            id: `social_${Date.now()}`,
+            name: `${provider} User`,
+            email: `user@${provider}.com`,
+            type: 'customer',
+            provider: provider,
+            loginTime: new Date().toISOString()
+          };
+
+          localStorage.setItem('nearnect_current_user', JSON.stringify(socialUser));
+          this.showToast(`Logged in with ${provider}!`, 'success');
+          
+          setTimeout(() => {
+            window.location.href = 'user-dashboard.html';
+          }, 1000);
+        }, 1500);
+      }
+
+      handleForgotPassword() {
+        const email = document.getElementById('loginEmail').value;
+        
+        if (!email) {
+          this.showToast('Please enter your email first', 'warning');
+          return;
+        }
+
+        this.showToast('Password reset link sent to your email!', 'success');
+      }
+
+      getStoredUsers() {
+        try {
+          const users = localStorage.getItem('nearnect_users');
+          return users ? JSON.parse(users) : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      loadStoredUsers() { /* no-op: using real API now */ }
+
+      setLoading(buttonId, loading) {
+        const button = document.getElementById(buttonId);
+        if (loading) {
+          button.classList.add('loading');
+          button.disabled = true;
+        } else {
+          button.classList.remove('loading');
+          button.disabled = false;
+        }
+      }
+
+      showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = `toast ${type} show`;
+        
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => {
+            toast.textContent = '';
+          }, 300);
+        }, 3000);
+      }
+    }
+
+    // Password toggle functionality
+    function togglePassword(inputId) {
+      const input = document.getElementById(inputId);
+      const icon = input.nextElementSibling;
+      
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+
+    // Initialize auth system
+    document.addEventListener('DOMContentLoaded', () => {
+      new NearNectAuth();
+    });
+  </script>
+</body>
+</html>

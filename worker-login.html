@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worker Login - NearNect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --secondary: #E91E63;
+      --bg: #f6f6fb;
+      --text: #2d3436;
+      --light-text: #6c757d;
+      --border: #e0e4f0;
+      --error: #dc3545;
+      --success: #28a745;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .login-container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      width: 100%;
+      max-width: 400px;
+      overflow: hidden;
+    }
+    
+    .login-header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    
+    .login-header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .login-header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+    
+    .login-form {
+      padding: 30px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--text);
+      font-size: 14px;
+    }
+    
+    .input-group {
+      position: relative;
+    }
+    
+    .input-group input {
+      width: 100%;
+      padding: 12px 16px 12px 44px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+    
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+    }
+    
+    .input-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--light-text);
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+      box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+    
+    .btn-outline:hover {
+      background: rgba(108, 92, 231, 0.05);
+    }
+    
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 20px 0;
+      color: var(--light-text);
+      font-size: 14px;
+    }
+    
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .divider::before {
+      margin-right: 16px;
+    }
+    
+    .divider::after {
+      margin-left: 16px;
+    }
+    
+    .login-footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: var(--light-text);
+    }
+    
+    .login-footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .login-footer a:hover {
+      text-decoration: underline;
+    }
+    
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
+    
+    .alert-error {
+      background: #fde8e8;
+      color: var(--error);
+      border-left: 4px solid var(--error);
+    }
+    
+    .alert-success {
+      background: #e8f5e9;
+      color: var(--success);
+      border-left: 4px solid var(--success);
+    }
+    
+    .forgot-password {
+      display: block;
+      text-align: right;
+      font-size: 13px;
+      color: var(--primary);
+      text-decoration: none;
+      margin-top: 8px;
+    }
+    
+    .forgot-password:hover {
+      text-decoration: underline;
+    }
+    
+    @media (max-width: 480px) {
+      .login-container {
+        border-radius: 12px;
+      }
+      
+      .login-header,
+      .login-form {
+        padding: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-header">
+      <h1>Welcome Back!</h1>
+      <p>Sign in to your worker account</p>
+    </div>
+    
+    <form class="login-form" id="loginForm">
+      <div class="alert alert-error" id="errorAlert">
+        <i class="fas fa-exclamation-circle"></i> Invalid email or password. Please try again.
+      </div>
+      
+      <div class="alert alert-success" id="successAlert">
+        <i class="fas fa-check-circle"></i> Login successful! Redirecting...
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <div class="input-group">
+          <span class="input-icon">
+            <i class="fas fa-envelope"></i>
+          </span>
+          <input 
+            type="email" 
+            id="email" 
+            placeholder="Enter your email" 
+            required
+          >
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <label for="password">Password</label>
+          <a href="#" class="forgot-password">Forgot password?</a>
+        </div>
+        <div class="input-group">
+          <span class="input-icon">
+            <i class="fas fa-lock"></i>
+          </span>
+          <input 
+            type="password" 
+            id="password" 
+            placeholder="Enter your password" 
+            required
+            minlength="6"
+          >
+        </div>
+      </div>
+      
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-sign-in-alt"></i> Sign In
+      </button>
+      
+      <div class="divider">or</div>
+      
+      <button type="button" class="btn btn-outline" id="otpLoginBtn">
+        <i class="fas fa-mobile-alt"></i> Login with OTP
+      </button>
+      
+      <p class="login-footer">
+        Don't have an account? <a href="worker-register.html">Sign up</a>
+      </p>
+      
+      <p class="login-footer" style="margin-top: 8px;">
+        <a href="index.html">
+          <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+      </p>
+    </form>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const loginForm = document.getElementById('loginForm');
+      const errorAlert = document.getElementById('errorAlert');
+      const successAlert = document.getElementById('successAlert');
+      const emailInput = document.getElementById('email');
+      const passwordInput = document.getElementById('password');
+      const otpLoginBtn = document.getElementById('otpLoginBtn');
+      
+      // Check for URL parameters for error/success messages
+      const urlParams = new URLSearchParams(window.location.search);
+      const error = urlParams.get('error');
+      const message = urlParams.get('message');
+      
+      if (error === 'auth') {
+        showError(message || 'Authentication failed. Please try again.');
+      } else if (error === 'session') {
+        showError('Your session has expired. Please log in again.');
+      } else if (message === 'logout') {
+        showSuccess('You have been successfully logged out.');
+      }
+      
+      // Handle form submission
+      loginForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        
+        // Basic validation
+        if (!email || !password) {
+          showError('Please enter both email and password');
+          return;
+        }
+        
+        // Show loading state
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+        
+        try {
+          // In a real app, this would be an API call to your backend
+          // For demo purposes, we'll simulate a successful login after 1 second
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // Simulate successful login
+          // In a real app, you would:
+          // 1. Call your authentication API
+          // 2. Save the JWT token to localStorage/sessionStorage
+          // 3. Redirect to the dashboard
+          
+          // For demo, we'll just show success and redirect
+          showSuccess('Login successful! Redirecting...');
+          
+          // Save to localStorage (in a real app, this would be a JWT token)
+          localStorage.setItem('workerToken', 'demo_token_' + Math.random().toString(36).substr(2));
+          localStorage.setItem('workerData', JSON.stringify({
+            _id: 'demo_worker_' + Math.random().toString(36).substr(2, 9),
+            name: email.split('@')[0],
+            email: email,
+            role: 'worker',
+            skill: 'Service Provider',
+            rating: 4.8
+          }));
+          
+          // Redirect to dashboard after a short delay
+          setTimeout(() => {
+            window.location.href = 'worker-dashboard.html';
+          }, 1500);
+          
+        } catch (error) {
+          console.error('Login error:', error);
+          showError('Failed to login. Please try again.');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
+        }
+      });
+      
+      // Handle OTP login button click
+      otpLoginBtn.addEventListener('click', function() {
+        // In a real app, this would show an OTP input field
+        alert('OTP login would be implemented here');
+      });
+      
+      // Helper functions
+      function showError(message) {
+        errorAlert.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+        errorAlert.style.display = 'flex';
+        errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => {
+          errorAlert.style.display = 'none';
+        }, 5000);
+      }
+      
+      function showSuccess(message) {
+        successAlert.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+        successAlert.style.display = 'flex';
+        errorAlert.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>

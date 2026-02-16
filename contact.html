@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us - NearNect</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    :root{ --primary:#6c5ce7; --secondary:#E91E63; --shadow:0 20px 60px rgba(0,0,0,0.08); --text:#1f2330; }
+    * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body {
+      background:
+        linear-gradient(135deg, rgba(247,247,251,0.95), rgba(243,233,255,0.95)),
+        url('https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat fixed;
+      color: var(--text);
+      margin: 0;
+    }
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    header { position: sticky; top:0; z-index:10; background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+    .bar { display:flex; align-items:center; justify-content:space-between; padding: 14px 0; }
+    header h1 { font-size: 1.6rem; font-weight: 800; background: linear-gradient(45deg, #7B2FFF, var(--secondary)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+    nav a { margin: 0 12px; color:#374151; text-decoration:none; font-weight:600; }
+    nav a:hover { color:#7B2FFF; }
+    .btn { background: linear-gradient(45deg, #7B2FFF, var(--secondary)); color:#fff; padding:10px 18px; border-radius: 999px; text-decoration:none; box-shadow: var(--shadow); }
+
+    .page { padding: 40px 0; }
+    .title { text-align:center; margin: 10px 0 24px; }
+    .title h2 { font-size: 2.2rem; margin: 0; color:#6c5ce7; }
+    .subtitle { text-align:center; color:#6b7280; margin-bottom: 32px; }
+
+    .grid { display:grid; grid-template-columns: repeat(12, 1fr); gap: 20px; }
+
+    .card { background:#fff; border-radius:16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); padding: 20px; }
+    .info-card { grid-column: span 4; display:flex; gap:12px; align-items:flex-start; }
+    .info-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; background: linear-gradient(45deg, #7B2FFF, var(--secondary)); color:#fff; font-weight:700; }
+    .info-text h4 { margin:0 0 6px; }
+    .info-text p { margin:0; color:#6b7280; }
+
+    .form-card { grid-column: span 8; }
+    form { display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+    form .full { grid-column: 1/-1; }
+    input, textarea { width:100%; padding:12px 14px; border:1px solid #e5e7eb; border-radius:10px; outline:none; font-size:14px; }
+    textarea { min-height: 140px; resize: vertical; }
+    .actions { display:flex; gap:10px; margin-top: 6px; }
+    .btn-primary { background: linear-gradient(45deg, #7B2FFF, var(--secondary)); color:#fff; border:none; padding:12px 18px; border-radius:10px; cursor:pointer; font-weight:700; }
+    .btn-secondary { background:#fff; color:#7B2FFF; border:2px solid #7B2FFF; padding:12px 18px; border-radius:10px; cursor:pointer; font-weight:700; }
+
+    @media (max-width: 900px) {
+      .info-card { grid-column: span 12; }
+      .form-card { grid-column: span 12; }
+      form { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container bar">
+      <h1>NearNect</h1>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="user.html">Find a Service</a>
+        <a href="worker.html">Become a Provider</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <a class="btn" href="user-register.html">Sign Up</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="container">
+      <div class="title"><h2>Contact Us</h2></div>
+      <div class="subtitle">Have a question or need help? We'd love to hear from you.</div>
+
+      <div class="grid" style="margin-bottom:20px;">
+        <div class="card info-card">
+          <div class="info-icon">📞</div>
+          <div class="info-text">
+            <h4>Phone</h4>
+            <p>+91 9428768786/ 9054177730</p>
+          </div>
+        </div>
+        <div class="card info-card">
+          <div class="info-icon">✉️</div>
+          <div class="info-text">
+            <h4>Email</h4>
+            <p>aqshakhan554@gmail.com</p>
+          </div>
+        </div>
+        <div class="card info-card">
+          <div class="info-icon">📍</div>
+          <div class="info-text">
+            <h4>Address</h4>
+            <p>NearNect HQ, vadali SO, India</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card form-card">
+          <h3 style="margin:0 0 12px;">Send us a message</h3>
+          <form id="contactForm">
+            <input type="text" placeholder="Your Name" required>
+            <input type="email" placeholder="Your Email" required>
+            <input type="tel" placeholder="Phone (optional)">
+            <input type="text" placeholder="Subject" required>
+            <textarea class="full" placeholder="Your Message" required></textarea>
+            <div class="actions full">
+              <button type="submit" class="btn-primary">Send Message</button>
+              <a href="index.html" class="btn-secondary">Back to Home</a>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer style="text-align:center; padding:20px; color:#6b7280;">
+    <p>© 2025 NearNect | All Rights Reserved</p>
+  </footer>
+
+  <script>
+    (function(){
+      const form = document.getElementById('contactForm');
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        alert('Thanks! Your message has been sent. We will contact you soon.');
+        window.location.href = 'index.html';
+      });
+    })();
+  </script>
+</body>
+</html>

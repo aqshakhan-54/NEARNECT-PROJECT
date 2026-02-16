@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Search - NearNect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --secondary: #E91E63;
+      --success: #00b894;
+      --warning: #fdcb6e;
+      --danger: #e17055;
+      --info: #74b9ff;
+      --dark: #2d3436;
+      --light: #ddd6fe;
+      --bg: #f8f9fa;
+      --text: #2d3436;
+      --border: #e9ecef;
+      --shadow: 0 4px 6px rgba(0,0,0,0.1);
+      --radius: 12px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .search-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .search-header {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    .search-header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .search-header p {
+      color: #6c757d;
+      font-size: 1.1rem;
+    }
+
+    .main-search {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .search-input {
+      padding: 15px 20px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(108,92,231,0.1);
+    }
+
+    .location-input {
+      padding: 15px 20px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-size: 1rem;
+      min-width: 200px;
+    }
+
+    .search-btn {
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(108,92,231,0.4);
+    }
+
+    .search-content {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 30px;
+    }
+
+    .filters-panel {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 25px;
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+
+    .filters-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .filters-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .clear-filters {
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .clear-filters:hover {
+      text-decoration: underline;
+    }
+
+    .filter-section {
+      margin-bottom: 25px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .filter-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .filter-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-title i {
+      color: var(--primary);
+    }
+
+    .filter-group {
+      margin-bottom: 15px;
+    }
+
+    .filter-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .filter-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    .filter-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--primary);
+    }
+
+    .checkbox-group label {
+      margin: 0;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .range-slider {
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    .range-values {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #6c757d;
+    }
+
+    .price-range {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .price-input {
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+
+    .results-panel {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .results-header {
+      padding: 25px 30px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .results-info {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .results-count {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .results-time {
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+
+    .results-controls {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .view-toggle {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .view-btn {
+      padding: 8px 12px;
+      border: none;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .view-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .sort-dropdown {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: white;
+      font-size: 0.9rem;
+    }
+
+    .results-grid {
+      padding: 30px;
+    }
+
+    .service-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .service-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .service-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .service-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .service-info {
+      flex: 1;
+    }
+
+    .service-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+      color: var(--text);
+    }
+
+    .service-skill {
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+    }
+
+    .service-rating {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .stars {
+      color: #ffc107;
+      font-size: 0.9rem;
+    }
+
+    .rating-text {
+      font-size: 0.8rem;
+      color: #6c757d;
+    }
+
+    .service-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .service-distance {
+      font-size: 0.9rem;
+      color: #6c757d;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .service-price {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .service-description {
+      color: #6c757d;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      margin-bottom: 15px;
+    }
+
+    .service-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .service-tag {
+      background: rgba(108,92,231,0.1);
+      color: var(--primary);
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .service-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(108,92,231,0.3);
+    }
+
+    .btn-secondary {
+      background: #f8f9fa;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6c757d;
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    .empty-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    .empty-description {
+      margin-bottom: 30px;
+    }
+
+    .suggestions {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    .suggestions h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: var(--text);
+    }
+
+    .suggestion-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .suggestion-tag {
+      background: white;
+      color: var(--primary);
+      padding: 6px 12px;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .suggestion-tag:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .search-content {
+        grid-template-columns: 1fr;
+      }
+
+      .main-search {
+        grid-template-columns: 1fr;
+      }
+
+      .results-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+      }
+
+      .service-header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .service-meta {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+      }
+    }
+
+    /* Loading states */
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Toast notifications */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--success);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      z-index: 1000;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.error {
+      background: var(--danger);
+    }
+
+    .toast.warning {
+      background: var(--warning);
+    }
+
+    /* Filter chips */
+    .active-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .filter-chip {
+      background: var(--primary);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-chip .remove {
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="search-container">
+    <!-- Search Header -->
+    <div class="search-header">
+      <h1><i class="fas fa-search"></i> Advanced Search</h1>
+      <p>Find the perfect service provider with our advanced filtering options</p>
+      
+      <div class="main-search">
+        <input type="text" class="search-input" placeholder="What service do you need?" id="mainSearch">
+        <input type="text" class="location-input" placeholder="Your location" id="locationInput">
+        <button class="search-btn" onclick="performSearch()">
+          <i class="fas fa-search"></i>
+          Search
+        </button>
+      </div>
+
+      <div class="active-filters" id="activeFilters">
+        <!-- Active filter chips will be added here -->
+      </div>
+    </div>
+
+    <div class="search-content">
+      <!-- Filters Panel -->
+      <div class="filters-panel">
+        <div class="filters-header">
+          <div class="filters-title">Filters</div>
+          <a href="#" class="clear-filters" onclick="clearAllFilters()">Clear All</a>
+        </div>
+
+        <!-- Service Category -->
+        <div class="filter-section">
+          <div class="filter-title">
+            <i class="fas fa-tags"></i>
+            Service Category
+          </div>
+          <div class="filter-group">
+            <div class="checkbox-group">
+              <input type="checkbox" id="cat-plumber" value="plumber">
+              <label for="cat-plumber">Plumber</label>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="cat-electrician" value="electrician">
+              <label for="cat-electrician">Electrician</label>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="cat-painter" value="painter">
+              <label for="cat-painter">Painter</label>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="cat-mechanic" value="mechanic">
+              <label for="cat-mechanic">Mechanic</label>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="cat-home-food" value="home food">
+              <label for="cat-home-food">Home Food</label>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="cat-beauty" value="beauty">
+              <label for="cat-beauty">Beauty Expert</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Price Range -->
+        <div class="filter-section">
+          <div class="filter-title">
+            <i class="fas fa-rupee-sign"></i>
+            Price Range
+          </div>
+          <div class="price-range">
+            <input type="number" class="price-input" placeholder="Min" id="minPrice">
+            <input type="number" class="price-input" placeholder="Max" id="maxPrice">
+          </div>
+          <div class="range-values">
+            <span>₹0</span>
+            <span>₹2000+</span>
+          </div>
+        </div>
+
+        <!-- Distance -->
+        <div class="filter-section">
+          <div class="filter-title">
+            <i class="fas fa-map-marker-alt"></i>
+            Distance
+          </div>
+          <input type="range" class="range-slider" id="distanceSlider" min="1" max="20" value="10">
+          <div class="range-values">
+            <span>1 km</span>
+            <span id="distanceValue">10 km</span>
+          </div>
+        </div>
+
+        <!-- Rating -->
+        <div class="filter-section">
+          <div class="filter-title">
+            <i class="fas fa-star"></i>
+            Minimum Rating
+          </div>
+          <div class="filter-group">
+            <div class="checkbox-group">
+              <input type="checkbox" id="rating-5" value="5">
+              <label for="rating-5">5 Stars</label>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="rating-4" value="4">
+              <label for="rating-4">4+ Stars</label>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="rating-3" value="3">
+              <label for="rating-3">3+ Stars</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Experience -->
+        <div class="filter-section">
+          <div class="filter-title">
+            <i class="fas fa-briefcase"></i>
+            Experience
+          </div>
+          <div class="filter-group">
+            <div class="checkbox-group">
+              <input type="checkbox" id="exp-10" value="10+">
+              <label for="exp-10">10+ years</label>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="exp-5" value="5-10">
+              <label for="exp-5">5-10 years</label>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="exp-1" value="1-5">
+              <label for="exp-1">1-5 years</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Availability -->
+        <div class="filter-section">
+          <div class="filter-title">
+            <i class="fas fa-clock"></i>
+            Availability
+          </div>
+          <div class="filter-group">
+            <div class="checkbox-group">
+              <input type="checkbox" id="avail-now" value="now">
+              <label for="avail-now">Available Now</label>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="avail-today" value="today">
+              <label for="avail-today">Available Today</label>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="avail-weekend" value="weekend">
+              <label for="avail-weekend">Weekend Available</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Verification Status -->
+        <div class="filter-section">
+          <div class="filter-title">
+            <i class="fas fa-shield-alt"></i>
+            Verification
+          </div>
+          <div class="filter-group">
+            <div class="checkbox-group">
+              <input type="checkbox" id="verified" value="verified">
+              <label for="verified">Verified Only</label>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="background-checked" value="background-checked">
+              <label for="background-checked">Background Checked</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Panel -->
+      <div class="results-panel">
+        <div class="results-header">
+          <div class="results-info">
+            <div class="results-count" id="resultsCount">6 services found</div>
+            <div class="results-time" id="resultsTime">in 0.2 seconds</div>
+          </div>
+          <div class="results-controls">
+            <div class="view-toggle">
+              <button class="view-btn active" onclick="setView('grid')">
+                <i class="fas fa-th"></i>
+              </button>
+              <button class="view-btn" onclick="setView('list')">
+                <i class="fas fa-list"></i>
+              </button>
+            </div>
+            <select class="sort-dropdown" id="sortBy" onchange="sortResults()">
+              <option value="relevance">Sort by Relevance</option>
+              <option value="distance">Sort by Distance</option>
+              <option value="rating">Sort by Rating</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="experience">Sort by Experience</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="results-grid" id="resultsGrid">
+          <!-- Service cards will be loaded here -->
+        </div>
+
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <div class="empty-icon">🔍</div>
+          <h3 class="empty-title">No services found</h3>
+          <p class="empty-description">Try adjusting your search criteria or filters</p>
+          <button class="btn btn-primary" onclick="clearAllFilters()">Clear Filters</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    class AdvancedSearch {
+      constructor() {
+        this.services = [];
+        this.filteredServices = [];
+        this.currentView = 'grid';
+        this.activeFilters = {};
+        this.init();
+      }
+
+      init() {
+        this.loadServices();
+        this.setupEventListeners();
+        this.renderResults();
+        this.updateActiveFilters();
+      }
+
+      loadServices() {
+        // Load services from localStorage or use demo data
+        const defaultServices = [
+          { id: "w1", name: "Ali Khan", skill: "Plumber", price: 500, img: "https://images.unsplash.com/photo-1581091014534-3e89df7cf2a5?q=80&w=100&h=100&auto=format&fit=crop", distanceKm: 2.5, rating: 4.6, description: "Expert in leak fixes, fitting, and bathroom installations.", experience: "8+ years", completedJobs: 150, status: "available", verified: true, backgroundChecked: true, tags: ["Emergency", "24/7", "Licensed"] },
+          { id: "w2", name: "Sara Patel", skill: "Mehndi Artist", price: 1200, img: "https://images.unsplash.com/photo-1564540583246-934409427776?q=80&w=100&h=100&auto=format&fit=crop", distanceKm: 4.0, rating: 4.9, description: "Bridal and party mehndi with custom designs.", experience: "5+ years", completedJobs: 200, status: "available", verified: true, backgroundChecked: true, tags: ["Bridal", "Party", "Custom Design"] },
+          { id: "w3", name: "Rohit Sharma", skill: "Painter", price: 800, img: "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?q=80&w=100&h=100&auto=format&fit=crop", distanceKm: 1.5, rating: 4.4, description: "Interior/exterior painting, quick finish, neat work.", experience: "6+ years", completedJobs: 120, status: "busy", verified: false, backgroundChecked: false, tags: ["Interior", "Exterior", "Quick Service"] },
+          { id: "w4", name: "Rajesh Kumar", skill: "Electrician", price: 600, img: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=100&h=100&auto=format&fit=crop", distanceKm: 3.2, rating: 4.7, description: "Expert in wiring, repairs, and electrical installations.", experience: "10+ years", completedJobs: 180, status: "available", verified: true, backgroundChecked: true, tags: ["Wiring", "Repairs", "Installation"] },
+          { id: "w5", name: "Priya Singh", skill: "Home Food", price: 400, img: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?q=80&w=100&h=100&auto=format&fit=crop", distanceKm: 1.8, rating: 4.8, description: "Delicious home-cooked meals, fresh and hygienic.", experience: "3+ years", completedJobs: 300, status: "available", verified: true, backgroundChecked: false, tags: ["Home Cooked", "Fresh", "Hygienic"] },
+          { id: "w6", name: "Neha Gupta", skill: "Beauty Expert", price: 800, img: "https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=100&h=100&auto=format&fit=crop", distanceKm: 2.8, rating: 4.8, description: "Professional beauty services, makeup, and skincare.", experience: "4+ years", completedJobs: 250, status: "offline", verified: false, backgroundChecked: false, tags: ["Makeup", "Skincare", "Professional"] }
+        ];
+
+        const stored = localStorage.getItem('nearnect_workers');
+        if (stored) {
+          const storedServices = JSON.parse(stored);
+          this.services = [...defaultServices, ...storedServices];
+        } else {
+          this.services = defaultServices;
+        }
+
+        this.filteredServices = [...this.services];
+      }
+
+      setupEventListeners() {
+        // Search input
+        document.getElementById('mainSearch').addEventListener('input', () => {
+          this.performSearch();
+        });
+
+        // Location input
+        document.getElementById('locationInput').addEventListener('input', () => {
+          this.performSearch();
+        });
+
+        // Distance slider
+        document.getElementById('distanceSlider').addEventListener('input', (e) => {
+          document.getElementById('distanceValue').textContent = e.target.value + ' km';
+          this.performSearch();
+        });
+
+        // All filter inputs
+        const filterInputs = document.querySelectorAll('input[type="checkbox"], input[type="number"]');
+        filterInputs.forEach(input => {
+          input.addEventListener('change', () => {
+            this.performSearch();
+            this.updateActiveFilters();
+          });
+        });
+      }
+
+      performSearch() {
+        const searchTerm = document.getElementById('mainSearch').value.toLowerCase();
+        const location = document.getElementById('locationInput').value.toLowerCase();
+        
+        let filtered = this.services.filter(service => {
+          // Text search
+          const matchesSearch = !searchTerm || 
+            service.name.toLowerCase().includes(searchTerm) ||
+            service.skill.toLowerCase().includes(searchTerm) ||
+            service.description.toLowerCase().includes(searchTerm) ||
+            service.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+
+          // Location search
+          const matchesLocation = !location || 
+            service.name.toLowerCase().includes(location);
+
+          return matchesSearch && matchesLocation;
+        });
+
+        // Apply filters
+        filtered = this.applyFilters(filtered);
+        
+        this.filteredServices = filtered;
+        this.renderResults();
+        this.updateResultsInfo();
+      }
+
+      applyFilters(services) {
+        let filtered = [...services];
+
+        // Category filter
+        const selectedCategories = Array.from(document.querySelectorAll('input[type="checkbox"][id^="cat-"]:checked')).map(cb => cb.value);
+        if (selectedCategories.length > 0) {
+          filtered = filtered.filter(service => 
+            selectedCategories.some(cat => service.skill.toLowerCase().includes(cat))
+          );
+        }
+
+        // Price filter
+        const minPrice = parseFloat(document.getElementById('minPrice').value) || 0;
+        const maxPrice = parseFloat(document.getElementById('maxPrice').value) || Infinity;
+        filtered = filtered.filter(service => service.price >= minPrice && service.price <= maxPrice);
+
+        // Distance filter
+        const maxDistance = parseFloat(document.getElementById('distanceSlider').value);
+        filtered = filtered.filter(service => service.distanceKm <= maxDistance);
+
+        // Rating filter
+        const selectedRatings = Array.from(document.querySelectorAll('input[type="checkbox"][id^="rating-"]:checked')).map(cb => parseFloat(cb.value));
+        if (selectedRatings.length > 0) {
+          filtered = filtered.filter(service => 
+            selectedRatings.some(rating => service.rating >= rating)
+          );
+        }
+
+        // Experience filter
+        const selectedExperience = Array.from(document.querySelectorAll('input[type="checkbox"][id^="exp-"]:checked')).map(cb => cb.value);
+        if (selectedExperience.length > 0) {
+          filtered = filtered.filter(service => {
+            const exp = service.experience;
+            return selectedExperience.some(sel => {
+              if (sel === '10+') return exp.includes('10+');
+              if (sel === '5-10') return exp.includes('5') || exp.includes('6') || exp.includes('7') || exp.includes('8') || exp.includes('9');
+              if (sel === '1-5') return exp.includes('1') || exp.includes('2') || exp.includes('3') || exp.includes('4') || exp.includes('5');
+              return false;
+            });
+          });
+        }
+
+        // Verification filter
+        if (document.getElementById('verified').checked) {
+          filtered = filtered.filter(service => service.verified);
+        }
+
+        if (document.getElementById('background-checked').checked) {
+          filtered = filtered.filter(service => service.backgroundChecked);
+        }
+
+        return filtered;
+      }
+
+      renderResults() {
+        const container = document.getElementById('resultsGrid');
+        const emptyState = document.getElementById('emptyState');
+
+        if (this.filteredServices.length === 0) {
+          container.style.display = 'none';
+          emptyState.style.display = 'block';
+          return;
+        }
+
+        container.style.display = 'block';
+        emptyState.style.display = 'none';
+
+        container.innerHTML = this.filteredServices.map(service => `
+          <div class="service-card" onclick="viewService('${service.id}')">
+            <div class="service-header">
+              <img src="${service.img}" alt="${service.name}" class="service-avatar">
+              <div class="service-info">
+                <div class="service-name">${service.name}</div>
+                <div class="service-skill">${service.skill}</div>
+                <div class="service-rating">
+                  <span class="stars">${this.getStars(service.rating)}</span>
+                  <span class="rating-text">${service.rating} (${service.completedJobs} reviews)</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="service-meta">
+              <div class="service-distance">
+                <i class="fas fa-map-marker-alt"></i>
+                ${service.distanceKm} km away
+              </div>
+              <div class="service-price">₹${service.price}</div>
+            </div>
+            
+            <div class="service-description">${service.description}</div>
+            
+            <div class="service-tags">
+              ${service.tags.map(tag => `<span class="service-tag">${tag}</span>`).join('')}
+              ${service.verified ? '<span class="service-tag" style="background: #d4edda; color: #155724;">Verified</span>' : ''}
+              ${service.backgroundChecked ? '<span class="service-tag" style="background: #d1ecf1; color: #0c5460;">Background Checked</span>' : ''}
+            </div>
+            
+            <div class="service-actions">
+              <button class="btn btn-primary" onclick="event.stopPropagation(); bookService('${service.id}')">
+                <i class="fas fa-calendar-plus"></i>
+                Book Now
+              </button>
+              <button class="btn btn-secondary" onclick="event.stopPropagation(); viewProfile('${service.id}')">
+                <i class="fas fa-user"></i>
+                View Profile
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      updateActiveFilters() {
+        const container = document.getElementById('activeFilters');
+        const activeFilters = [];
+
+        // Category filters
+        const selectedCategories = Array.from(document.querySelectorAll('input[type="checkbox"][id^="cat-"]:checked')).map(cb => cb.value);
+        selectedCategories.forEach(cat => {
+          activeFilters.push({
+            type: 'category',
+            value: cat,
+            label: `Category: ${cat}`
+          });
+        });
+
+        // Price filters
+        const minPrice = document.getElementById('minPrice').value;
+        const maxPrice = document.getElementById('maxPrice').value;
+        if (minPrice || maxPrice) {
+          activeFilters.push({
+            type: 'price',
+            value: `${minPrice || 0}-${maxPrice || '∞'}`,
+            label: `Price: ₹${minPrice || 0} - ₹${maxPrice || '∞'}`
+          });
+        }
+
+        // Distance filter
+        const distance = document.getElementById('distanceSlider').value;
+        if (distance < 20) {
+          activeFilters.push({
+            type: 'distance',
+            value: distance,
+            label: `Distance: ${distance} km`
+          });
+        }
+
+        // Rating filters
+        const selectedRatings = Array.from(document.querySelectorAll('input[type="checkbox"][id^="rating-"]:checked')).map(cb => cb.value);
+        selectedRatings.forEach(rating => {
+          activeFilters.push({
+            type: 'rating',
+            value: rating,
+            label: `Rating: ${rating}+ stars`
+          });
+        });
+
+        // Verification filters
+        if (document.getElementById('verified').checked) {
+          activeFilters.push({
+            type: 'verified',
+            value: 'verified',
+            label: 'Verified Only'
+          });
+        }
+
+        if (document.getElementById('background-checked').checked) {
+          activeFilters.push({
+            type: 'background-checked',
+            value: 'background-checked',
+            label: 'Background Checked'
+          });
+        };
+
+        container.innerHTML = activeFilters.map(filter => `
+          <div class="filter-chip">
+            ${filter.label}
+            <span class="remove" onclick="removeFilter('${filter.type}', '${filter.value}')">×</span>
+          </div>
+        `).join('');
+      }
+
+      updateResultsInfo() {
+        const count = this.filteredServices.length;
+        document.getElementById('resultsCount').textContent = `${count} service${count !== 1 ? 's' : ''} found`;
+        
+        const startTime = performance.now();
+        setTimeout(() => {
+          const endTime = performance.now();
+          const time = ((endTime - startTime) / 1000).toFixed(1);
+          document.getElementById('resultsTime').textContent = `in ${time} seconds`;
+        }, 100);
+      }
+
+      sortResults() {
+        const sortBy = document.getElementById('sortBy').value;
+        
+        this.filteredServices.sort((a, b) => {
+          switch (sortBy) {
+            case 'distance':
+              return a.distanceKm - b.distanceKm;
+            case 'rating':
+              return b.rating - a.rating;
+            case 'price-low':
+              return a.price - b.price;
+            case 'price-high':
+              return b.price - a.price;
+            case 'experience':
+              return b.completedJobs - a.completedJobs;
+            default:
+              return 0;
+          }
+        });
+        
+        this.renderResults();
+      }
+
+      getStars(rating) {
+        const full = Math.floor(rating);
+        const half = rating - full >= 0.5 ? 1 : 0;
+        const empty = 5 - full - half;
+        return '★'.repeat(full) + (half ? '☆' : '') + '☆'.repeat(empty);
+      }
+
+      showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = `toast ${type} show`;
+        
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => {
+            toast.textContent = '';
+          }, 300);
+        }, 3000);
+      }
+    }
+
+    // Global functions
+    function performSearch() {
+      if (window.advancedSearch) {
+        window.advancedSearch.performSearch();
+      }
+    }
+
+    function clearAllFilters() {
+      document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+      document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
+      document.getElementById('distanceSlider').value = 10;
+      document.getElementById('distanceValue').textContent = '10 km';
+      
+      if (window.advancedSearch) {
+        window.advancedSearch.performSearch();
+        window.advancedSearch.updateActiveFilters();
+      }
+    }
+
+    function removeFilter(type, value) {
+      if (type === 'category') {
+        document.getElementById(`cat-${value.replace(' ', '-')}`).checked = false;
+      } else if (type === 'rating') {
+        document.getElementById(`rating-${value}`).checked = false;
+      } else if (type === 'verified') {
+        document.getElementById('verified').checked = false;
+      } else if (type === 'background-checked') {
+        document.getElementById('background-checked').checked = false;
+      } else if (type === 'price') {
+        document.getElementById('minPrice').value = '';
+        document.getElementById('maxPrice').value = '';
+      } else if (type === 'distance') {
+        document.getElementById('distanceSlider').value = 20;
+        document.getElementById('distanceValue').textContent = '20 km';
+      }
+      
+      if (window.advancedSearch) {
+        window.advancedSearch.performSearch();
+        window.advancedSearch.updateActiveFilters();
+      }
+    }
+
+    function setView(view) {
+      document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      if (window.advancedSearch) {
+        window.advancedSearch.currentView = view;
+        window.advancedSearch.renderResults();
+      }
+    }
+
+    function sortResults() {
+      if (window.advancedSearch) {
+        window.advancedSearch.sortResults();
+      }
+    }
+
+    function viewService(serviceId) {
+      window.location.href = `user.html?service=${serviceId}`;
+    }
+
+    function bookService(serviceId) {
+      // Find the selected service from current search results
+      const svc = (window.advancedSearch?.filteredServices || []).find(s => s.id === serviceId)
+        || (window.advancedSearch?.services || []).find(s => s.id === serviceId);
+      if (!svc) {
+        alert('Could not find selected service. Please try again.');
+        return;
+      }
+
+      // Map service to the worker shape used by booking.html
+      const workerPayload = {
+        id: svc.workerId || svc.id,
+        name: svc.name,
+        skill: svc.skill,
+        price: svc.price,
+        img: svc.img,
+        availability: svc.availability || '',
+        description: svc.description || '',
+        city: svc.city || ''
+      };
+
+      try {
+        localStorage.setItem('nearnect_selected_worker', JSON.stringify(workerPayload));
+      } catch (_) {}
+
+      // Go to booking flow
+      window.location.href = 'booking.html';
+    }
+
+    function viewProfile(serviceId) {
+      // Redirect to professional worker profile page
+      window.location.href = `worker-profile.html?id=${encodeURIComponent(serviceId)}`;
+    }
+
+    // Initialize advanced search
+    document.addEventListener('DOMContentLoaded', () => {
+      window.advancedSearch = new AdvancedSearch();
+    });
+  </script>
+</body>
+</html>
