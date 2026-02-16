@@ -11,9 +11,13 @@ const router = express.Router();
 
 // Initialize Razorpay (use environment variables in production)
 const razorpayInstance = new razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_1DP5mmOlF5G5ag', // Replace with your key
-  key_secret: process.env.RAZORPAY_KEY_SECRET || 'your_secret_key_here' // Replace with your secret
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET
 });
+
+if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+  console.warn('⚠️  Razorpay keys (RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET) are not set. Payments will not work without them.');
+}
 
 // All routes require authentication
 router.use(authenticate);

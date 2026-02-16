@@ -6,8 +6,11 @@ const { sendWelcomeEmail } = require('../services/emailService');
 
 const router = express.Router();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_change_me';
+const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+if (!JWT_SECRET) {
+  console.warn('⚠️  JWT_SECRET is not set. Set JWT_SECRET in your environment for secure tokens.');
+}
 
 // POST /auth/signup
 router.post('/signup', async (req, res) => {

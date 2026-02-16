@@ -1,7 +1,10 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_change_me';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.warn('⚠️  JWT_SECRET is not set. Set JWT_SECRET in your environment for secure tokens.');
+}
 
 // Middleware to verify JWT token
 const authenticate = async (req, res, next) => {
